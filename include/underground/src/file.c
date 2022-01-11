@@ -7,6 +7,7 @@
 
 #ifdef PIKA_UNIX
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 #endif
 
@@ -183,5 +184,46 @@ list_files_ignore: ;
 
     free(snapshots.list);
     return number;
+}
+
+pika_bool file_mem_copy(pika_char *filename, String_UTF8 *dest, ushort buffSize) {
+    #ifdef PIKA_UNIX
+    int fd = open(filename, O_RDONLY);
+    if(fd == -1)
+        return pika_false;
+    uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
+
+    ssize_t bytesRead;
+    pika_bool loop = pika_true;
+    while(loop) {
+        bytesRead = read(fd, buffer, buffSize);
+        switch(bytesRead) {
+            case -1:{
+                close(fd);
+                clear_strutf8(dest);
+                return pika_false;
+            }
+            case 0:{
+                loop = pika_false;
+                break;
+            }
+            default:{
+                dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar));
+                memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
+                dest->data.length += bytesRead;
+                break;
+            }
+        }
+    }
+    close(fd);
+    dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
+    dest->bytes[dest->data.length] = '\0';
+    dest->length = strutf8_length(dest);
+    // TODO: file_mem_copy portage Windows
+    #else
+
+    #endif
+
+    return pika_true;
 }
 

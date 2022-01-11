@@ -100,7 +100,15 @@ ulonglong strutf8_index_by_index(unsigned char *pArrayStart, unsigned char *pArr
 */
 unsigned char *strutf8_search_from_end(String_UTF8 *utf, unsigned char *research);
 
-unsigned char *strutf8_search(String_UTF8 *utf, unsigned char *research, unsigned long long *internalIndex);
+/*
+        Recherche la sous-chaîne dans la chaîne UTF-8.
+
+        Retourne l'adresse trouvée en cas de trouvaille,
+        sinon NULL.
+
+        internalIndex sera égal à la longueur de la recherche + 1.
+*/
+uchar *strutf8_search(String_UTF8 *utf, uchar *research, ulonglong*internalIndex);
 
 
 /* ===== Vérificateurs ===== */

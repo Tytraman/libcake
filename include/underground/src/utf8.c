@@ -343,18 +343,18 @@ pika_bool strutf8_start_with(String_UTF8 *utf, unsigned char *research) {
     return pika_true;
 }
 
-unsigned char *strutf8_search(String_UTF8 *utf, unsigned char *research, unsigned long long *internalIndex) {
+uchar *strutf8_search(String_UTF8 *utf, uchar *research, ulonglong *internalIndex) {
     unsigned long long length = str_count(research);
     if(length > utf->data.length - *internalIndex) return NULL;
 
     unsigned long long j = 0;
 
-    unsigned char *ptr;
+    uchar *ptr;
 
     for(; *internalIndex < utf->data.length; ++(*internalIndex)) {
         if(utf->bytes[*internalIndex] == research[j]) {
             if(j == 0)
-                ptr = &utf->bytes[*internalIndex + 1];
+                ptr = &utf->bytes[*internalIndex];
             j++;
             if(j == length) {
                 ++(*internalIndex);
@@ -363,7 +363,6 @@ unsigned char *strutf8_search(String_UTF8 *utf, unsigned char *research, unsigne
         }else
             j = 0;
     }
-
 
     return NULL;
 }

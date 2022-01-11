@@ -1,3 +1,5 @@
 .vscode/
 compile.sh
 compile.cmd
+pika
+pika.exe

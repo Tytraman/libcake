@@ -53,5 +53,6 @@ void add_file_element(String_UTF8 *element, FileList *dest);
 
 unsigned long long list_files_recursive(pika_char *path, FileList *files, FileList *folders, ListFileFilter filter);
 
+pika_bool file_mem_copy(pika_char *filename, String_UTF8 *dest, ushort buffSize);
 
 #endif

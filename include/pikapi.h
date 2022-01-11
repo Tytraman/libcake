@@ -14,5 +14,6 @@
 #include "underground/signal.h"
 #include "underground/process.h"
 #include "underground/console.h"
+#include "underground/option.h"
 
 #endif
