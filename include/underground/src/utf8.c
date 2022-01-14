@@ -484,3 +484,10 @@ void strutf8_insert_char_internal(String_UTF8 *utf, ulonglong internalIndex, cha
     if(increaseLength)
         (utf->length)++;
 }
+
+pika_bool strutf8_equals(String_UTF8 *utf, char *compare) {
+    if(str_count(compare) != utf->data.length)
+        return pika_false;
+
+    return memcmp(utf->bytes, compare, utf->data.length) == 0;
+}

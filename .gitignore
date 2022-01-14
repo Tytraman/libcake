@@ -3,3 +3,4 @@ compile.sh
 compile.cmd
 pika
 pika.exe
+main.c

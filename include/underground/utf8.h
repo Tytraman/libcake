@@ -110,6 +110,8 @@ unsigned char *strutf8_search_from_end(String_UTF8 *utf, unsigned char *research
 */
 uchar *strutf8_search(String_UTF8 *utf, uchar *research, ulonglong*internalIndex);
 
+pika_bool strutf8_equals(String_UTF8 *utf, char *compare);
+
 
 /* ===== Vérificateurs ===== */
 
