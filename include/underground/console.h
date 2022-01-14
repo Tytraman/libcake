@@ -12,6 +12,7 @@
 typedef struct winsize ConsoleSize;
 
 #define get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
+#define console_get_current_directory() getcwd(NULL, 0)
 #else
 typedef struct ConsoleSize {
     short ws_col;

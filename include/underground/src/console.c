@@ -609,4 +609,3 @@ void console_enable_ansi_sequence() {
     SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), consoleMode);
 }
 #endif
-
