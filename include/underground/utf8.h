@@ -124,12 +124,20 @@ pika_bool str_starts_with(const char *src, const char *str);
 
 unsigned long long strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, unsigned char *delim);
 
+/* ===== Remplacement ===== */
+
+/*
+        Remplace toutes les occurences de la sous-chaîne dans la chaîne.
+
+        Retourne le nombre d'occurences remplacées.
+*/
+ulonglong strutf8_replace_all(String_UTF8 *utf, uchar *old, uchar *replacement);
+
 
 /* ===== Autres ===== */
 
 unsigned long long strutf8_wchar_array_calc_size(wchar_t *str);
 unsigned long long strutf8_length(String_UTF8 *utf);
 unsigned long long str_count(char *str);
-void strutf8_getline(String_UTF8 *dest);
 
 #endif

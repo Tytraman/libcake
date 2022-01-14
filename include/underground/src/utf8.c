@@ -491,3 +491,42 @@ pika_bool strutf8_equals(String_UTF8 *utf, char *compare) {
 
     return memcmp(utf->bytes, compare, utf->data.length) == 0;
 }
+
+ulonglong strutf8_replace_all(String_UTF8 *utf, uchar *old, uchar *replacement) {
+    ulonglong number = 0;
+    ulonglong oldLength = str_count(old);
+    ulonglong replacementLength = str_count(replacement);
+    ulonglong diff = 0;
+    uchar appendMode = 0;
+    if(oldLength > replacementLength) {
+        appendMode = 1;
+        diff = oldLength - replacementLength;
+    }else if(replacementLength > oldLength) {
+        appendMode = 2;
+        diff = replacementLength - oldLength;
+    }
+    ulonglong internalIndex = 0;
+    uchar *ptr;
+    ulonglong tempIndex;
+    while((ptr = strutf8_search(utf, old, &internalIndex)) != NULL) {
+        tempIndex = ptr - utf->bytes;
+        if(appendMode == 1) {
+            // On diminue la longueur
+            memcpy(ptr + replacementLength, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
+            utf->data.length -= diff;
+            utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+            utf->bytes[utf->data.length] = '\0';            
+        }else if(appendMode == 2) {
+            // On augmente la longueur
+            utf->data.length += diff;
+            utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+            memcpy(ptr + replacementLength, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
+            utf->bytes[utf->data.length] = '\0';
+        }
+        memcpy(&utf->bytes[tempIndex], replacement, replacementLength * sizeof(uchar));
+        number++;
+    }
+    if(number > 0)
+        utf->length = strutf8_length(utf);
+    return number;
+}

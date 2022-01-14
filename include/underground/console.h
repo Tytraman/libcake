@@ -12,6 +12,8 @@
 typedef struct winsize ConsoleSize;
 
 #define get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
+
+// Il faut free le buffer retourné.
 #define console_get_current_directory() getcwd(NULL, 0)
 #else
 typedef struct ConsoleSize {
