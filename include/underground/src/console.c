@@ -121,6 +121,7 @@ void set_console_cursor_pos(short x, short y) {
     #endif
 }
 
+#ifdef GTKJLDNJKLDJ
 void get_console_line(String_UTF8 *utf) {
     if(read_mode)
         return;
@@ -463,6 +464,7 @@ void get_console_line(String_UTF8 *utf) {
     #endif
     read_mode = pika_false;
 }
+#endif
 
 void console_clear_screen() {
     char sequence[] = { 0x1B, '[', 'H', 0x1B, '[', 'J' };

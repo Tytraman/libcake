@@ -4,11 +4,15 @@
 #include "def.h"
 #include "utf16.h"
 
+// Données internes utilisées par String_UTF8.
+// TODO: UTF_Data -> retirer byteSize
 typedef struct UTF_Data {
-    unsigned long long length;
-    unsigned char byteSize;
+    ulonglong length;
+    uchar byteSize;
 } UTF_Data;
 
+
+// TODO: String_UTF8 -> rendre la structure totalement dynamique.
 typedef struct String_UTF8 {
     UTF_Data data;
     unsigned long long length;
@@ -17,29 +21,66 @@ typedef struct String_UTF8 {
 
 /* ===== Initialisation ===== */
 
+/*
+        Initialise toutes les valeurs de la structure String_UTF8.
+
+        A utiliser une seule fois après chaque déclaration d'une variable String_UTF8,
+        sauf cas exceptionnels où certaines fonctions le spécifie.
+*/
 void create_strutf8(String_UTF8 *utf);
+
+// Copie une chaîne UTF-8 vers une autre.
 void strutf8_copy(String_UTF8 *dest, String_UTF8 *src);
 
 
 /* ===== Ajout ===== */
 
-int8 strutf8_add_wchar(String_UTF8 *dest, wchar_t value);
-char strutf8_add_wchar_array(String_UTF8 *dest, wchar_t *str);
-void strutf8_add_char(String_UTF8 *dest, char value, pika_bool increaseLength);
-void strutf8_add_array_char(String_UTF8 *dest, char *str);
-int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value);
-void strutf8_insert_char(String_UTF8 *utf, ulonglong index, char value);
-void strutf8_insert_char_internal(String_UTF8 *utf, ulonglong internalIndex, char value, pika_bool increaseLength);
 
+/*
+        Ajoute un caractère unicode dans la chaîne UTF-8.
+
+        Retourne le nombre d'octets UTF-8 utilisés pour stocker le caractère.
+*/
+int8 strutf8_add_wchar(String_UTF8 *dest, wchar_t value);
+
+/*
+        Ajoute une chaîne de caractères unicode dans la chaîne UTF-8.
+*/
+char strutf8_add_wchar_array(String_UTF8 *dest, const wchar_t *str);
+
+/*
+        Ajoute une chaîne de caractères dans la chaîne UTF-8.
+        La chaîne peut contenir des caractères UTF-8 voir même uniquement un caractère UTF-8.
+*/
+void strutf8_add_char_array(String_UTF8 *dest, const uchar *str);
+
+/*
+        Insère un caractère unicode dans la chaîne UTF-8.
+
+        Retourne le nombre d'octets UTF-8 utilisés pour stocker le caractère.
+*/
+int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value);
+
+// TODO: strutf8_insert_char_array
+
+
+/* ===== Modification ===== */
+
+// TODO: strutf8_reverse -> inverse le sens de la chaîne UTF-8
 
 /* ===== Suppression ===== */
 
+/*
+        Supprime le caractère UTF-8 stocké à l'index passé.
+
+        Retourne pika_false si l'index est supérieur au nombre de caractères.
+*/
 pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index);
 
 
 /* ===== Conversion ===== */
 
-// Convertit une chaîne UTF-16 en chaîne UTF-8.
+// Convertit une chaîne UTF-8 en chaîne UTF-16.
 void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest);
 
 /*
@@ -47,17 +88,17 @@ void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest);
         aucune conversion n'est effectuée, si la chaîne de caractères
         n'est pas de l'UTF-8, des effets indésirables peuvent survenir.
 */
-void array_char_to_strutf8(char *src, String_UTF8 *dest);
+void array_char_to_strutf8(const uchar *src, String_UTF8 *dest);
 
 // Convertit une suite d'octets en une valeur numérique Unicode.
-int strutf8_decode(const unsigned char *src, char bytes);
+int strutf8_decode(const uchar *src, char bytes);
 
 /*
         Convertit un caractère UTF-16 en suite d'octets UTF-8.
 
         Retourne le nombre d'octets utilisés pour stocker le caractère.
 */
-char strutf8_wchar_to_byte(wchar_t value, unsigned char **buffer);
+char strutf8_wchar_to_byte(wchar_t value, uchar **buffer);
 
 /*
         Version avancée de strutf8_wchar_to_byte.
@@ -65,7 +106,7 @@ char strutf8_wchar_to_byte(wchar_t value, unsigned char **buffer);
         Convertit un caractère UTF-16 en suite d'octets UTF-8 et
         les stocks directement dans le buffer destination.
 */
-void strutf8_wchar_to_byte_ext(wchar_t value, unsigned char **buffer, unsigned long long *index);
+void strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index);
 
 // Convertit une chaîne UTF-16 en UTF-8.
 void strutf16_to_strutf8(String_UTF16 *src, String_UTF8 *dest);
@@ -78,6 +119,7 @@ void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest);
 
 /* ===== Cleaner ===== */
 
+// Nettoie la chaîne UTF-8 en utilisant free et en remettant les valeurs à 0 et NULL.
 void clear_strutf8(String_UTF8 *utf);
 
 
@@ -90,39 +132,47 @@ void clear_strutf8(String_UTF8 *utf);
         Permet de trouver l'adresse dans une chaîne UTF-8 par rapport à un index, étant donné qu'un caractère peut avoir plusieurs octets,
         faire utf[6] peut avoir des effets indésirables, cette fonction parcourt la chaîne et compte les index.
 */
-ulonglong strutf8_index_by_index(unsigned char *pArrayStart, unsigned char *pArrayEnd, unsigned long long utfIndex, unsigned char **pStart, unsigned char **pEnd, int *bytes);
+ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
 
 /*
-        Recherche la sous-chaîne dans la chaîne UTF-8.
+        Recherche la sous-chaîne dans la chaîne UTF-8 à partir de la fin.
 
-        Retourne l'adresse trouvée en cas de trouvaille,
-        sinon NULL.
+        Retourne l'adresse de la première occurence trouvée ou NULL en cas de non trouvaille.
+
+        TODO: strutf8_search_from_end -> ajouter internalIndex pour pouvoir looper la fonction
 */
-unsigned char *strutf8_search_from_end(String_UTF8 *utf, unsigned char *research);
+uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research);
 
 /*
-        Recherche la sous-chaîne dans la chaîne UTF-8.
+        Recherche la sous-chaîne dans la chaîne UTF-8 à partir de internalIndex en allant vers la fin de la chaîne.
 
-        Retourne l'adresse trouvée en cas de trouvaille,
-        sinon NULL.
+        Retourne l'adresse de la première occurence trouvée ou NULL en cas de non trouvaille.
 
         internalIndex sera égal à la longueur de la recherche + 1.
 */
-uchar *strutf8_search(String_UTF8 *utf, uchar *research, ulonglong*internalIndex);
-
-pika_bool strutf8_equals(String_UTF8 *utf, char *compare);
+uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 
 
 /* ===== Vérificateurs ===== */
 
-pika_bool strutf8_end_with(String_UTF8 *utf, unsigned char *str);
-pika_bool strutf8_start_with(String_UTF8 *utf, unsigned char *research);
-pika_bool str_starts_with(const char *src, const char *str);
+// Vérifie que la chaîne UTF-8 termine avec la sous-chaîne passée.
+pika_bool strutf8_end_with(String_UTF8 *utf, const uchar *str);
+// Vérifie que la chaîne UTF-8 commence avec la sous-chaîne passée.
+pika_bool strutf8_start_with(String_UTF8 *utf, const uchar *research);
+
+// Vérifie que la chaîne de caractères commence avec la sous-chaîne passée.
+pika_bool str_starts_with(const uchar *src, const uchar *str);
+
+// Vérifie que la chaîne UTF-8 soit exactement égale à la chaîne de caractères passée.
+pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare);
 
 
 /* ===== Création ===== */
 
-unsigned long long strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, unsigned char *delim);
+/*
+        TODO: strutf8_split_ptr -> refaire la fonction, copier les valeurs dans des sous String_UTF8
+*/
+ulonglong strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, const uchar *delim);
 
 /* ===== Remplacement ===== */
 
@@ -131,13 +181,17 @@ unsigned long long strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, unsig
 
         Retourne le nombre d'occurences remplacées.
 */
-ulonglong strutf8_replace_all(String_UTF8 *utf, uchar *old, uchar *replacement);
+ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *replacement);
 
 
 /* ===== Autres ===== */
 
-unsigned long long strutf8_wchar_array_calc_size(wchar_t *str);
-unsigned long long strutf8_length(String_UTF8 *utf);
-unsigned long long str_count(char *str);
+unsigned long long strutf8_wchar_array_calc_size(const wchar_t *str);
+
+// Calcule la longueur d'une chaîne UTF-8 avec un algorithme.
+ulonglong strutf8_length(String_UTF8 *utf);
+
+// Equivalent de strlen.
+ulonglong str_count(const uchar *str);
 
 #endif

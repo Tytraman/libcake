@@ -134,12 +134,12 @@ unsigned long long list_files_recursive(pika_char *path, FileList *files, FileLi
             create_strutf8(&utf8Path);
             strutf8_copy(&utf8Path, &snapshots.list[snapshots.current - 1].path);
             if(utf8Path.bytes[utf8Path.data.length - 1] != FILE_SEPARATOR)
-                strutf8_add_char(&utf8Path, FILE_SEPARATOR, pika_true);
+                strutf8_add_char_array(&utf8Path, FILE_SEPARATOR_STR);
 
             #ifdef PIKA_WINDOWS
             strutf8_add_wchar_array(&utf8Path, snapshots.list[snapshots.current - 1].dataw.cFileName);
             #else
-            strutf8_add_array_char(&utf8Path, ep->d_name);
+            strutf8_add_char_array(&utf8Path, ep->d_name);
             #endif
 
             #ifdef PIKA_UNIX

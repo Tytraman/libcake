@@ -91,6 +91,7 @@ void draw_progress_bar(unsigned int current, unsigned int target, short widthSca
 void clear_progress_bar();
 void console_update_last_pos();
 
+
 /*
     FONCTION ABANDONNEE, les efforts à fournir pour dev cette fonction sont trop énormes par rapport au gain,
     les cas d'utilisation de la fonction sont trop minimes pour réellement en avoir besoin.
@@ -116,8 +117,8 @@ void console_update_last_pos();
 
         La fonction a été faite sur le tas, elle peut avoir des effets indésirables qu'il faudra patcher lors
         de leurs découvertes.
-*/
 void get_console_line(String_UTF8 *utf);
+*/
 
 void console_hide_cursor(pika_bool value);
 void console_scroll(pika_bool up, short value);
