@@ -12,21 +12,31 @@
 
 void create_strutf8(String_UTF8 *utf) {
     utf->data.length = 0;
-    utf->data.byteSize = sizeof(uchar);
     utf->length = 0;
     utf->bytes = NULL;
 }
 
+String_UTF8 *strutf8(const uchar *value) {
+    String_UTF8 *utf = (String_UTF8 *) malloc(sizeof(String_UTF8));
+
+    utf->data.length = str_count(value);
+    utf->bytes = (uchar *) malloc(utf->data.length * sizeof(uchar) + sizeof(uchar));
+    memcpy(utf->bytes, value, utf->data.length * sizeof(uchar));
+    utf->bytes[utf->data.length] = '\0';
+    utf->length = strutf8_length(utf);
+
+    return utf;
+}
+
 void strutf8_copy(String_UTF8 *dest, String_UTF8 *src) {
     dest->data.length = src->data.length;
-    dest->data.byteSize = src->data.byteSize;
     dest->length = src->length;
     if(src->data.length == 0) {
         dest->bytes = NULL;
         return;
     }
-    dest->bytes = (unsigned char *) malloc(src->data.length * src->data.byteSize + src->data.byteSize);
-    memcpy(dest->bytes, src->bytes, src->data.length * src->data.byteSize);
+    dest->bytes = (unsigned char *) malloc(src->data.length * sizeof(uchar) + sizeof(uchar));
+    memcpy(dest->bytes, src->bytes, src->data.length * sizeof(uchar));
     dest->bytes[dest->data.length] = STR_NULL_END;
 }
 
@@ -284,28 +294,36 @@ void strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index) 
     (*index) += bytes;
 }
 
-uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research) {
+uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
+    if(*internalIndex > utf->data.length)
+        return NULL;
     size_t length = str_count(research);
+    if(*internalIndex > utf->data.length - length)
+        *internalIndex = utf->data.length - length;
     uchar *found = NULL;
 
-    ulonglong i, j, k;
-    for(i = utf->data.length - length; ; i--) {
-        if(utf->bytes[i] == research[0]) {
-            k = i + 1;
-            found = &utf->bytes[i];
+    ulonglong j, k;
+
+    while(1) {
+        if(utf->bytes[*internalIndex] == research[0]) {
+            k = *internalIndex + 1;
+            found = &utf->bytes[*internalIndex];
             for(j = 1; j < length; j++) {
                 if(utf->bytes[k++] != research[j]) {
                     found = NULL;
                     break;
                 }
             }
-            if(found)
+            if(found) {
+                if(*internalIndex != 0)
+                    (*internalIndex)--;
                 break;
+            }
         }
-        if(i == 0)
+        if(*internalIndex == 0)
             break;
+        (*internalIndex)--;
     }
-
     return found;
 }
 
@@ -367,7 +385,6 @@ ulonglong strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, const uchar *d
     while((ptr = strutf8_search(utf, delim, &internalIndex)) != NULL) {
         *dest = (String_UTF8 *) realloc(*dest, (length + 1) * sizeof(String_UTF8));
         (*dest)[length].bytes = ptr;
-        (*dest)[length].data.byteSize = utf->data.byteSize;
         (*dest)[length].data.length = internalIndex - lastInternalIndex;
         (*dest)[length].length = strutf8_length(&(*dest)[length]);
         ++length;
@@ -392,9 +409,9 @@ pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index) {
     ulonglong length = &utf->bytes[utf->data.length] - pEnd;
 
     if(length > 0)
-        memcpy(pStart, pEnd, length * utf->data.byteSize);
+        memcpy(pStart, pEnd, length * sizeof(uchar));
     (utf->data.length) -= bytes;
-    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * utf->data.byteSize + utf->data.byteSize);
+    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
     utf->bytes[utf->data.length] = '\0';
     (utf->length)--;
     return pika_true;
@@ -410,7 +427,7 @@ int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
         return -1;
 
     // On augmente la taille du buffer
-    utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + bytesNeeded) * utf->data.byteSize + utf->data.byteSize);
+    utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + bytesNeeded) * sizeof(uchar) + sizeof(uchar));
 
     uchar *pStart = NULL;
     uchar *pEnd   = NULL;
@@ -419,10 +436,10 @@ int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
 
     // On déplace vers la droite les données
     ulonglong length = utf->data.length - internalIndex;
-    memcpy(pStart + bytesNeeded, pStart, length * utf->data.byteSize);
+    memcpy(pStart + bytesNeeded, pStart, length * sizeof(uchar));
 
     // On copie les octets convertis
-    memcpy(pStart, valueUtf, bytesNeeded * utf->data.byteSize);
+    memcpy(pStart, valueUtf, bytesNeeded * sizeof(uchar));
     
     (utf->data.length) += bytesNeeded;
     utf->bytes[utf->data.length] = '\0';
@@ -476,4 +493,9 @@ ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *r
     if(number > 0)
         utf->length = strutf8_length(utf);
     return number;
+}
+
+void free_strutf8(String_UTF8 *utf) {
+    free(utf->bytes);
+    free(utf);
 }

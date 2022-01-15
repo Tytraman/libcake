@@ -5,14 +5,10 @@
 #include "utf16.h"
 
 // Données internes utilisées par String_UTF8.
-// TODO: UTF_Data -> retirer byteSize
 typedef struct UTF_Data {
     ulonglong length;
-    uchar byteSize;
 } UTF_Data;
 
-
-// TODO: String_UTF8 -> rendre la structure totalement dynamique.
 typedef struct String_UTF8 {
     UTF_Data data;
     unsigned long long length;
@@ -28,6 +24,8 @@ typedef struct String_UTF8 {
         sauf cas exceptionnels où certaines fonctions le spécifie.
 */
 void create_strutf8(String_UTF8 *utf);
+
+String_UTF8 *strutf8(const uchar *value);
 
 // Copie une chaîne UTF-8 vers une autre.
 void strutf8_copy(String_UTF8 *dest, String_UTF8 *src);
@@ -123,6 +121,14 @@ void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest);
 void clear_strutf8(String_UTF8 *utf);
 
 
+/*
+        Libère la mémoire d'un String_UTF8 dynamique.
+
+        Ne met pas les valeurs à 0 ni à NULL, la fonction n'effectue que des free.
+*/
+void free_strutf8(String_UTF8 *utf);
+
+
 /* ===== Recherches ===== */
 
 /*
@@ -139,16 +145,16 @@ ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong
 
         Retourne l'adresse de la première occurence trouvée ou NULL en cas de non trouvaille.
 
-        TODO: strutf8_search_from_end -> ajouter internalIndex pour pouvoir looper la fonction
+        internalIndex sera égal à sa valeur - le nombre de recherches - 1.
 */
-uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research);
+uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 
 /*
         Recherche la sous-chaîne dans la chaîne UTF-8 à partir de internalIndex en allant vers la fin de la chaîne.
 
         Retourne l'adresse de la première occurence trouvée ou NULL en cas de non trouvaille.
 
-        internalIndex sera égal à la longueur de la recherche + 1.
+        internalIndex sera égal à sa valeur + la longueur de la recherche + 1.
 */
 uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 

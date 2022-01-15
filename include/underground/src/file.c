@@ -221,7 +221,7 @@ pika_bool file_mem_copy(pika_char *filename, String_UTF8 *dest, ushort buffSize)
     dest->length = strutf8_length(dest);
     // TODO: file_mem_copy portage Windows
     #else
-
+    
     #endif
 
     return pika_true;
