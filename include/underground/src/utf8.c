@@ -379,19 +379,37 @@ uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *intern
     return NULL;
 }
 
-ulonglong strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, const uchar *delim) {
-    *dest = NULL;
+void __strutf8_split_copy(String_UTF8 *utf, String_UTF8 ***listDest, ulonglong *length, ulonglong *internalIndex, ulonglong *lastInternalIndex, ulonglong *delimLength) {
+    // On agrandi la taille de la liste.
+    *listDest = (String_UTF8 **) realloc(*listDest, (*length + 1) * sizeof(String_UTF8 *));
+
+    // On crée la nouvelle chaîne.
+    (*listDest)[*length] = strutf8("");
+    (*listDest)[*length]->data.length = (*internalIndex - (*delimLength - 1)) - *lastInternalIndex;
+    (*listDest)[*length]->bytes = (uchar *) realloc((*listDest)[*length]->bytes, (*listDest)[*length]->data.length * sizeof(uchar) + sizeof(uchar));
+
+    // On copie la chaîne.
+    memcpy((*listDest)[*length]->bytes, &utf->bytes[*lastInternalIndex], (*listDest)[*length]->data.length * sizeof(uchar));
+    (*listDest)[*length]->bytes[(*listDest)[*length]->data.length] = '\0';
+    (*listDest)[*length]->length = strutf8_length((*listDest)[*length]);
+    *lastInternalIndex = *internalIndex;
+    (*length)++;
+}
+
+ulonglong strutf8_split(String_UTF8 *utf, String_UTF8 ***listDest, const uchar *delim) {
+    *listDest = NULL;
+    ulonglong delimLength = str_count(delim);
+    if(delimLength == 0)
+        return 0;
     ulonglong length = 0;
     ulonglong internalIndex = 0;
     ulonglong lastInternalIndex = internalIndex;
     uchar *ptr;
     while((ptr = strutf8_search(utf, delim, &internalIndex)) != NULL) {
-        *dest = (String_UTF8 *) realloc(*dest, (length + 1) * sizeof(String_UTF8));
-        (*dest)[length].bytes = ptr;
-        (*dest)[length].data.length = internalIndex - lastInternalIndex;
-        (*dest)[length].length = strutf8_length(&(*dest)[length]);
-        ++length;
+        __strutf8_split_copy(utf, listDest, &length, &internalIndex, &lastInternalIndex, &delimLength);
     }
+    delimLength--;
+    __strutf8_split_copy(utf, listDest, &length, &internalIndex, &lastInternalIndex, &delimLength);
     return length;
 }
 

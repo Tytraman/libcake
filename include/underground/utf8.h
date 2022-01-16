@@ -175,10 +175,8 @@ pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare);
 
 /* ===== Création ===== */
 
-/*
-        TODO: strutf8_split_ptr -> refaire la fonction, copier les valeurs dans des sous String_UTF8
-*/
-ulonglong strutf8_split_ptr(String_UTF8 *utf, String_UTF8 **dest, const uchar *delim);
+
+ulonglong strutf8_split(String_UTF8 *utf, String_UTF8 ***listDest, const uchar *delim);
 
 /* ===== Remplacement ===== */
 
