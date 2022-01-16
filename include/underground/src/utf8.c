@@ -35,7 +35,7 @@ void strutf8_copy(String_UTF8 *dest, String_UTF8 *src) {
         dest->bytes = NULL;
         return;
     }
-    dest->bytes = (unsigned char *) malloc(src->data.length * sizeof(uchar) + sizeof(uchar));
+    dest->bytes = (unsigned char *) realloc(dest->bytes, src->data.length * sizeof(uchar) + sizeof(uchar));
     memcpy(dest->bytes, src->bytes, src->data.length * sizeof(uchar));
     dest->bytes[dest->data.length] = STR_NULL_END;
 }
@@ -45,9 +45,9 @@ void clear_strutf8(String_UTF8 *utf) {
     create_strutf8(utf);
 }
 
-unsigned long long strutf8_length(String_UTF8 *utf) {
-    unsigned long long length = 0UL;
-    unsigned long long i;
+ulonglong strutf8_length(String_UTF8 *utf) {
+    ulonglong length = 0UL;
+    ulonglong i;
     for(i = 0UL; i < utf->data.length; i++) {
         if((utf->bytes[i] & 0b10000000) == 0)
             length++;
@@ -65,15 +65,16 @@ unsigned long long strutf8_length(String_UTF8 *utf) {
 }
 
 void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest) {
-    unsigned char *arrayEnd = &src->bytes[src->data.length - 1];
-    unsigned char *pStart = src->bytes, *startEncode, *endEncode;
+    uchar *arrayEnd = &src->bytes[src->data.length - 1];
+    uchar *pStart = src->bytes, *startEncode, *endEncode;
 
     while(arrayEnd > pStart && *arrayEnd == '\0')
         arrayEnd--;
 
-    clear_strutf16(dest);
+    dest->length = 0;
+
     int bytes;
-    unsigned short value;
+    ushort value;
     while(pStart <= arrayEnd) {
         strutf8_index_by_index(pStart, arrayEnd, 0L, &startEncode, &endEncode, &bytes);
         value = strutf8_decode(startEncode, bytes);
@@ -83,17 +84,19 @@ void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest) {
 }
 
 void strutf16_to_strutf8(String_UTF16 *src, String_UTF8 *dest) {
-    create_strutf8(dest);
-    unsigned long long i;
+    dest->length = 0;
+    dest->data.length = 0;
+    ulonglong i;
     for(i = 0; i < src->length; i++)
         strutf8_add_wchar(dest, src->characteres[i]);
     strutf8_add_wchar(dest, L'\0');
 }
 
 void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest) {
-    create_strutf8(dest);
-    unsigned long long length = wcslen(src);
-    unsigned long long i;
+    dest->length = 0;
+    dest->data.length = 0;
+    ulonglong length = wcslen(src);
+    ulonglong i;
     for(i = 0; i < length; ++i)
         strutf8_add_wchar(dest, src[i]);
 }
@@ -145,8 +148,8 @@ int strutf8_decode(const uchar *src, char bytes) {
     if(bytes < 1 || bytes > 6) return -1;
     if(bytes == 1) return (int) src[0];
     int i, j;
-    unsigned int value = 0, temp;
-    unsigned char mask;
+    uint value = 0, temp;
+    uchar mask;
     char moving = 0;
     switch(bytes) {
         case 2:
@@ -194,8 +197,7 @@ void strutf8_add_char_array(String_UTF8 *dest, const uchar *str) {
 
 void array_char_to_strutf8(const uchar *src, String_UTF8 *dest) {
     dest->data.length = str_count(src);
-    free(dest->bytes);
-    dest->bytes = (uchar *) malloc(dest->data.length * sizeof(uchar) + sizeof(uchar));
+    dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
     memcpy(dest->bytes, src, dest->data.length * sizeof(uchar));
     dest->bytes[dest->data.length] = '\0';
     dest->length = strutf8_length(dest);
@@ -229,7 +231,7 @@ ulonglong strutf8_wchar_array_calc_size(const wchar_t *str) {
     size_t length = wcslen(str);
     size_t i;
 
-    unsigned long long size = 0;
+    ulonglong size = 0;
 
     for(i = 0; i < length; i++) {
         if(str[i] <= 126) size += 1;
@@ -247,7 +249,7 @@ char strutf8_wchar_to_byte(wchar_t value, uchar **buffer) {
     else if(value <= 65535) bytes = 3;
     //else if(value <= 1114111) bytes = 4;
     else return -1;
-    *buffer = malloc(bytes * sizeof(unsigned char));
+    *buffer = malloc(bytes * sizeof(uchar));
     if(bytes == 1) {
         (*buffer)[0] = value & 0b01111111;
     }else {
@@ -344,10 +346,10 @@ pika_bool strutf8_end_with(String_UTF8 *utf, const uchar *str) {
 }
 
 pika_bool strutf8_start_with(String_UTF8 *utf, const uchar *research) {
-    unsigned long long length = str_count(research);
+    ulonglong length = str_count(research);
     if(length > utf->data.length) return pika_false;
 
-    unsigned long long i;
+    ulonglong i;
     for(i = 0; i < length; i++)
         if(utf->bytes[i] != research[i])
             return pika_false;
@@ -379,38 +381,26 @@ uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *intern
     return NULL;
 }
 
-void __strutf8_split_copy(String_UTF8 *utf, String_UTF8 ***listDest, ulonglong *length, ulonglong *internalIndex, ulonglong *lastInternalIndex, ulonglong *delimLength) {
-    // On agrandi la taille de la liste.
-    *listDest = (String_UTF8 **) realloc(*listDest, (*length + 1) * sizeof(String_UTF8 *));
+List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim) {
+    List_String_UTF8 *list = list_strutf8();
 
-    // On crée la nouvelle chaîne.
-    (*listDest)[*length] = strutf8("");
-    (*listDest)[*length]->data.length = (*internalIndex - (*delimLength - 1)) - *lastInternalIndex;
-    (*listDest)[*length]->bytes = (uchar *) realloc((*listDest)[*length]->bytes, (*listDest)[*length]->data.length * sizeof(uchar) + sizeof(uchar));
-
-    // On copie la chaîne.
-    memcpy((*listDest)[*length]->bytes, &utf->bytes[*lastInternalIndex], (*listDest)[*length]->data.length * sizeof(uchar));
-    (*listDest)[*length]->bytes[(*listDest)[*length]->data.length] = '\0';
-    (*listDest)[*length]->length = strutf8_length((*listDest)[*length]);
-    *lastInternalIndex = *internalIndex;
-    (*length)++;
-}
-
-ulonglong strutf8_split(String_UTF8 *utf, String_UTF8 ***listDest, const uchar *delim) {
-    *listDest = NULL;
-    ulonglong delimLength = str_count(delim);
-    if(delimLength == 0)
-        return 0;
+    if(str_count(delim) == 0)
+        return list;
     ulonglong length = 0;
     ulonglong internalIndex = 0;
     ulonglong lastInternalIndex = internalIndex;
     uchar *ptr;
+    uchar temp;
+
     while((ptr = strutf8_search(utf, delim, &internalIndex)) != NULL) {
-        __strutf8_split_copy(utf, listDest, &length, &internalIndex, &lastInternalIndex, &delimLength);
+        temp = *ptr;
+        *ptr = '\0';
+        list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
+        *ptr = temp;
+        lastInternalIndex = internalIndex;
     }
-    delimLength--;
-    __strutf8_split_copy(utf, listDest, &length, &internalIndex, &lastInternalIndex, &delimLength);
-    return length;
+    list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
+    return list;
 }
 
 pika_bool str_starts_with(const uchar *pre, const uchar *str) {
@@ -563,4 +553,24 @@ void strutf8_reverse(String_UTF8 *utf) {
 
     free(utf->bytes);
     utf->bytes = buffer;
+}
+
+List_String_UTF8 *list_strutf8() {
+    List_String_UTF8 *list = (List_String_UTF8 *) malloc(sizeof(List_String_UTF8));
+    list->count = 0;
+    list->list = NULL;
+    return list;
+}
+
+void list_strutf8_add_char_array(List_String_UTF8 *list, const uchar *ptr) {
+    list->list = (String_UTF8 **) realloc(list->list, (list->count + 1) * sizeof(String_UTF8 *));
+    list->list[list->count] = strutf8(ptr);
+    (list->count)++;
+}
+
+void free_list_strutf8(List_String_UTF8 *list) {
+    ulonglong i;
+    for(i = 0; i < list->count; ++i)
+        free_strutf8(list->list[i]);
+    free(list);
 }

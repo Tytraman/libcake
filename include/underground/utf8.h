@@ -11,9 +11,14 @@ typedef struct UTF_Data {
 
 typedef struct String_UTF8 {
     UTF_Data data;
-    unsigned long long length;
-    unsigned char *bytes;
+    ulonglong length;
+    uchar *bytes;
 } String_UTF8;
+
+typedef struct List_String_UTF8 {
+    ulonglong count;
+    String_UTF8 **list;
+} List_String_UTF8;
 
 /* ===== Initialisation ===== */
 
@@ -26,6 +31,8 @@ typedef struct String_UTF8 {
 void create_strutf8(String_UTF8 *utf);
 
 String_UTF8 *strutf8(const uchar *value);
+
+List_String_UTF8 *list_strutf8();
 
 // Copie une chaîne UTF-8 vers une autre.
 void strutf8_copy(String_UTF8 *dest, String_UTF8 *src);
@@ -60,6 +67,8 @@ void strutf8_add_char_array(String_UTF8 *dest, const uchar *str);
 int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value);
 
 pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uchar *str);
+
+void list_strutf8_add_char_array(List_String_UTF8 *list, const uchar *str);
 
 
 /* ===== Modification ===== */
@@ -128,6 +137,8 @@ void clear_strutf8(String_UTF8 *utf);
 */
 void free_strutf8(String_UTF8 *utf);
 
+void free_list_strutf8(List_String_UTF8 *list);
+
 
 /* ===== Recherches ===== */
 
@@ -176,7 +187,7 @@ pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare);
 /* ===== Création ===== */
 
 
-ulonglong strutf8_split(String_UTF8 *utf, String_UTF8 ***listDest, const uchar *delim);
+List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim);
 
 /* ===== Remplacement ===== */
 

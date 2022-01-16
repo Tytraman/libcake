@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Option *load_option(String_UTF8 *source, char *key, char delim) {
+Option *load_option(String_UTF8 *source, const uchar *key, uchar delim) {
     if(source == NULL || source->bytes == NULL)
         return NULL;
 
@@ -14,9 +14,8 @@ Option *load_option(String_UTF8 *source, char *key, char delim) {
 
     Option *opt = (Option *) malloc(sizeof(Option));
 
-    create_strutf8(&opt->key);
-    create_strutf8(&opt->value);
-    array_char_to_strutf8(key, &opt->key);
+    opt->key = strutf8(key);
+    opt->value = strutf8("");
 
     while(internalIndex < source->data.length && source->bytes[internalIndex] != delim)
         internalIndex++;
@@ -34,11 +33,11 @@ Option *load_option(String_UTF8 *source, char *key, char delim) {
                 keyLength++;
             }
             if(keyLength > 0) {
-                opt->value.bytes = (uchar *) malloc(keyLength * sizeof(uchar) + sizeof(uchar));
-                opt->value.data.length = keyLength;
-                memcpy(opt->value.bytes, &source->bytes[startIndex], keyLength * sizeof(uchar));
-                opt->value.bytes[keyLength] = '\0';
-                opt->value.length = strutf8_length(&opt->value);
+                opt->value->bytes = (uchar *) realloc(opt->value->bytes, keyLength * sizeof(uchar) + sizeof(uchar));
+                opt->value->data.length = keyLength;
+                memcpy(opt->value->bytes, &source->bytes[startIndex], keyLength * sizeof(uchar));
+                opt->value->bytes[keyLength] = '\0';
+                opt->value->length = strutf8_length(opt->value);
             }
         }
     }
@@ -47,17 +46,15 @@ Option *load_option(String_UTF8 *source, char *key, char delim) {
 }
 
 void free_option(Option *opt) {
-    free(opt->key.bytes);
-    free(opt->value.bytes);
+    free_strutf8(opt->key);
+    free_strutf8(opt->value);
     free(opt);
 }
 
-void set_option(Option **opt, char *key, char *value) {
+void set_option(Option **opt, const uchar *key, const uchar *value) {
     if(*opt == NULL)
         *opt = (Option *) malloc(sizeof(Option));
 
-    create_strutf8(&(*opt)->key);
-    create_strutf8(&(*opt)->value);
-    array_char_to_strutf8(key, &(*opt)->key);
-    array_char_to_strutf8(value, &(*opt)->value);
+    (*opt)->key = strutf8(key);
+    (*opt)->value = strutf8(value);
 }
