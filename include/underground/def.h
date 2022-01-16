@@ -21,8 +21,6 @@ typedef char pika_char;
 
 typedef int pika_exit_code;
 
-#define L_STR  
-
 #define FILE_SEPARATOR             '/'
 #define FILE_SEPARATOR_REVERSE     '\\'
 #define FILE_SEPARATOR_STR         "/"
@@ -77,5 +75,7 @@ typedef unsigned long long ulonglong;
 
 typedef signed char   int8;
 typedef unsigned char uint8;
+
+typedef unsigned char pika_byte;
 
 #endif

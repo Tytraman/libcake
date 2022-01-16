@@ -101,6 +101,9 @@ void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest) {
 ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes) {
     ulonglong internalIndex = 0;
     ulonglong currentUtfIndex = 0UL;
+    uchar *saveStart;
+    ulonglong saveInternalIndex;
+
     while(pArrayStart <= pArrayEnd) {
         // Si c'est un caractère ASCII
         if((*pArrayStart & 0b10000000) == 0) {
@@ -115,8 +118,8 @@ ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong
             internalIndex++;
         // Si c'est le début d'un caractère encodé UTF-8
         }else if((*pArrayStart & 0b11000000) == 192) {
-            uchar *saveStart = pArrayStart;
-            ulonglong saveInternalIndex = internalIndex;
+            saveStart = pArrayStart;
+            saveInternalIndex = internalIndex;
             pArrayStart++;
             // Tant que c'est un octet UTF-8
             while(pArrayStart <= pArrayEnd && (*pArrayStart & 0b11000000) == 128) {
@@ -418,7 +421,7 @@ pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index) {
 }
 
 int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
-    if(index > utf->length)
+    if(index >= utf->length)
         return -1;
     
     uchar *valueUtf;
@@ -447,6 +450,28 @@ int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
 
     free(valueUtf);
     return bytesNeeded;
+}
+
+pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uchar *str) {
+    if(index >= utf->length)
+        return pika_false;
+    
+    ulonglong insertLength = str_count(str);
+    uchar *pStart, *pEnd;
+    int bytes;
+    // Index interne auquel insérer la chaîne.
+    ulonglong internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
+    utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + insertLength) * sizeof(uchar) + sizeof(uchar));
+    // On déplace les octets vers la droite.
+    memcpy(&utf->bytes[internalIndex + insertLength], &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
+    // On copie la chaîne à insérer.
+    memcpy(&utf->bytes[internalIndex], str, insertLength * sizeof(uchar));
+    utf->data.length += insertLength;
+    utf->bytes[utf->data.length] = '\0';
+
+    utf->length = strutf8_length(utf);
+
+    return pika_true;
 }
 
 pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare) {
@@ -498,4 +523,26 @@ ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *r
 void free_strutf8(String_UTF8 *utf) {
     free(utf->bytes);
     free(utf);
+}
+
+void strutf8_reverse(String_UTF8 *utf) {
+    uchar *buffer = (uchar *) malloc(utf->data.length * sizeof(uchar) + sizeof(uchar));
+    buffer[utf->data.length] = '\0';
+
+    ulonglong index, internalIndex, internalIndexReverse = utf->data.length - 1;
+    int bytes;
+    uchar *pStart, *pEnd;
+    for(index = 0; index < utf->length; ++index) {
+        internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
+
+        while(pStart < pEnd) {
+            buffer[internalIndexReverse - (pEnd - pStart - 1)] = *pStart;
+            pStart++;
+        }
+
+        internalIndexReverse -= bytes;
+    }
+
+    free(utf->bytes);
+    utf->bytes = buffer;
 }

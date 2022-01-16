@@ -59,12 +59,12 @@ void strutf8_add_char_array(String_UTF8 *dest, const uchar *str);
 */
 int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value);
 
-// TODO: strutf8_insert_char_array
+pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uchar *str);
 
 
 /* ===== Modification ===== */
 
-// TODO: strutf8_reverse -> inverse le sens de la chaîne UTF-8
+void strutf8_reverse(String_UTF8 *utf);
 
 /* ===== Suppression ===== */
 

@@ -134,7 +134,7 @@ unsigned long long list_files_recursive(pika_char *path, FileList *files, FileLi
             create_strutf8(&utf8Path);
             strutf8_copy(&utf8Path, &snapshots.list[snapshots.current - 1].path);
             if(utf8Path.bytes[utf8Path.data.length - 1] != FILE_SEPARATOR)
-                strutf8_add_char_array(&utf8Path, FILE_SEPARATOR_STR);
+                strutf8_add_char_array(&utf8Path, "\\");
 
             #ifdef PIKA_WINDOWS
             strutf8_add_wchar_array(&utf8Path, snapshots.list[snapshots.current - 1].dataw.cFileName);
@@ -186,7 +186,15 @@ list_files_ignore: ;
     return number;
 }
 
-pika_bool file_mem_copy(pika_char *filename, String_UTF8 *dest, ushort buffSize) {
+pika_bool file_mem_copy(
+    #ifdef PIKA_UNIX
+    char *filename,
+    #else
+    wchar_t *filename,
+    #endif
+    String_UTF8 *dest,
+    ushort buffSize
+) {
     #ifdef PIKA_UNIX
     int fd = open(filename, O_RDONLY);
     if(fd == -1)
@@ -200,7 +208,7 @@ pika_bool file_mem_copy(pika_char *filename, String_UTF8 *dest, ushort buffSize)
         switch(bytesRead) {
             case -1:{
                 close(fd);
-                clear_strutf8(dest);
+                free(buffer);
                 return pika_false;
             }
             case 0:{
@@ -216,12 +224,39 @@ pika_bool file_mem_copy(pika_char *filename, String_UTF8 *dest, ushort buffSize)
         }
     }
     close(fd);
+    free(buffer);
     dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
     dest->bytes[dest->data.length] = '\0';
     dest->length = strutf8_length(dest);
-    // TODO: file_mem_copy portage Windows
     #else
-    
+    HANDLE hFile = CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(hFile == INVALID_HANDLE_VALUE)
+        return pika_false;
+
+    uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
+    pika_bool loop = pika_true;
+    pika_bool result;
+    DWORD bytesRead;
+    while(loop) {
+        result = ReadFile(hFile, buffer, buffSize, &bytesRead, NULL);
+        if(!result) {
+            CloseHandle(hFile);
+            free(buffer);
+            return pika_false;
+        }
+        if(bytesRead == 0)
+            loop = pika_false;
+        else {
+            dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar));
+            memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
+            dest->data.length += bytesRead;
+        }
+    }
+    CloseHandle(hFile);
+    free(buffer);
+    dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
+    dest->bytes[dest->data.length] = '\0';
+    dest->length = strutf8_length(dest);
     #endif
 
     return pika_true;
