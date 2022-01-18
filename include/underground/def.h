@@ -21,6 +21,8 @@ typedef char pika_char;
 
 typedef int pika_exit_code;
 
+typedef ssize_t pika_size;
+
 #define FILE_SEPARATOR             '/'
 #define FILE_SEPARATOR_REVERSE     '\\'
 #define FILE_SEPARATOR_STR         "/"
@@ -43,6 +45,9 @@ typedef int pika_exit_code;
 typedef wchar_t pika_char;
 
 typedef DWORD pika_exit_code;
+typedef DWORD pika_size;
+
+
 
 #define FILE_SEPARATOR             L'\\'
 #define FILE_SEPARATOR_REVERSE     L'/'
@@ -66,6 +71,8 @@ typedef char pika_bool;
 
 #define pika_true  1
 #define pika_false 0
+
+#define PIKA_BUFF_SIZE 2048
 
 typedef unsigned char uchar;
 typedef unsigned short ushort;
