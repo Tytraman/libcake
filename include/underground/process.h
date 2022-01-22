@@ -86,10 +86,12 @@ typedef pid_t pika_process;
 
 #define process_wait(process, pExitCode) waitpid(process, pExitCode, 0)
 
+// Max : 21
+#define PIKA_PROCESS_COMMAND(length, ...) PROCESS_COMMAND_ARRAY(length, __VA_ARGS__)
+
+typedef char *pika_process_command[];
 
 #endif
-
-
 
 pika_bool start_process(pika_process_command command, pika_process *process, pika_fd pipeStdout[2], pika_fd pipeStderr[2], pika_fd pipeStdin[2]);
 

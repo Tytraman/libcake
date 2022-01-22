@@ -28,3 +28,26 @@ pika_fd fdio_open_file(const uchar *filename, fdio_mode desiredAccess, fdio_mode
     return fd;
 }
 #endif
+
+char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
+    #ifdef PIKA_WINDOWS
+    FILETIME time1, time2;
+    switch(mode) {
+        case FDIO_COMPARE_CREATION_TIME:
+            GetFileTime(fd, &time1, NULL, NULL);
+            GetFileTime(compareTo, &time2, NULL, NULL);
+            break;
+        case FDIO_COMPARE_ACCESS_TIME:
+            GetFileTime(fd, NULL, &time1, NULL);
+            GetFileTime(compareTo, NULL, &time2, NULL);
+            break;
+        default:
+            GetFileTime(fd, NULL, NULL, &time1);
+            GetFileTime(compareTo, NULL, NULL, &time2);
+            break;
+    }
+    return CompareFileTime(&time1, &time2);
+    #else
+
+    #endif
+}

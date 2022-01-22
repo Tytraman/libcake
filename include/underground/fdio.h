@@ -61,6 +61,9 @@ pika_fd fdio_open_file(const uchar *filename, fdio_mode desiredAccess, fdio_mode
 // Ferme un FileDescriptor, peut-être utilisé sur un pika_fd.
 #define fdio_close(fd) CloseHandle(fd)
 
+// TODO: portage Linux
+#define delete_file(filename) DeleteFileW(filename)
+
 #else
 #include <fcntl.h>
 #include <unistd.h>
@@ -108,6 +111,28 @@ typedef int fdio_mode;
 
 #endif
 
+#define FDIO_OLDER -1
+#define FDIO_EQUAL 0
+#define FDIO_NEWER 1
 
+#define FDIO_COMPARE_CREATION_TIME   0
+#define FDIO_COMPARE_ACCESS_TIME     1
+#define FDIO_COMPARE_LAST_WRITE_TIME 2
+// TODO: portage Linux
+
+/*
+        Compare le temps entre 2 fichiers.
+
+        mode permet de spécifier quelle valeur de temps comparer :
+        - FDIO_COMPARE_CREATION_TIME
+        - FDIO_COMPARE_ACCESS_TIME
+        - FDIO_COMPARE_LAST_WRITE_TIME
+
+        Retourne :
+        - FDIO_OLDER : si fd est plus vieux que compareTo
+        - FDIO_EQUAL : si les 2 fichiers ont le même temps
+        - FDIO_NEWER : si fd est plus récent que compareTo
+*/
+char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode);
 
 #endif

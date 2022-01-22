@@ -11,6 +11,7 @@ typedef HANDLE pika_dir;
 
 #define close_dir(x) FindClose(x)
 #define file_exists(filename) (GetFileAttributesW(filename) != INVALID_FILE_ATTRIBUTES)
+
 #else
 #include <sys/types.h>
 #include <unistd.h>
