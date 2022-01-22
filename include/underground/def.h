@@ -16,6 +16,8 @@
 #if defined(unix) || defined(__unix__) || defined(__unix)
 #define PIKA_UNIX 1
 
+#include <sys/types.h>
+
 // Sous Unix un pika_char est équivalent à un char.
 typedef char pika_char;
 
@@ -47,7 +49,11 @@ typedef wchar_t pika_char;
 typedef DWORD pika_exit_code;
 typedef DWORD pika_size;
 
-
+/*
+        Permet d'ajouter le L automatiquement devant la chaîne de caractères, ne le fait pas sous Linux,
+        permet un code plus portable.
+*/
+#define PIKA_CHAR(value) CONCAT(L, value)
 
 #define FILE_SEPARATOR             L'\\'
 #define FILE_SEPARATOR_REVERSE     L'/'
@@ -84,5 +90,7 @@ typedef signed char   int8;
 typedef unsigned char uint8;
 
 typedef unsigned char pika_byte;
+
+
 
 #endif

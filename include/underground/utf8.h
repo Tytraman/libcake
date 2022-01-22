@@ -3,6 +3,7 @@
 
 #include "def.h"
 #include "utf16.h"
+#include "array.h"
 
 // Données internes utilisées par String_UTF8.
 typedef struct UTF_Data {
@@ -16,7 +17,7 @@ typedef struct String_UTF8 {
 } String_UTF8;
 
 typedef struct List_String_UTF8 {
-    ulonglong count;
+    ArrayList data;
     String_UTF8 **list;
 } List_String_UTF8;
 
@@ -169,6 +170,7 @@ uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglon
 */
 uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 
+ulonglong str_search(const uchar *str, uchar value, uchar **ptr);
 
 /* ===== Vérificateurs ===== */
 

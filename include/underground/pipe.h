@@ -26,7 +26,7 @@ char __create_pipe(pika_fd pipefd[2], pika_byte mode);
 #define create_pipe_stdin(pipefd) __create_pipe(pipefd, 1)
 
 #else
-// TODO: portage Linux
+#define create_pipe(pipefd) pipe(pipefd)
 
 #endif
 

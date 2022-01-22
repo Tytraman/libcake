@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 
-#ifdef PIKA_WINDOWS
-pika_bool start_process(const uchar *command, pika_fd *fdProcess, pika_fd pipeStdout[2], pika_fd pipeStderr[2], pika_fd pipeStdin[2]) {
-    *fdProcess = NULL;
+pika_bool start_process(pika_process_command command, pika_process *process, pika_fd pipeStdout[2], pika_fd pipeStderr[2], pika_fd pipeStdin[2]) {
+    #ifdef PIKA_WINDOWS
+    *process = NULL;
 
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFOW si = { 0 };
@@ -67,9 +67,45 @@ pika_bool start_process(const uchar *command, pika_fd *fdProcess, pika_fd pipeSt
     }
     free(cmd.characteres);
 
-    *fdProcess = pi.hProcess;
+    *process = pi.hProcess;
     CloseHandle(pi.hThread);
+    #else
+    *process = fork();
+
+    // Processus enfant :
+    if(*process == 0) {
+        if(pipeStdout != NULL) {
+            close(pipeStdout[0]);
+            dup2(pipeStdout[1], STDOUT_FILENO);
+        }
+        if(pipeStderr != NULL) {
+            close(pipeStderr[0]);
+            dup2(pipeStderr[1], STDERR_FILENO);
+        }
+        if(pipeStdin != NULL) {
+            close(pipeStdin[1]);
+            dup2(pipeStdin[0], STDIN_FILENO);
+        }
+        execvp();
+        exit(25);
+    }else if(*process == -1)
+        return pika_false;
+
+    if(pipeStdout != NULL)
+        close(pipeStdout[1]);
+    if(pipeStderr != NULL)
+        close(pipeStderr[1]);
+    if(pipeStdin != NULL)
+        close(pipeStdin[0]);
+    #endif
 
     return pika_true;
+}
+
+#ifdef PIKA_WINDOWS
+void process_wait(pika_process process, pika_exit_code *pExitCode) {
+    WaitForSingleObject(process, INFINITE);
+    GetExitCodeProcess(process, pExitCode);
+    CloseHandle(process);
 }
 #endif

@@ -557,20 +557,31 @@ void strutf8_reverse(String_UTF8 *utf) {
 
 List_String_UTF8 *list_strutf8() {
     List_String_UTF8 *list = (List_String_UTF8 *) malloc(sizeof(List_String_UTF8));
-    list->count = 0;
+    list->data.length = 0;
     list->list = NULL;
     return list;
 }
 
 void list_strutf8_add_char_array(List_String_UTF8 *list, const uchar *ptr) {
-    list->list = (String_UTF8 **) realloc(list->list, (list->count + 1) * sizeof(String_UTF8 *));
-    list->list[list->count] = strutf8(ptr);
-    (list->count)++;
+    array_resize((ArrayList *) list, sizeof(String_UTF8 *), list->data.length + 1);
+    list->list[list->data.length - 1] = strutf8(ptr);
 }
 
 void free_list_strutf8(List_String_UTF8 *list) {
     ulonglong i;
-    for(i = 0; i < list->count; ++i)
+    for(i = 0; i < list->data.length; ++i)
         free_strutf8(list->list[i]);
     free(list);
+}
+
+ulonglong str_search(const uchar *str, uchar value, uchar **ptr) {
+    ulonglong i;
+
+    for(i = 0; i < str_count(str); ++i)
+        if(str[i] == value) {
+            *ptr = (uchar *) &str[i];
+            break;
+        }
+
+    return i;
 }
