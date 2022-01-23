@@ -48,6 +48,38 @@ char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
     }
     return CompareFileTime(&time1, &time2);
     #else
+    struct stat time1, time2;
+
+    fstat(fd, &time1);
+    fstat(compareTo, &time2);
+
+    struct timespec *timex1, *timex2;
+
+    switch(mode) {
+        default:
+            return FDIO_EQUAL;
+        case FDIO_COMPARE_ACCESS_TIME:
+            timex1 = &time1.st_atim;
+            timex2 = &time2.st_atim;
+            break;
+        case FDIO_COMPARE_LAST_WRITE_TIME:
+            timex1 = &time1.st_mtim;
+            timex2 = &time2.st_mtim;
+            break;
+    }
+
+    if(timex1->tv_sec > timex2->tv_sec)
+        return FDIO_NEWER;
+    else if(timex1->tv_sec < timex2->tv_sec)
+        return FDIO_OLDER;
+    else {
+        if(timex1->tv_nsec > timex2->tv_nsec)
+            return FDIO_NEWER;
+        else if(timex1->tv_nsec < timex2->tv_nsec)
+            return FDIO_OLDER;
+        else
+            return FDIO_EQUAL;
+    }
 
     #endif
 }

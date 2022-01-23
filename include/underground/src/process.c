@@ -86,7 +86,7 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
             close(pipeStdin[1]);
             dup2(pipeStdin[0], STDIN_FILENO);
         }
-        execvp();
+        execvp(command[0], command);
         exit(25);
     }else if(*process == -1)
         return pika_false;

@@ -61,12 +61,19 @@ pika_fd fdio_open_file(const uchar *filename, fdio_mode desiredAccess, fdio_mode
 // Ferme un FileDescriptor, peut-être utilisé sur un pika_fd.
 #define fdio_close(fd) CloseHandle(fd)
 
-// TODO: portage Linux
-#define delete_file(filename) DeleteFileW(filename)
+#define FDIO_DELETE_FAILS FALSE
+#define fdio_delete_file(filename) DeleteFileW(filename)
+
+#define FDIO_CREATE_FAILS FALSE
+#define fdio_create_dir(filename) CreateDirectoryW(filename, NULL)
 
 #else
+#include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define FDIO_ERROR_READ -1
 
@@ -109,16 +116,23 @@ typedef int fdio_mode;
 // Ferme un FileDescriptor, peut-être utilisé sur un pika_fd.
 #define fdio_close(fd) close(fd)
 
+#define FDIO_DELETE_FAILS -1
+#define fdio_delete_file(filename) unlink(filename)
+
+#define FDIO_CREATE_FAILS -1
+#define fdio_create_dir(filename) mkdir(filename, 0777)
+
+
 #endif
 
 #define FDIO_OLDER -1
 #define FDIO_EQUAL 0
 #define FDIO_NEWER 1
+#define FDIO_UNDEFINED -2
 
 #define FDIO_COMPARE_CREATION_TIME   0
 #define FDIO_COMPARE_ACCESS_TIME     1
 #define FDIO_COMPARE_LAST_WRITE_TIME 2
-// TODO: portage Linux
 
 /*
         Compare le temps entre 2 fichiers.
@@ -132,6 +146,11 @@ typedef int fdio_mode;
         - FDIO_OLDER : si fd est plus vieux que compareTo
         - FDIO_EQUAL : si les 2 fichiers ont le même temps
         - FDIO_NEWER : si fd est plus récent que compareTo
+        - FDIO_UNDEFINED
+
+        Note :
+        Sous Unix, la date de création des fichiers n'est pas stockés, sauf sur certains OS.
+        De ce fait, FDIO_COMPARE_CREATION_TIME sous Unix retournera toujours FDIO_UNDEFINED.
 */
 char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode);
 

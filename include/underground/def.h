@@ -25,6 +25,12 @@ typedef int pika_exit_code;
 
 typedef ssize_t pika_size;
 
+/*
+        Permet d'ajouter le L automatiquement devant la chaîne de caractères, ne le fait pas sous Linux,
+        permet un code plus portable.
+*/
+#define PIKA_CHAR(value) value
+
 #define FILE_SEPARATOR             '/'
 #define FILE_SEPARATOR_REVERSE     '\\'
 #define FILE_SEPARATOR_STR         "/"
