@@ -5,30 +5,6 @@
 
 #include <stdlib.h>
 
-#ifdef PIKA_WINDOWS
-pika_fd fdio_open_file(const uchar *filename, fdio_mode desiredAccess, fdio_mode shareMode, fdio_mode openMode, fdio_mode attributes) {
-    String_UTF8 *utf8 = strutf8(filename);
-    String_UTF16 utf16;
-    create_strutf16(&utf16);
-    strutf8_to_utf16(utf8, &utf16);
-    free_strutf8(utf8);
-
-    pika_fd fd = CreateFileW(
-        utf16.characteres,
-        desiredAccess,
-        shareMode,
-        NULL,
-        openMode,
-        attributes,
-        NULL
-    );
-
-    free(utf16.characteres);
-
-    return fd;
-}
-#endif
-
 char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
     #ifdef PIKA_WINDOWS
     FILETIME time1, time2;
@@ -82,4 +58,19 @@ char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
     }
 
     #endif
+}
+
+void fdio_mem_copy(String_UTF8 *dest, pika_fd fd, ushort buffSize) {
+    pika_size bytesRead;
+    uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
+
+    while(fdio_read(fd, buffSize, bytesRead, buffer) != FDIO_ERROR_READ && bytesRead != 0) {
+        dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar) + sizeof(uchar));
+        memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
+        dest->data.length += bytesRead;
+        dest->bytes[dest->data.length] = '\0';
+    }
+    dest->length = strutf8_length(dest);
+
+    free(buffer);
 }

@@ -2,12 +2,14 @@
 #define __PIKA_FDIO_H__
 
 #include "def.h"
+#include "utf8.h"
 
 #define FDIO_PTR(var) &var
 
 #ifdef PIKA_WINDOWS
 
-#define FDIO_ERROR_READ FALSE
+#define FDIO_ERROR_READ  FALSE
+#define FDIO_ERROR_WRITE FALSE
 
 #define FDIO_ERROR_OPEN INVALID_HANDLE_VALUE
 
@@ -55,7 +57,7 @@ typedef HANDLE pika_fd;
 
         En cas d'erreur, FDIO_ERROR_OPEN est retourné.
 */
-pika_fd fdio_open_file(const uchar *filename, fdio_mode desiredAccess, fdio_mode shareMode, fdio_mode openMode, fdio_mode attributes);
+#define fdio_open_file(filename, desiredAccess, shareMode, openMode, attributes) CreateFileW(filename, desiredAccess, shareMode, NULL, openMode, attributes, NULL)
 
 
 // Ferme un FileDescriptor, peut-être utilisé sur un pika_fd.
@@ -75,7 +77,8 @@ pika_fd fdio_open_file(const uchar *filename, fdio_mode desiredAccess, fdio_mode
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define FDIO_ERROR_READ -1
+#define FDIO_ERROR_READ  -1
+#define FDIO_ERROR_WRITE -1
 
 #define FDIO_ERROR_OPEN -1
 
@@ -153,5 +156,7 @@ typedef int fdio_mode;
         De ce fait, FDIO_COMPARE_CREATION_TIME sous Unix retournera toujours FDIO_UNDEFINED.
 */
 char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode);
+
+void fdio_mem_copy(String_UTF8 *dest, pika_fd fd, ushort buffSize);
 
 #endif

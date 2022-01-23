@@ -15,5 +15,6 @@
 #include "underground/process.h"
 #include "underground/console.h"
 #include "underground/option.h"
+#include "underground/csv.h"
 
 #endif
