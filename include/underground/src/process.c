@@ -29,15 +29,9 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
             si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     }
 
-    String_UTF16 cmd;
-    create_strutf16(&cmd);
-    String_UTF8 *utf8 = strutf8(command);
-    strutf8_to_utf16(utf8, &cmd);
-    free_strutf8(utf8);
-
     if(!CreateProcessW(
         NULL,
-        cmd.characteres,
+        command,
         NULL,
         NULL,
         si.dwFlags & STARTF_USESTDHANDLES,
@@ -46,10 +40,8 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
         NULL,
         &si,
         &pi
-    )) {
-        free(cmd.characteres);
+    ))
         return pika_false;
-    }
 
     if(si.dwFlags & STARTF_USESTDHANDLES) {
         if(pipeStdout != NULL) {
@@ -65,7 +57,6 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
             pipeStdin[0] = NULL;
         }
     }
-    free(cmd.characteres);
 
     *process = pi.hProcess;
     CloseHandle(pi.hThread);
@@ -103,9 +94,44 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
 }
 
 #ifdef PIKA_WINDOWS
-void process_wait(pika_process process, pika_exit_code *pExitCode) {
+void __process_wait(pika_process process, pika_exit_code *pExitCode) {
     WaitForSingleObject(process, INFINITE);
     GetExitCodeProcess(process, pExitCode);
     CloseHandle(process);
+}
+
+void PIKA_PROCESS_COMMAND_ADD_ARG(pika_process_command_dyn command, const wchar_t *arg) {
+    strutf16_add_char(command, L' ');
+    strutf16_add_wchar_array(command, arg);
+}
+#else
+pika_process_command_dyn PIKA_PROCESS_COMMAND_DYN(const char *value) {
+    pika_process_command_dyn dyn = (pika_process_command_dyn) malloc(sizeof(_pika_process_command_dyn));
+    dyn->args = NULL;
+    array_resize((ArrayList *) dyn, sizeof(char *), 2);
+    ulonglong length = str_count(value);
+    dyn->args[0] = (char *) malloc(length * sizeof(char) + sizeof(char));
+    memcpy(dyn->args[0], value, length * sizeof(char));
+    dyn->args[0][length] = '\0';
+    dyn->args[1] = NULL;
+    return dyn;
+}
+
+void PIKA_PROCESS_COMMAND_ADD_ARG(pika_process_command_dyn command, const char *arg) {
+    ulonglong current = command->data.length - 1;
+    array_resize((ArrayList *) command, sizeof(char *), current + 2);
+    ulonglong length = str_count(arg);
+    command->args[current] = (char *) malloc(length * sizeof(char) + sizeof(char));
+    memcpy(command->args[current], arg, length * sizeof(char));
+    command->args[current][length] = '\0';
+    command->args[current + 1] = NULL;
+}
+
+void PIKA_PROCESS_COMMAND_FREE(pika_process_command_dyn command) {
+    ulonglong i;
+    for(i = 0; i < command->data.length - 1; ++i)
+        free(command->args[i]);
+    free(command->args);
+    free(command);
 }
 #endif

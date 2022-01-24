@@ -12,6 +12,17 @@ void create_strutf16(String_UTF16 *utf) {
     utf->characteres = NULL;
 }
 
+String_UTF16 *strutf16(const wchar_t *value) {
+    String_UTF16 *utf = (String_UTF16 *) malloc(sizeof(String_UTF16));
+
+    utf->length = wstr_count(value);
+    utf->characteres = (wchar_t *) malloc(utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    memcpy(utf->characteres, value, utf->length * sizeof(wchar_t));
+    utf->characteres[utf->length] = L'\0';
+
+    return utf;
+}
+
 void clear_strutf16(String_UTF16 *utf) {
     free(utf->characteres);
     create_strutf16(utf);
@@ -25,9 +36,9 @@ void strutf16_set_value(String_UTF16 *utf, wchar_t *str) {
     utf->characteres[utf->length] = L'\0';
 }
 
-void strutf16_add_wchar_array(String_UTF16 *utf, wchar_t *str) {
-    unsigned long long lastLength = utf->length;
-    unsigned long long strLength = wcslen(str);
+void strutf16_add_wchar_array(String_UTF16 *utf, const wchar_t *str) {
+    ulonglong lastLength = utf->length;
+    ulonglong strLength = wstr_count(str);
     utf->length += strLength;
     utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
     memcpy(&utf->characteres[lastLength], str, strLength * sizeof(wchar_t));
@@ -397,4 +408,11 @@ pika_bool strutf16_start_with(String_UTF16 *utf, wchar_t *str) {
         if(utf->characteres[i] != str[i])
             return pika_false;
     return pika_true;
+}
+
+ulonglong wstr_count(const wchar_t *str) {
+    ulonglong number = 0;
+    while(str[number] != L'\0')
+        number++;
+    return number;
 }

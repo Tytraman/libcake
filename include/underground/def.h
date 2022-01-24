@@ -97,6 +97,6 @@ typedef unsigned char uint8;
 
 typedef unsigned char pika_byte;
 
-
+#define PIKA_PTR(value) &value
 
 #endif

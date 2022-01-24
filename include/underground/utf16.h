@@ -7,7 +7,7 @@
 
 
 typedef struct String_UTF16 {
-    unsigned long long length;
+    ulonglong length;
     wchar_t *characteres;
 } String_UTF16;
 
@@ -21,6 +21,8 @@ typedef struct String_UTF16_Reader {
 /* ===== Initialisation ===== */
 
 void create_strutf16(String_UTF16 *utf);
+String_UTF16 *strutf16(const wchar_t *value);
+
 void strutf16_copy(String_UTF16 *from, String_UTF16 *to);
 char strutf16_copy_between(String_UTF16 *from, String_UTF16 *to, unsigned long long begin, unsigned long long end);
 
@@ -38,7 +40,7 @@ unsigned long long strutf16_upper(String_UTF16 *utf);
 
 /* ===== Ajout ===== */
 
-void strutf16_add_wchar_array(String_UTF16 *utf, wchar_t *str);
+void strutf16_add_wchar_array(String_UTF16 *utf, const wchar_t *str);
 void strutf16_add_char(String_UTF16 *utf, wchar_t c);
 void strutf16_add_bytes(String_UTF16 *utf, unsigned char *bytes, unsigned long long size);
 void strutf16_insert(String_UTF16 *utf, wchar_t *str);
@@ -81,5 +83,7 @@ wchar_t *strutf16_search_from(String_UTF16 *utf, wchar_t *research, unsigned lon
 pika_bool strutf16_key_value(const wchar_t *key, String_UTF16 *src, String_UTF16 *dest);
 unsigned long long strutf16_number_of(String_UTF16 *utf, wchar_t charactere);
 char strutf16_start_with(String_UTF16 *utf, wchar_t *str);
+
+ulonglong wstr_count(const wchar_t *str);
 
 #endif
