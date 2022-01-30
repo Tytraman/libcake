@@ -67,7 +67,7 @@
 #define __ULTRA_CONCAT_21(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20) v0 L__SPAYCE v1 L__SPAYCE v2 L__SPAYCE v3 L__SPAYCE v4 L__SPAYCE v5 L__SPAYCE v6 L__SPAYCE v7 L__SPAYCE v8 L__SPAYCE v9 L__SPAYCE v10 L__SPAYCE v11 L__SPAYCE v12 L__SPAYCE v13 L__SPAYCE v14 L__SPAYCE v15 L__SPAYCE v16 L__SPAYCE v17 L__SPAYCE v18 L__SPAYCE v19 L__SPAYCE v20
 
 // Maximum actuel : 21
-#define ULTRA_CONCAT(length, ...) CONCAT(__ULTRA_CONCAT_, length)(__VA_ARGS__)
+#define ULTRA_CONCAT(length, ...) CONCAT(__ULTRA_CONCAT_, length) (__VA_ARGS__)
 
 #ifdef PIKA_WINDOWS
 
