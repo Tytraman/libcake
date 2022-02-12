@@ -144,6 +144,46 @@ ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong
     return internalIndex;
 }
 
+ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, pika_byte *bytes) {
+    if(utfIndex > utf->length - 1)
+        return 0;
+    ulonglong internalIndex = utf->data.length - 1;
+    ulonglong currentUtfIndex = utf->length - 1;
+    pika_byte b;
+    while(1) {
+        // Si c'est un caractère ASCII
+        if((utf->bytes[internalIndex] & 0x80) == 0) {
+            if(currentUtfIndex == utfIndex) {
+                if(bytes)
+                    *bytes = 1;
+                return internalIndex;
+            }
+            internalIndex--;
+            currentUtfIndex--;
+        }else {
+            b = 1;
+            // Tant que c'est un octet UTF-8
+            while((utf->bytes[internalIndex] & 0xC0) == 0x80) {
+                b++;
+                if(internalIndex == 0)
+                    break;
+                internalIndex--;
+            }
+            if(currentUtfIndex == utfIndex) {
+                if(bytes)
+                    *bytes = b;
+                return internalIndex;
+            }
+            if(internalIndex == 0)
+                break;
+            internalIndex--;
+            currentUtfIndex--;
+        }
+    }
+
+    return internalIndex;
+}
+
 int strutf8_decode(const uchar *src, char bytes) {
     if(bytes < 1 || bytes > 6) return -1;
     if(bytes == 1) return (int) src[0];
@@ -381,6 +421,31 @@ uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *intern
     return NULL;
 }
 
+uchar *str_search_array(const uchar *str, const uchar *value) {
+    ulonglong baseLength = str_count(str);
+    ulonglong length = str_count(value);
+    if(length > baseLength) return NULL;
+
+    ulonglong i, j = 0;
+
+    uchar *ptr;
+
+    for(i = 0; i < baseLength; ++i) {
+        if(str[i] == value[j]) {
+            if(j == 0)
+                ptr = (uchar *) &str[i];
+            j++;
+            if(j == length) {
+                ++i;
+                return ptr;
+            }
+        }else
+            j = 0;
+    }
+
+    return NULL;
+}
+
 List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim) {
     List_String_UTF8 *list = list_strutf8();
 
@@ -584,4 +649,89 @@ ulonglong str_search(const uchar *str, uchar value, uchar **ptr) {
         }
 
     return i;
+}
+
+void strutf8_to_lower(String_UTF8 *utf) {
+    ulonglong i;
+    ulonglong internalIndex = 0;
+    int bytes;
+    uchar *start, *end;
+    int code;
+    ulonglong tempInd;
+    for(i = 0; i < utf->length; ++i) {
+        internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], i, &start, &end, &bytes);
+        code = strutf8_decode(start, bytes);
+        // La liste des caractères pris en charge recouvrent les "principaux caractères"
+        switch(bytes) {
+            default: goto strutf8_to_lower_ignore;
+            case 1:
+                if(code > 64 && code < 91)
+                    code += 32;
+                break;
+            case 2:
+                if(
+                    (code > 191 && code < 215) ||
+                    (code > 215 && code < 223)
+                )
+                    code += 32;
+                else if(code > 255 && code < 311 && (code & 1 == 0))
+                    code++;
+                else if(code > 312 && code < 328 && (code & 1))
+                    code++;
+                else if(code > 329 && code < 375 && (code & 1 == 0))
+                    code++;
+                else if(code > 376 && code < 382 && code & 1)
+                    code++;
+                else {
+                    switch(code) {
+                        default: break;
+                        case 376:
+                            code = 255;
+                            break;
+                    }
+                }
+                break;
+        }
+        tempInd = 0;
+        strutf8_wchar_to_byte_ext(code, &start, &tempInd);
+strutf8_to_lower_ignore: ;
+    }
+}
+
+ulonglong strutf8_to_ulonglong(String_UTF8 *utf) {
+    ulonglong value = 0;
+    ulonglong pow = 1;
+    ulonglong i = utf->length - 1;
+    ulonglong internalIndex;
+    pika_byte bytes;
+    int code;
+    while(1) {
+        internalIndex = strutf8_index_by_index_reverse(utf, i, &bytes);
+        code = strutf8_decode(&utf->bytes[internalIndex], bytes);
+        if(code >= '0' && code <= '9') {
+            value += (code - '0') * pow;
+            pow *= 10;
+        }
+        if(i == 0)
+            break;
+        i--;
+    }
+
+
+    return value;
+}
+
+void ulonglong_to_char_array(ulonglong value, uchar *buffer) {
+    buffer[0] = '0';
+    ulonglong copy = value;
+    pika_byte length = 0;
+    while(copy != 0) {
+        copy /= 10;
+        length++;
+    }
+    while(value != 0) {
+        buffer[length - 1] = value % 10 + '0';
+        value /= 10;
+        length--;
+    }
 }

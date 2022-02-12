@@ -125,6 +125,10 @@ void strutf16_to_strutf8(String_UTF16 *src, String_UTF8 *dest);
 void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest);
 
 
+ulonglong strutf8_to_ulonglong(String_UTF8 *utf);
+
+void ulonglong_to_char_array(ulonglong value, uchar *buffer);
+
 /* ===== Cleaner ===== */
 
 // Nettoie la chaîne UTF-8 en utilisant free et en remettant les valeurs à 0 et NULL.
@@ -152,6 +156,8 @@ void free_list_strutf8(List_String_UTF8 *list);
 */
 ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
 
+ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, pika_byte *bytes);
+
 /*
         Recherche la sous-chaîne dans la chaîne UTF-8 à partir de la fin.
 
@@ -171,6 +177,8 @@ uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglon
 uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 
 ulonglong str_search(const uchar *str, uchar value, uchar **ptr);
+
+uchar *str_search_array(const uchar *str, const uchar *value);
 
 /* ===== Vérificateurs ===== */
 
@@ -199,6 +207,8 @@ List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim);
         Retourne le nombre d'occurences remplacées.
 */
 ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *replacement);
+
+void strutf8_to_lower(String_UTF8 *utf);
 
 
 /* ===== Autres ===== */

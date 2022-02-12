@@ -20,7 +20,7 @@ static void *internal_thread(void *pParam)
     #endif
 }
 
-void thread_create(Thread *thread, ThreadRunCallback runCallback, ThreadEndCallback endCallback) {
+void create_thread(Thread *thread, ThreadRunCallback runCallback, ThreadEndCallback endCallback) {
     #ifdef PIKA_WINDOWS
     thread->hThread = NULL;
     #endif

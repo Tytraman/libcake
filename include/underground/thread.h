@@ -34,7 +34,7 @@ typedef struct _Thread {
 
 
 // Crée un thread sans le lancer.
-void thread_create(Thread *thread, ThreadRunCallback runCallback, ThreadEndCallback endCallback);
+void create_thread(Thread *thread, ThreadRunCallback runCallback, ThreadEndCallback endCallback);
 
 /*
         Démarre le thread.
