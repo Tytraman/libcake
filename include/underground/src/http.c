@@ -39,6 +39,7 @@ pika_bool create_http_client(HttpClient *client, const char *hostname, const cha
     client->data.messageToSendLength = 0;
 
     client->data.finalHeaderToSend = strutf8("");
+    client->data.url = strutf8("");
 
     client->data.getOrPost = PIKA_HTTP_GET;
 
@@ -64,6 +65,7 @@ AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMess
     client->data.messageToSendLength = 0;
 
     client->data.finalHeaderToSend = strutf8("");
+    client->data.url               = strutf8("");
 
     client->sock = server_socket_accept(server);
 
@@ -106,7 +108,7 @@ void free_http_header(HttpHeader *header) {
     }
 }
 
-void http_data_write_final_header(HttpData *data, const uchar *url, pika_byte requestOrResponse, uchar *statusCode) {
+void http_data_write_final_header(HttpData *data, pika_byte requestOrResponse, uchar *statusCode) {
     uchar *httpVersion = "HTTP/1.1";
     if(requestOrResponse == PIKA_HTTP_REQUEST) {
         switch(data->getOrPost) {
@@ -117,7 +119,7 @@ void http_data_write_final_header(HttpData *data, const uchar *url, pika_byte re
                 array_char_to_strutf8("POST ", data->finalHeaderToSend);
                 break;
         }
-        strutf8_add_char_array(data->finalHeaderToSend, url);
+        strutf8_add_char_array(data->finalHeaderToSend, data->url->bytes);
         strutf8_add_char_array(data->finalHeaderToSend, " ");
         strutf8_add_char_array(data->finalHeaderToSend, httpVersion);
     }else {
@@ -262,6 +264,21 @@ HttpHeader *http_data_parse_header(HttpData *data, HttpHeader **start) {
             ptr++;
         }
         http_add_header_element(lastElement, ptrKey, ptrValue);
+
+        if(strutf8_start_with((*lastElement)->key, "GET")) {
+            uchar *waw = (*lastElement)->key->bytes;
+            while(*waw != '\0' && *waw != ' ')
+                waw++;
+            while(*waw != '\0' && *waw == ' ')
+                waw++;
+            uchar *www = waw;
+            while(*waw != '\0' && *waw != ' ')
+                waw++;
+            uchar tempWaw = *waw;
+            *waw = '\0';
+            array_char_to_strutf8(www, data->url);
+            *waw = tempWaw;
+        }
         if(found) {
             *start = *lastElement;
             startFound = pika_false;
@@ -282,6 +299,7 @@ void free_http_data(HttpData *data) {
     free_http_header(data->receivedHeader);
     free_http_header(data->headerToSend);
     free_strutf8(data->finalHeaderToSend);
+    free_strutf8(data->url);
 }
 
 pika_byte http_receive(HttpData *data, pika_socket sock) {
@@ -326,7 +344,7 @@ pika_byte http_receive(HttpData *data, pika_socket sock) {
         }
     }
     HttpHeader *start, *found = NULL;
-    HttpHeader *header = http_data_parse_header(data, &start);
+    data->receivedHeader = http_data_parse_header(data, &start);
     while(start != NULL) {
         strutf8_to_lower(start->key);
         if(strutf8_equals(start->key, "content-length"))

@@ -60,7 +60,7 @@ char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
     #endif
 }
 
-void fdio_mem_copy(String_UTF8 *dest, pika_fd fd, ushort buffSize) {
+void fdio_mem_copy_strutf8(String_UTF8 *dest, pika_fd fd, ushort buffSize) {
     pika_size bytesRead;
     uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
 
@@ -72,5 +72,18 @@ void fdio_mem_copy(String_UTF8 *dest, pika_fd fd, ushort buffSize) {
     }
     dest->length = strutf8_length(dest);
 
+    free(buffer);
+}
+
+void fdio_mem_copy(uchar **dest, ulonglong *destLength, pika_fd fd, ushort buffSize) {
+    pika_size bytesRead;
+    uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
+    *destLength = 0;
+    while(fdio_read(fd, buffSize, bytesRead, buffer) != FDIO_ERROR_READ && bytesRead != 0) {
+        *dest = (uchar *) realloc(*dest, (*destLength + bytesRead) * sizeof(uchar) + sizeof(uchar));
+        memcpy(&(*dest)[*destLength], buffer, bytesRead * sizeof(uchar));
+        (*destLength) += bytesRead;
+        (*dest)[*destLength] = '\0';
+    }
     free(buffer);
 }

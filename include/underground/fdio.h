@@ -157,6 +157,7 @@ typedef int fdio_mode;
 */
 char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode);
 
-void fdio_mem_copy(String_UTF8 *dest, pika_fd fd, ushort buffSize);
+void fdio_mem_copy_strutf8(String_UTF8 *dest, pika_fd fd, ushort buffSize);
+void fdio_mem_copy(uchar **dest, ulonglong *destLength, pika_fd fd, ushort buffSize);
 
 #endif

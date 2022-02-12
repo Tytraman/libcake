@@ -42,6 +42,8 @@ typedef struct HttpData {
 
     String_UTF8 *finalHeaderToSend;
 
+    String_UTF8 *url;
+
     pika_byte getOrPost;
 } HttpData;
 
@@ -88,7 +90,7 @@ void free_http_header(HttpHeader *header);
 
 /* ===== HttpData ===== */
 
-void http_data_write_final_header(HttpData *data, const uchar *url, pika_byte requestOrResponse, uchar *statusCode);
+void http_data_write_final_header(HttpData *data, pika_byte requestOrResponse, uchar *statusCode);
 HttpHeader *http_data_parse_header(HttpData *data, HttpHeader **start);
 void free_http_data(HttpData *data);
 

@@ -593,6 +593,39 @@ ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *r
     return number;
 }
 
+ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value) {
+    ulonglong number = 0;
+    ulonglong length = str_count(value);
+
+    ulonglong internalIndex = 0;
+    uchar *ptr;
+    while((ptr = strutf8_search(utf, value, &internalIndex)) != NULL) {
+        memcpy(ptr, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
+        internalIndex -= length;
+        utf->data.length -= length;
+        utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+        utf->bytes[utf->data.length] = '\0';
+        number++;
+    }
+    if(number > 0)
+        utf->length = strutf8_length(utf);
+
+    return 0;
+}
+
+pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value) {
+    if(!strutf8_start_with(utf, value))
+        return pika_false;
+    ulonglong length = str_count(value);
+
+    utf->data.length -= length;
+    memcpy(utf->bytes, &utf->bytes[length], utf->data.length * sizeof(uchar));
+    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    utf->bytes[utf->data.length] = '\0';
+
+    return pika_true;
+}
+
 void free_strutf8(String_UTF8 *utf) {
     free(utf->bytes);
     free(utf);
@@ -729,6 +762,7 @@ void ulonglong_to_char_array(ulonglong value, uchar *buffer) {
         copy /= 10;
         length++;
     }
+    buffer[length] = '\0';
     while(value != 0) {
         buffer[length - 1] = value % 10 + '0';
         value /= 10;

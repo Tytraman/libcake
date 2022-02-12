@@ -44,7 +44,7 @@ void csv_add_line(CSV *csv, const uchar *line, uchar delim) {
 
 void csv_parse_file(CSV *dest, pika_fd fd, uchar delim) {
     String_UTF8 *utf = strutf8("");
-    fdio_mem_copy(utf, fd, 2048);
+    fdio_mem_copy_strutf8(utf, fd, 2048);
 
     uchar *lastPtr = utf->bytes;
 

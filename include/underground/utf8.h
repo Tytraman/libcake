@@ -85,6 +85,10 @@ void strutf8_reverse(String_UTF8 *utf);
 */
 pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index);
 
+ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value);
+
+pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value);
+
 
 /* ===== Conversion ===== */
 
