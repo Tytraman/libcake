@@ -416,3 +416,19 @@ ulonglong wstr_count(const wchar_t *str) {
         number++;
     return number;
 }
+
+void char_array_to_strutf16(uchar *source, String_UTF16 *dest) {
+    ulonglong length = str_count(source);
+    uchar *end = &source[length - 1];
+    dest->length = 0;
+    uchar *pStart, *pEnd;
+
+    int bytes;
+    ushort value;
+    while(source <= end) {
+        strutf8_index_by_index(source, end, 0L, &pStart, &pEnd, &bytes);
+        value = strutf8_decode(pStart, bytes);
+        strutf16_add_char(dest, value);
+        source = pEnd;
+    }
+}

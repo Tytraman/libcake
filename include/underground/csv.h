@@ -24,7 +24,7 @@ void csv_parse_file(CSV *dest, pika_fd fd, uchar delim);
 
 void free_csv(CSV *csv);
 
-pika_bool csv_save(CSV *csv, const pika_char *filename, uchar delim);
+pika_bool csv_save(CSV *csv, const uchar *filename, uchar delim);
 
 #define csv_get(csv, row, column) csv->utfList[row]->list[column]
 

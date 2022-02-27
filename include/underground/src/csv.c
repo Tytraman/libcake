@@ -71,7 +71,7 @@ void free_csv(CSV *csv) {
     free(csv);
 }
 
-pika_bool csv_save(CSV *csv, const pika_char *filename, uchar delim) {
+pika_bool csv_save(CSV *csv, const uchar *filename, uchar delim) {
     pika_fd fd = fdio_open_file(filename, FDIO_ACCESS_WRITE, 0, FDIO_OPEN_CREATE_ALWAYS, FDIO_ATTRIBUTE_NORMAL);
     if(fd == FDIO_ERROR_OPEN)
         return pika_false;

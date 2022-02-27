@@ -3,6 +3,7 @@
 #include "../utf16.h"
 #include "../utf8.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
@@ -61,17 +62,18 @@ char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
 }
 
 void fdio_mem_copy_strutf8(String_UTF8 *dest, pika_fd fd, ushort buffSize) {
-    pika_size bytesRead;
     uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
-
-    while(fdio_read(fd, buffSize, bytesRead, buffer) != FDIO_ERROR_READ && bytesRead != 0) {
+    pika_size bytesRead;
+    while(1) {
+        fdio_read(fd, buffSize, bytesRead, buffer);
+        if(bytesRead == FDIO_ERROR_READ || bytesRead == 0)
+            break;
         dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar) + sizeof(uchar));
         memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
-        dest->data.length += bytesRead;
-        dest->bytes[dest->data.length] = '\0';
+        (dest->data.length) += bytesRead;
     }
+    dest->bytes[dest->data.length] = '\0';
     dest->length = strutf8_length(dest);
-
     free(buffer);
 }
 
@@ -86,4 +88,17 @@ void fdio_mem_copy(uchar **dest, ulonglong *destLength, pika_fd fd, ushort buffS
         (*dest)[*destLength] = '\0';
     }
     free(buffer);
+}
+
+// TODO: portage Linux
+pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes) {
+    #ifdef PIKA_WINDOWS
+    String_UTF16 name;
+    create_strutf16(&name);
+    pika_fd fd = CreateFileW(name.characteres, desiredAccess, shareMode, NULL, openMode, attributes, NULL);
+    free(name.characteres);
+    return fd;
+    #else
+
+    #endif
 }

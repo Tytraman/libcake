@@ -6,6 +6,8 @@
         Version 0.0.1
 */
 
+// TODO: favoriser pika_char
+
 #include "underground/def.h"
 #include "underground/thread.h"
 #include "underground/file.h"
@@ -18,5 +20,8 @@
 #include "underground/csv.h"
 #include "underground/socket.h"
 #include "underground/http.h"
+#include "underground/css.h"
+#include "underground/html.h"
+#include "underground/time.h"
 
 #endif

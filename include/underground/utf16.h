@@ -86,4 +86,6 @@ char strutf16_start_with(String_UTF16 *utf, wchar_t *str);
 
 ulonglong wstr_count(const wchar_t *str);
 
+void char_array_to_strutf16(uchar *source, String_UTF16 *dest);
+
 #endif

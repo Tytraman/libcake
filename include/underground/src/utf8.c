@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <openssl/ssl.h>
+#include <openssl/rand.h>
 
 #ifdef PIKA_WINDOWS
 #include <windows.h>
@@ -547,7 +549,7 @@ pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uch
     return pika_true;
 }
 
-pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare) {
+pika_bool strutf8_equals(const String_UTF8 *utf, const uchar *compare) {
     if(str_count(compare) != utf->data.length)
         return pika_false;
 
@@ -555,11 +557,12 @@ pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare) {
 }
 
 ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *replacement) {
-    ulonglong number = 0;
-    ulonglong oldLength = str_count(old);
+    ulonglong number            = 0;
+    ulonglong oldLength         = str_count(old);
     ulonglong replacementLength = str_count(replacement);
-    ulonglong diff = 0;
-    uchar appendMode = 0;
+    ulonglong diff              = 0;
+    uchar     appendMode        = 0;
+
     if(oldLength > replacementLength) {
         appendMode = 1;
         diff = oldLength - replacementLength;
@@ -567,29 +570,36 @@ ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *r
         appendMode = 2;
         diff = replacementLength - oldLength;
     }
+
     ulonglong internalIndex = 0;
     uchar *ptr;
     ulonglong tempIndex;
+
+    // Tant qu'on trouve une occurence
     while((ptr = strutf8_search(utf, old, &internalIndex)) != NULL) {
+        // ptr n'est plus valide après realloc !
+        // On récupère l'index de ptr pour pouvoir y réaccéder après realloc
         tempIndex = ptr - utf->bytes;
         if(appendMode == 1) {
             // On diminue la longueur
             memcpy(ptr + replacementLength, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
             utf->data.length -= diff;
             utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
-            utf->bytes[utf->data.length] = '\0';            
+            utf->bytes[utf->data.length] = '\0';
         }else if(appendMode == 2) {
             // On augmente la longueur
+            utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + diff) * sizeof(uchar) + sizeof(uchar));
+            ptr = &utf->bytes[tempIndex];
+            memcpy(ptr + replacementLength, ptr + oldLength, (utf->data.length - tempIndex - oldLength) * sizeof(uchar) + sizeof(uchar));
             utf->data.length += diff;
-            utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
-            memcpy(ptr + replacementLength, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
-            utf->bytes[utf->data.length] = '\0';
         }
         memcpy(&utf->bytes[tempIndex], replacement, replacementLength * sizeof(uchar));
         number++;
     }
-    if(number > 0)
+    if(number > 0) {
+        utf->bytes[utf->data.length] = '\0';
         utf->length = strutf8_length(utf);
+    }
     return number;
 }
 
@@ -603,14 +613,15 @@ ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value) {
         memcpy(ptr, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
         internalIndex -= length;
         utf->data.length -= length;
-        utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
         utf->bytes[utf->data.length] = '\0';
         number++;
     }
-    if(number > 0)
+    if(number > 0) {
+        utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
         utf->length = strutf8_length(utf);
+    }
 
-    return 0;
+    return number;
 }
 
 pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value) {
@@ -622,6 +633,8 @@ pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value) {
     memcpy(utf->bytes, &utf->bytes[length], utf->data.length * sizeof(uchar));
     utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
     utf->bytes[utf->data.length] = '\0';
+
+    utf->length = strutf8_length(utf);
 
     return pika_true;
 }
@@ -768,4 +781,198 @@ void ulonglong_to_char_array(ulonglong value, uchar *buffer) {
         value /= 10;
         length--;
     }
+}
+
+String_UTF8_Pair *strutf8_pair(const uchar *key, const uchar *value) {
+    String_UTF8_Pair *pair = (String_UTF8_Pair *) malloc(sizeof(String_UTF8_Pair));
+    pair->key   = strutf8(key);
+    pair->value = strutf8(value);
+    return pair;
+}
+
+void free_strutf8_pair(String_UTF8_Pair *pair) {
+    free_strutf8(pair->key);
+    free_strutf8(pair->value);
+    free(pair);
+}
+
+uint str_hex_to_uint(const uchar *str) {
+    uint value = 0;
+    const uchar *c = str;
+    if(str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
+        c += 2;
+
+    while(*c != '\0') {
+        if(*c >= '0' && *c <= '9') {
+            value <<= 4;
+            value += *c - '0';
+        }else if((*c >= 'A' && *c <= 'F') || (*c >= 'a' && *c <= 'f')) {
+            value <<= 4;
+            value += (*c & 0x07) + 9;
+        }
+        c++;
+    }
+
+    return value;
+}
+
+void strutf8_decode_url(String_UTF8 *utf) {
+    strutf8_replace_all(utf, "+", " ");
+    char diff;
+    uchar *begin   = utf->bytes;
+    uchar *current = utf->bytes;
+    uchar recovery;
+    while(*current != '\0') {
+        if(*current == '%') {
+            begin = current;
+            while(1) {
+                if((current + 3) > &utf->bytes[utf->data.length - 1]) {
+                    current = &utf->bytes[utf->data.length];
+                    break;
+                }else {
+                    current += 3;
+                    if(*current != '%')
+                        break;
+                }
+            }
+            recovery = *current;
+            *current = '\0';
+            uint dec = str_hex_to_uint(begin);
+            *current = recovery;
+            uchar *buffer;
+            uchar bytes = strutf8_dec_to_char(dec, &buffer);
+            char diff = bytes - (current - begin);
+            ulonglong saveIndex = begin - utf->bytes + bytes;
+            // On copie le caractère converti
+            memcpy(begin, buffer, bytes * sizeof(uchar));
+
+            // On déplace le reste vers la gauche
+            memcpy(begin + bytes, current, (&utf->bytes[utf->data.length] - current) * sizeof(uchar));
+            utf->data.length += diff;
+            utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+            utf->bytes[utf->data.length] = '\0';
+            current = &utf->bytes[saveIndex];
+            free(buffer);
+        }
+        current++;
+        if(current > &utf->bytes[utf->data.length - 1])
+            break;
+    }
+    utf->length = strutf8_length(utf);
+}
+
+uchar strutf8_dec_to_char(uint value, uchar **buffer) {
+    uchar bytes;
+    if(value < 256) bytes = 1;
+    else if(value < 65536) bytes = 2;
+    else bytes = 3;
+    *buffer = (uchar *) malloc(bytes * sizeof(uchar));
+
+    uint mask = 0xFF, reverse = 0;
+    uchar i;
+    for(i = 0; i < bytes; ++i) {
+        (*buffer)[bytes - 1 - i] = ((value & mask) >> reverse);
+        mask <<= 8;
+        reverse += 8;
+    }
+
+    return bytes;
+}
+
+String_UTF8 *strutf8_random(int length) {
+    uchar *buff = (uchar *) malloc(length * sizeof(uchar) + sizeof(uchar));
+    buff[length] = '\0';
+    RAND_bytes(buff, length);
+    uchar val;
+    int i;
+    for(i = 0; i < length; ++i) {
+        val = buff[i] % 40;
+        if(val >= 0 && val <= 9)
+            val += '0';
+        else if(val > 9 && val < 36)
+            val += 55;
+        else {
+            switch(val) {
+                default: break;
+                case 36:
+                    val = '-';
+                    break;
+                case 37:
+                    val = '#';
+                    break;
+                case 38:
+                    val = '@';
+                    break;
+                case 39:
+                    val = '&';
+                    break;
+            }
+        }
+        buff[i] = val;    
+    }
+    String_UTF8 *str = strutf8(buff);
+    free(buff);
+    return str;
+}
+
+void strutf8_sha512(String_UTF8 *utf) {
+    uchar hash[SHA512_DIGEST_LENGTH];
+    uchar hexHash[SHA512_DIGEST_LENGTH * 2 + 1];
+    hexHash[sizeof(hexHash) - 1] = '\0';
+    SHA512(utf->bytes, utf->data.length * sizeof(uchar), hash);
+    uchar i;
+    uchar *current = hexHash;
+    for(i = 0; i < SHA512_DIGEST_LENGTH; ++i) {
+        str_dec_to_hexchar(hash[i], current);
+        current += 2;
+    }
+    array_char_to_strutf8(hexHash, utf);
+}
+
+void str_dec_to_hexchar(uchar value, uchar dest[2]) {
+    uchar val1 = (value & 0x0F);
+    uchar val2 = ((value & 0xF0) >> 4);
+    if(val1 > 9)
+        dest[1] = val1 + 'a' - 10;
+    else
+        dest[1] = val1 + '0';
+    if(val2 > 9)
+        dest[0] = val2 + 'a' - 10;
+    else
+        dest[0] = val2 + '0';
+}
+
+void __strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
+    ulonglong diff = toIndex - fromIndex;
+    memcpy(&utf->bytes[fromIndex], &utf->bytes[toIndex], (&utf->bytes[utf->data.length] - &utf->bytes[toIndex]) * sizeof(uchar));
+    (utf->data.length) -= diff;
+    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    utf->bytes[utf->data.length] = '\0';
+
+    utf->length = strutf8_length(utf);
+}
+
+pika_bool strutf8_remove_from_to(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
+    if(fromIndex > utf->length || toIndex > utf->length)
+        return pika_false;
+    if(fromIndex == toIndex)
+        return pika_true;
+
+    uchar *pFromStart, *pFromEnd;
+    uchar *pToStart, *pToEnd;
+    ulonglong internalFromIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], fromIndex, &pFromStart, &pFromEnd, NULL);
+    ulonglong internalToIndex   = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], toIndex, &pToStart, &pToEnd, NULL);
+    
+    __strutf8_remove_from_to_internal(utf, internalFromIndex, internalToIndex);
+    return pika_true;
+}
+
+pika_bool strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
+    if(fromIndex > utf->data.length || toIndex > utf->data.length)
+        return pika_false;
+    if(fromIndex == toIndex)
+        return pika_true;
+
+    __strutf8_remove_from_to_internal(utf, fromIndex, toIndex);
+    return pika_true;
 }

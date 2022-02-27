@@ -21,7 +21,20 @@ typedef struct List_String_UTF8 {
     String_UTF8 **list;
 } List_String_UTF8;
 
+typedef struct String_UTF8_Pair {
+    String_UTF8 *key;
+    String_UTF8 *value;
+} String_UTF8_Pair;
+
+typedef struct LinkedList_String_UTF8_Pair {
+    String_UTF8_Pair *pair;
+    struct LinkedList_String_UTF8_Pair *next;
+} LinkedList_String_UTF8_Pair;
+
 /* ===== Initialisation ===== */
+
+String_UTF8_Pair *strutf8_pair(const uchar *key, const uchar *value);
+void free_strutf8_pair(String_UTF8_Pair *pair);
 
 /*
         Initialise toutes les valeurs de la structure String_UTF8.
@@ -88,6 +101,15 @@ pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index);
 ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value);
 
 pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value);
+
+/*
+        Supprime tous les caractères à partir de fromIndex (compris) jusqu'à toIndex (non compris).
+
+        Retourne pika_false si un des deux index est supérieur au nombre de caractères.
+*/
+pika_bool strutf8_remove_from_to(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex);
+
+pika_bool strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex);
 
 
 /* ===== Conversion ===== */
@@ -195,7 +217,7 @@ pika_bool strutf8_start_with(String_UTF8 *utf, const uchar *research);
 pika_bool str_starts_with(const uchar *src, const uchar *str);
 
 // Vérifie que la chaîne UTF-8 soit exactement égale à la chaîne de caractères passée.
-pika_bool strutf8_equals(String_UTF8 *utf, const uchar *compare);
+pika_bool strutf8_equals(const String_UTF8 *utf, const uchar *compare);
 
 
 /* ===== Création ===== */
@@ -224,5 +246,30 @@ ulonglong strutf8_length(String_UTF8 *utf);
 
 // Equivalent de strlen.
 ulonglong str_count(const uchar *str);
+
+uint str_hex_to_uint(const uchar *str);
+
+void strutf8_decode_url(String_UTF8 *utf);
+
+/*
+        Convertie une valeur décimale en chaîne de caractères.
+
+        buffer est dynamiquement alloué grâce à malloc, ne pas oublier de free quand il ne sert plus.
+*/
+uchar strutf8_dec_to_char(uint value, uchar **buffer);
+
+/*
+    Génère un String_UTF8 de longueur length avec des caractères aléatoires,
+    utilise RAND_bytes d'OpenSSL.
+*/
+String_UTF8 *strutf8_random(int length);
+
+void strutf8_sha512(String_UTF8 *utf);
+
+/*
+        Stock une valeur décimale convertie en hexadécimale dans un buffer,
+        aucun caractère NULL n'est mis à la fin !
+*/
+void str_dec_to_hexchar(uchar value, uchar dest[2]);
 
 #endif

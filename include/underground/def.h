@@ -99,4 +99,9 @@ typedef unsigned char pika_byte;
 
 #define PIKA_NO_ERROR 0
 
+typedef struct BytesBuffer {
+    pika_byte *buffer;
+    ulonglong size;
+} BytesBuffer;
+
 #endif
