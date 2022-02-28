@@ -353,7 +353,7 @@ pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader
     // On lit d'abord le header
     ulonglong index = 0;
     while(1) {
-        if((bytesRead = recvCallback(fusion, buffer, PIKA_BUFF_SIZE)) == SOCKET_ERROR)
+        if((bytesRead = recvCallback(fusion, buffer, PIKA_BUFF_SIZE)) == PIKA_HTTP_ERROR_RECV)
             return PIKA_HTTP_ERROR_RECEIVE;
         else if(bytesRead == 0)
             return PIKA_HTTP_CONNECTION_CLOSED;
@@ -401,7 +401,7 @@ pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader
             if(remain > 0) {
                 while(1) {
                     bytesRead = recvCallback(fusion, &destMessage->buffer[current], (remain > PIKA_BUFF_SIZE ? PIKA_BUFF_SIZE : remain));
-                    if(bytesRead == SOCKET_ERROR)
+                    if(bytesRead == PIKA_HTTP_ERROR_RECV)
                         return PIKA_HTTP_ERROR_RECEIVE;
                     else if(bytesRead == 0)
                         return PIKA_HTTP_CONNECTION_CLOSED;

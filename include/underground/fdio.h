@@ -51,6 +51,12 @@ typedef HANDLE pika_fd;
 #define __fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) WriteFile(fd, buffer, numberOfBytesToWrite, bytesWritten, NULL)
 #define fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) __fdio_write(fd, numberOfBytesToWrite, FDIO_PTR(bytesWritten), buffer)
 
+/*
+        Ouvre un fichier et retourne son FileDescriptor.
+
+        En cas d'erreur, FDIO_ERROR_OPEN est retourné.
+*/
+pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes);
 
 // Ferme un FileDescriptor, peut-être utilisé sur un pika_fd.
 #define fdio_close(fd) CloseHandle(fd)
@@ -128,13 +134,6 @@ typedef int fdio_mode;
 #define FDIO_COMPARE_CREATION_TIME   0
 #define FDIO_COMPARE_ACCESS_TIME     1
 #define FDIO_COMPARE_LAST_WRITE_TIME 2
-
-/*
-        Ouvre un fichier et retourne son FileDescriptor.
-
-        En cas d'erreur, FDIO_ERROR_OPEN est retourné.
-*/
-pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes);
 
 /*
         Compare le temps entre 2 fichiers.

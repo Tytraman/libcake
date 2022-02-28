@@ -417,9 +417,9 @@ ulonglong wstr_count(const wchar_t *str) {
     return number;
 }
 
-void char_array_to_strutf16(uchar *source, String_UTF16 *dest) {
+void char_array_to_strutf16(const uchar *source, String_UTF16 *dest) {
     ulonglong length = str_count(source);
-    uchar *end = &source[length - 1];
+    uchar *end = (uchar *) &source[length - 1];
     dest->length = 0;
     uchar *pStart, *pEnd;
 

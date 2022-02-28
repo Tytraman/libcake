@@ -180,7 +180,7 @@ void free_list_strutf8(List_String_UTF8 *list);
         Permet de trouver l'adresse dans une chaîne UTF-8 par rapport à un index, étant donné qu'un caractère peut avoir plusieurs octets,
         faire utf[6] peut avoir des effets indésirables, cette fonction parcourt la chaîne et compte les index.
 */
-ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
+ulonglong strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
 
 ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, pika_byte *bytes);
 

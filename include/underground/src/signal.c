@@ -72,7 +72,7 @@ void unix_ctrl_c_routine(int sig) {
                 printf("\b\b  \b\b");
                 s_CtrlCEventTrigerred = pika_true;
                 Thread *thread = (Thread *) malloc(sizeof(Thread));
-                thread_create(thread, ctrl_c_callback, NULL);
+                create_thread(thread, ctrl_c_callback, NULL);
                 thread_run(thread, thread);
             }
             s_CtrlCEventUndefinedBehavior = pika_false;

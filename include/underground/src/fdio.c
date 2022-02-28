@@ -90,15 +90,13 @@ void fdio_mem_copy(uchar **dest, ulonglong *destLength, pika_fd fd, ushort buffS
     free(buffer);
 }
 
-// TODO: portage Linux
+#ifdef PIKA_WINDOWS
 pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes) {
-    #ifdef PIKA_WINDOWS
     String_UTF16 name;
     create_strutf16(&name);
+    char_array_to_strutf16(filename, &name);
     pika_fd fd = CreateFileW(name.characteres, desiredAccess, shareMode, NULL, openMode, attributes, NULL);
     free(name.characteres);
     return fd;
-    #else
-
-    #endif
 }
+#endif

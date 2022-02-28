@@ -103,7 +103,7 @@ void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest) {
         strutf8_add_wchar(dest, src[i]);
 }
 
-ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes) {
+ulonglong strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes) {
     ulonglong internalIndex = 0;
     ulonglong currentUtfIndex = 0UL;
     uchar *saveStart;
@@ -113,8 +113,8 @@ ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong
         // Si c'est un caractère ASCII
         if((*pArrayStart & 0b10000000) == 0) {
             if(currentUtfIndex == utfIndex) {
-                *pStart = pArrayStart;
-                *pEnd = pArrayStart + 1;
+                *pStart = (uchar *) pArrayStart;
+                *pEnd = (uchar *) (pArrayStart + 1);
                 if(bytes) *bytes = 1;
                 return internalIndex;
             }
@@ -123,7 +123,7 @@ ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong
             internalIndex++;
         // Si c'est le début d'un caractère encodé UTF-8
         }else if((*pArrayStart & 0b11000000) == 192) {
-            saveStart = pArrayStart;
+            saveStart = (uchar *) pArrayStart;
             saveInternalIndex = internalIndex;
             pArrayStart++;
             // Tant que c'est un octet UTF-8
@@ -133,7 +133,7 @@ ulonglong strutf8_index_by_index(uchar *pArrayStart, uchar *pArrayEnd, ulonglong
             }
             if(currentUtfIndex == utfIndex) {
                 *pStart = saveStart;
-                *pEnd = pArrayStart;
+                *pEnd = (uchar *) pArrayStart;
                 if(bytes) *bytes = pArrayStart - saveStart;
                 return saveInternalIndex;
             }
