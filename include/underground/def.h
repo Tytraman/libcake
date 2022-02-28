@@ -18,6 +18,8 @@
 #include <WinSock2.h>
 #include <windows.h>
 
+#define PIKA_ERROR 0
+
 // Sous Windows un pika_char est équivalent à un wchar_t.
 typedef wchar_t pika_char;
 
@@ -48,8 +50,9 @@ typedef DWORD pika_size;
 
 #elif defined(unix) || defined(__unix__) || defined(__unix)
 #define PIKA_UNIX 1
-
 #include <sys/types.h>
+
+#define PIKA_ERROR -1
 
 // Sous Unix un pika_char est équivalent à un char.
 typedef char pika_char;
