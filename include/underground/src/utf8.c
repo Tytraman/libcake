@@ -48,9 +48,9 @@ void clear_strutf8(String_UTF8 *utf) {
 }
 
 ulonglong strutf8_length(String_UTF8 *utf) {
-    ulonglong length = 0UL;
+    ulonglong length = 0;
     ulonglong i;
-    for(i = 0UL; i < utf->data.length; i++) {
+    for(i = 0; i < utf->data.length; i++) {
         if((utf->bytes[i] & 0b10000000) == 0)
             length++;
         else if((utf->bytes[i] & 0b11000000) == 192) {
@@ -61,8 +61,6 @@ ulonglong strutf8_length(String_UTF8 *utf) {
             i--;
         }
     }
-    if(utf->bytes[utf->data.length - 1] == '\0')
-        length--;
     return length;
 }
 

@@ -6,6 +6,11 @@
 #ifdef PIKA_WINDOWS
 #include <ws2tcpip.h>
 
+#define init_winsock() WSADATA __winsock_data;\
+                       WSAStartup(MAKEWORD(2, 2), &__winsock_data)
+
+#define clean_winsock() WSACleanup()
+
 typedef SOCKET pika_socket;
 
 #define PIKA_SOCKET_BAD_SOCKET INVALID_SOCKET
@@ -19,8 +24,12 @@ typedef SOCKET pika_socket;
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+
+#define init_winsock() 
+#define clean_winsock() 
 
 typedef int pika_socket;
 
@@ -61,11 +70,6 @@ typedef struct AcceptedClientSocket {
 #define socket_read(socket, buffer, size) recv(socket, buffer, size, 0)
 
 #define socket_send(socket, buffer, size) send(socket, buffer, size, 0)
-
-#define init_winsock() WSADATA __winsock_data;\
-                       WSAStartup(MAKEWORD(2, 2), &__winsock_data)
-
-#define clean_winsock() WSACleanup()
 
 #define PIKA_SOCKET_ERROR_FROM_GETADDRINFO 1
 #define PIKA_SOCKET_ERROR_FROM_SOCKET      2

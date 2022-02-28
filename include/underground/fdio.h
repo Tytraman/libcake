@@ -83,7 +83,7 @@ pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMo
 #define FDIO_ACCESS_READ  O_RDONLY
 #define FDIO_ACCESS_WRITE O_WRONLY
 #define FDIO_ACCESS_READ_WRITE O_RDWR
-#define FDIO_ACCESS_APPEND O_APPEND
+#define FDIO_ACCESS_APPEND (O_WRONLY | O_APPEND)
 
 #define FDIO_SHARE_READ   0
 #define FDIO_SHARE_WRITE  0
@@ -91,7 +91,7 @@ pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMo
 
 #define FDIO_OPEN_CREATE_ALWAYS        O_EXCL
 #define FDIO_OPEN_CREATE_IF_NOT_EXISTS O_CREAT
-#define FDIO_OPEN_ALWAYS               0
+#define FDIO_OPEN_ALWAYS               O_CREAT
 #define FDIO_OPEN_IF_EXISTS            0
 #define FDIO_OPEN_TRUNC_IF_EXISTS      O_TRUNC
 

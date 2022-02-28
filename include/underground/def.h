@@ -69,6 +69,11 @@ typedef ssize_t pika_size;
 #define FILE_SEPARATOR_STR         "/"
 #define FILE_SEPARATOR_REVERSE_STR "\\"
 
+#define FILE_SEPARATOR_CHAR             '/'
+#define FILE_SEPARATOR_REVERSE_CHAR     '\\'
+#define FILE_SEPARATOR_CHAR_STR         "/"
+#define FILE_SEPARATOR_REVERSE_CHAR_STR "\\"
+
 #define STR_NULL_END '\0'
 #define ASTERISK     '*'
 
