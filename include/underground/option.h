@@ -2,12 +2,35 @@
 #define __PIKA_OPTION_H__
 
 #include "def.h"
+#include "fdio.h"
 #include "utf8.h"
 
 typedef struct Option {
     String_UTF8 *key;
     String_UTF8 *value;
 } Option;
+
+
+/*
+    Structure liée à FileOption.
+*/
+typedef struct FileOptionElement {
+    Option *opt;
+    // Index du début de la clé dans la source.
+    ulonglong keyIndex;
+    // Index du début de la valeur dans la source.
+    ulonglong valueIndex;
+} FileOptionElement;
+
+
+/*
+        Les éléments internes à cette structure ne doivent pas être modifiés.
+*/
+typedef struct FileOption {
+    pika_fd fd;
+    String_UTF8 *fileCopy;
+    uchar delim;
+} FileOption;
 
 
 /*
@@ -18,16 +41,17 @@ typedef struct Option {
 
         Ne pas oublier de free_option lorsque la structure ne sert plus.
 */
-Option *load_option(String_UTF8 *source, const uchar *key, uchar delim);
+Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex);
 
-
-/*
-        Attribut une clé : valeur à une option.
-
-        Si *opt est NULL, il sera créé avec malloc.
-*/
-void set_option(Option **opt, const uchar *key, const uchar *value);
-
+#define load_option(source, key, delim) __load_option(source, key, delim, NULL, NULL)
 void free_option(Option *opt);
+
+/* ===== FileOption ===== */
+
+FileOption *file_option_load(const uchar *filename, uchar delim);
+FileOptionElement *file_option_get(FileOption *fileOpt, const uchar *key);
+void free_file_option(FileOption *fileOpt);
+
+#define free_file_option_element(e) free_option(e->opt)
 
 #endif

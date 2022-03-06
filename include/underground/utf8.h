@@ -272,4 +272,8 @@ void strutf8_sha512(String_UTF8 *utf);
 */
 void str_dec_to_hexchar(uchar value, uchar dest[2]);
 
+pika_bool str_equals(const uchar *str1, const uchar *str2);
+
+ulonglong str_number_of(const uchar *str, uchar value);
+
 #endif

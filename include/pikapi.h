@@ -23,6 +23,7 @@
 #include "underground/css.h"
 #include "underground/html.h"
 #include "underground/time.h"
+#include "underground/fileobject.h"
 
 
 #ifdef PIKA_WINDOWS

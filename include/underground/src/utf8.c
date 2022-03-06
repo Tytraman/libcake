@@ -974,3 +974,23 @@ pika_bool strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex,
     __strutf8_remove_from_to_internal(utf, fromIndex, toIndex);
     return pika_true;
 }
+
+
+pika_bool str_equals(const uchar *str1, const uchar *str2) {
+    ulonglong length1 = str_count(str1);
+    ulonglong length2 = str_count(str2);
+    if(length1 != length2)
+        return pika_false;
+
+    return memcmp(str1, str2, length1) == 0;
+}
+
+ulonglong str_number_of(const uchar *str, uchar value) {
+    ulonglong number = 0;
+    while(*str != '\0') {
+        if(*str == value)
+            number++;
+        str++;
+    }
+    return number;
+}
