@@ -259,14 +259,6 @@ void strutf8_decode_url(String_UTF8 *utf);
 uchar strutf8_dec_to_char(uint value, uchar **buffer);
 
 /*
-    Génère un String_UTF8 de longueur length avec des caractères aléatoires,
-    utilise RAND_bytes d'OpenSSL.
-*/
-String_UTF8 *strutf8_random(int length);
-
-void strutf8_sha512(String_UTF8 *utf);
-
-/*
         Stock une valeur décimale convertie en hexadécimale dans un buffer,
         aucun caractère NULL n'est mis à la fin !
 */
