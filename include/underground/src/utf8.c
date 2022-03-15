@@ -766,9 +766,13 @@ ulonglong strutf8_to_ulonglong(String_UTF8 *utf) {
 }
 
 void ulonglong_to_char_array(ulonglong value, uchar *buffer) {
-    buffer[0] = '0';
-    ulonglong copy = value;
+    if(value == 0) {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return;
+    }
     pika_byte length = 0;
+    ulonglong copy = value;
     while(copy != 0) {
         copy /= 10;
         length++;
@@ -993,4 +997,14 @@ ulonglong str_number_of(const uchar *str, uchar value) {
         str++;
     }
     return number;
+}
+
+void strutf8_vector_delete_callback(void *args) {
+    String_UTF8 *utf = (String_UTF8 *) args;
+    free(utf->bytes);
+}
+
+void strutf8_vector_delete_callback_ptr(void *args) {
+    String_UTF8 *utf = *((String_UTF8 **) args);
+    free_strutf8(utf);
 }

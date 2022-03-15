@@ -2,8 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#if PIKA_SSL > 0
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#endif
 
 pika_bool create_http_client(HttpClient *client, const char *hostname, const char *port) {
     if(!create_client_socket(&client->sock, hostname, port, PIKA_IP_V4))
@@ -31,6 +33,7 @@ pika_bool create_http_client(HttpClient *client, const char *hostname, const cha
     return pika_true;
 }
 
+#if PIKA_SSL > 0
 AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMessageMaxLength) {
     AcceptedHttpClient *client = (AcceptedHttpClient *) malloc(sizeof(AcceptedHttpClient));
 
@@ -84,6 +87,7 @@ AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestM
     }
     return client;
 }
+#endif
 
 void free_http_client(HttpClient *client) {
     clear_http_response(&client->response);
@@ -182,16 +186,20 @@ pika_bool http_client_send(HttpClient *client, pika_byte mode) {
 
 typedef struct HttpSendFusion {
     pika_socket sock;
+    #if PIKA_SSL > 0
     SSL *ssl;
+    #endif
 } HttpSendFusion;
 
 int __http_send_callback(HttpSendFusion *fusion, uchar *buff, int length) {
     return send(fusion->sock, buff, length, 0);
 }
 
+#if PIKA_SSL > 0
 int __https_send_callback(HttpSendFusion *fusion, uchar *buff, int length) {
     return SSL_write(fusion->ssl, buff, length);
 }
+#endif
 
 pika_bool __accepted_http_client_send(AcceptedHttpClient *client, pika_byte mode, HttpSendFusion *fusion, int (*sendCallback)(HttpSendFusion *, uchar *, int)) {
     ulonglong index = 0;
@@ -231,11 +239,13 @@ pika_bool accepted_http_client_send(AcceptedHttpClient *client, pika_byte mode) 
     return __accepted_http_client_send(client, mode, &fusion, __http_send_callback);
 }
 
+#if PIKA_SSL > 0
 pika_bool accepted_https_client_send(AcceptedHttpsClient *client, pika_byte mode) {
     HttpSendFusion fusion;
     fusion.ssl = client->ssl;
     return __accepted_http_client_send(client->client, mode, &fusion, __https_send_callback);
 }
+#endif
 
 void free_accepted_http_client(AcceptedHttpClient *client) {
     clear_http_response(&client->response);
@@ -331,16 +341,20 @@ accepted_http_client_parse_header_ignore:
 
 typedef struct HttpReceiveFusion {
     pika_socket sock;
+    #if PIKA_SSL > 0 
     SSL *ssl;
+    #endif
 } HttpReceiveFusion;
 
 int __http_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length) {
     return recv(fusion->sock, buff, length, 0);
 }
 
+#if PIKA_SSL > 0
 int __https_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length) {
     return SSL_read(fusion->ssl, buff, length);
 }
+#endif
 
 pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, uchar *, int)) {
     int bytesRead;
@@ -424,11 +438,13 @@ pika_byte http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader *
     return __http_receive(dest, destMessage, header, getOrPost, url, &fusion, __http_receive_callback);
 }
 
+#if PIKA_SSL > 0
 pika_byte https_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, SSL *ssl) {
     HttpReceiveFusion fusion;
     fusion.ssl = ssl;
     return __http_receive(dest, destMessage, header, getOrPost, url, &fusion, __https_receive_callback);
 }
+#endif
 
 LinkedList_String_UTF8_Pair *accepted_http_client_parse_post_message(AcceptedHttpClient *client) {
     LinkedList_String_UTF8_Pair *current = NULL;
@@ -490,11 +506,13 @@ HttpHeader *http_header_find(HttpHeader *first, const uchar *key) {
     return first;
 }
 
+#if PIKA_SSL > 0
 void init_openssl() {
     ERR_load_crypto_strings();
     SSL_load_error_strings();
     SSL_library_init();
 }
+
 
 pika_bool create_https_server(HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath) {
     if(!create_http_server(&serverDest->server, port, backlog))
@@ -561,6 +579,7 @@ void free_accepted_https_client(AcceptedHttpsClient *client) {
     free_accepted_http_client(client->client);
     free(client);
 }
+#endif
 
 void create_http_response(HttpResponse *response) {
     response->formattedHeader = strutf8("");

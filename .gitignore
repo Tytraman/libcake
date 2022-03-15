@@ -4,3 +4,4 @@ compile.cmd
 pika
 pika.exe
 main.c
+config.txt

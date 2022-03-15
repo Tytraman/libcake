@@ -101,7 +101,9 @@ typedef unsigned long long ulonglong;
 typedef signed char   int8;
 typedef unsigned char uint8;
 
-typedef unsigned char pika_byte;
+typedef uchar pika_byte;
+
+typedef uchar pika_undefined_type;
 
 #define PIKA_PTR(value) &value
 

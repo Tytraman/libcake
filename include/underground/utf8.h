@@ -276,4 +276,8 @@ pika_bool str_equals(const uchar *str1, const uchar *str2);
 
 ulonglong str_number_of(const uchar *str, uchar value);
 
+
+void strutf8_vector_delete_callback(void *args);
+void strutf8_vector_delete_callback_ptr(void *args);
+
 #endif

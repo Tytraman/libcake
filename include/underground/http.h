@@ -5,7 +5,16 @@
 #include "socket.h"
 #include "utf8.h"
 
+#ifndef PIKA_SSL
+#define PIKA_SSL 0
+#endif
+
+#if PIKA_SSL > 0
 #include <openssl/ssl.h>
+#else
+typedef pika_undefined_type SSL;
+typedef pika_undefined_type SSL_CTX;
+#endif
 
 #define PIKA_HTTP_GET  0
 #define PIKA_HTTP_POST 1
@@ -75,12 +84,13 @@ typedef struct AcceptedHttpClient {
     ulonglong dataReceivedMaxLength;
 } AcceptedHttpClient;
 
+typedef ServerSocket HttpServer;
+
+
 typedef struct AcceptedHttpsClient {
     AcceptedHttpClient *client;
     SSL *ssl;
 } AcceptedHttpsClient;
-
-typedef ServerSocket HttpServer;
 
 typedef struct HttpsServer {
     HttpServer server;
@@ -119,11 +129,13 @@ void free_http_client(HttpClient *client);
 /* ===== HttpServer ===== */
 
 #define create_http_server(pServer, port, backlog) create_server_socket(pServer, port, PIKA_IP_V4, backlog)
+
 pika_bool create_https_server(HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath);
-AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMessageMaxLength);
 AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestMessageMaxLength);
-#define free_http_server(server) free_server_socket(server)
 void free_https_server(HttpsServer *server);
+
+AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMessageMaxLength);
+#define free_http_server(server) free_server_socket(server)
 
 
 /* ===== HttpHeader ===== */
@@ -136,15 +148,15 @@ HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *
 /* ===== AcceptedHttpClient ===== */
 
 pika_bool accepted_http_client_send(AcceptedHttpClient *client, pika_byte mode);
-pika_bool accepted_https_client_send(AcceptedHttpsClient *client, pika_byte mode);
 #define accepted_http_client_receive(c) http_receive(&(c).request.receivedData, &(c).request.message, &(c).request.header, &(c).request.method, (c).request.url, (c).sock->socket)
-#define accepted_https_client_receive(c) https_receive(&(*(c).client).request.receivedData, &(*(c).client).request.message, &(*(c).client).request.header, &(*(c).client).request.method, (*(c).client).request.url, (c).ssl)
 LinkedList_String_UTF8_Pair *accepted_http_client_parse_post_message(AcceptedHttpClient *client);
 void free_accepted_http_client(AcceptedHttpClient *client);
+
+pika_bool accepted_https_client_send(AcceptedHttpsClient *client, pika_byte mode);
+#define accepted_https_client_receive(c) https_receive(&(*(c).client).request.receivedData, &(*(c).client).request.message, &(*(c).client).request.header, &(*(c).client).request.method, (*(c).client).request.url, (c).ssl)
 void free_accepted_https_client(AcceptedHttpsClient *client);
+void init_openssl();
 
 HttpHeader *http_header_find(HttpHeader *first, const uchar *key);
-
-void init_openssl();
 
 #endif
