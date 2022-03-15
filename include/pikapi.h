@@ -6,12 +6,6 @@
         Version 0.0.1
 */
 
-#ifdef PIKA_WINDOWS
 
-// TODO: portage Linux
-pika_byte change_directory(const uchar *directory);
-#else
-
-#endif
 
 #endif
