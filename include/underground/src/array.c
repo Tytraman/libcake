@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-void array_resize(ArrayList *array, ulonglong elementSize, ulonglong newLength) {
+void cake_array_resize(Cake_ArrayList *array, ulonglong elementSize, ulonglong newLength) {
     // Récupération du pointeur vers la liste.
     void **src = (void **) array;
     void ***list = (void ***) &src;

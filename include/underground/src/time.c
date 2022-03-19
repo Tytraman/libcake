@@ -1,7 +1,7 @@
 #include "../time.h"
 
-#ifdef PIKA_WINDOWS
-ulonglong filetime_to_ularge(FILETIME *ft) {
+#ifdef CAKE_WINDOWS
+ulonglong cake_filetime_to_ularge(FILETIME *ft) {
     ULARGE_INTEGER uLarge;
     uLarge.HighPart = ft->dwHighDateTime;
     uLarge.LowPart  = ft->dwLowDateTime;
@@ -11,11 +11,11 @@ ulonglong filetime_to_ularge(FILETIME *ft) {
 #include <time.h>
 #endif
 
-ulonglong get_current_time_millis() {
-    #ifdef PIKA_WINDOWS
+ulonglong cake_get_current_time_millis() {
+    #ifdef CAKE_WINDOWS
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
-    return filetime_to_ularge(&ft) / 10000 - 11644473600000;
+    return cake_filetime_to_ularge(&ft) / 10000 - 11644473600000;
     #else
     struct timespec t;
     clock_gettime(CLOCK_REALTIME, &t);

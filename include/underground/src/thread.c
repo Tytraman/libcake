@@ -1,27 +1,27 @@
 #include "../thread.h"
 
-#ifdef PIKA_WINDOWS
+#ifdef CAKE_WINDOWS
 unsigned int __stdcall internal_thread(void *pParam) 
 #else
 static void *internal_thread(void *pParam)
 #endif
 {
-    Thread *thread = (Thread *) pParam;
+    Cake_Thread *thread = (Cake_Thread *) pParam;
     unsigned int returnValue = thread->runCallback(thread->args);
     if(thread->endCallback)
         thread->endCallback(thread->args);
     
-    #ifdef PIKA_WINDOWS
+    #ifdef CAKE_WINDOWS
     thread_exit(0);
-    free_thread(thread);
+    cake_free_thread(thread);
     return returnValue;
     #else
     return (void *) (unsigned long long) returnValue;
     #endif
 }
 
-void create_thread(Thread *thread, ThreadRunCallback runCallback, ThreadEndCallback endCallback) {
-    #ifdef PIKA_WINDOWS
+void cake_create_thread(Cake_Thread *thread, ThreadRunCallback runCallback, ThreadEndCallback endCallback) {
+    #ifdef CAKE_WINDOWS
     thread->hThread = NULL;
     #endif
 
@@ -29,21 +29,21 @@ void create_thread(Thread *thread, ThreadRunCallback runCallback, ThreadEndCallb
     thread->endCallback = endCallback;
 }
 
-char thread_run(Thread *thread, void *args) {
-    if(!thread->runCallback) return THREAD_NO_RUN_CALLBACK;
+char cake_thread_run(Cake_Thread *thread, void *args) {
+    if(!thread->runCallback) return CAKE_THREAD_NO_RUN_CALLBACK;
     thread->args = args;
-    #ifdef PIKA_WINDOWS
+    #ifdef CAKE_WINDOWS
     thread->hThread = (HANDLE) _beginthreadex(NULL, 0, internal_thread, thread, 0, 0);
     #else
-    if(pthread_create(&thread->hThread, NULL, internal_thread, thread) != 0) return THREAD_ERROR_ON_CREATE;
+    if(pthread_create(&thread->hThread, NULL, internal_thread, thread) != 0) return CAKE_THREAD_ERROR_ON_CREATE;
     #endif
 
-    return THREAD_OK;
+    return CAKE_THREAD_OK;
 }
 
-void thread_wait(Thread *thread) {
+void cake_thread_wait(Cake_Thread *thread) {
     if(!thread->hThread) return;
-    #ifdef PIKA_WINDOWS
+    #ifdef CAKE_WINDOWS
     WaitForSingleObject(thread->hThread, INFINITE);
     #else
     unsigned int *returnValue;
@@ -51,8 +51,8 @@ void thread_wait(Thread *thread) {
     #endif
 }
 
-#ifdef PIKA_WINDOWS
-void free_thread(Thread *thread) {
+#ifdef CAKE_WINDOWS
+void cake_free_thread(Cake_Thread *thread) {
     CloseHandle(thread->hThread);
     thread->hThread = NULL;
 }

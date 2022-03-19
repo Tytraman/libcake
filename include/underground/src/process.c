@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 
-pika_bool start_process(pika_process_command command, pika_process *process, pika_fd pipeStdout[2], pika_fd pipeStderr[2], pika_fd pipeStdin[2]) {
-    #ifdef PIKA_WINDOWS
+cake_bool cake_start_process(cake_process_command command, cake_process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]) {
+    #ifdef CAKE_WINDOWS
     *process = NULL;
 
     PROCESS_INFORMATION pi = { 0 };
@@ -41,7 +41,7 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
         &si,
         &pi
     ))
-        return pika_false;
+        return cake_false;
 
     if(si.dwFlags & STARTF_USESTDHANDLES) {
         if(pipeStdout != NULL) {
@@ -80,7 +80,7 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
         execvp(command[0], command);
         exit(25);
     }else if(*process == -1)
-        return pika_false;
+        return cake_false;
 
     if(pipeStdout != NULL)
         close(pipeStdout[1]);
@@ -90,26 +90,26 @@ pika_bool start_process(pika_process_command command, pika_process *process, pik
         close(pipeStdin[0]);
     #endif
 
-    return pika_true;
+    return cake_true;
 }
 
-#ifdef PIKA_WINDOWS
-void __process_wait(pika_process process, pika_exit_code *pExitCode) {
+#ifdef CAKE_WINDOWS
+void __cake_process_wait(cake_process process, cake_exit_code *pExitCode) {
     WaitForSingleObject(process, INFINITE);
     GetExitCodeProcess(process, pExitCode);
     CloseHandle(process);
 }
 
-void PIKA_PROCESS_COMMAND_ADD_ARG(pika_process_command_dyn command, const wchar_t *arg) {
-    strutf16_add_char(command, L' ');
-    strutf16_add_wchar_array(command, arg);
+void CAKE_PROCESS_COMMAND_ADD_ARG(cake_process_command_dyn command, const wchar_t *arg) {
+    cake_strutf16_add_char(command, L' ');
+    cake_strutf16_add_wchar_array(command, arg);
 }
 #else
-pika_process_command_dyn PIKA_PROCESS_COMMAND_DYN(const char *value) {
-    pika_process_command_dyn dyn = (pika_process_command_dyn) malloc(sizeof(_pika_process_command_dyn));
+cake_process_command_dyn CAKE_PROCESS_COMMAND_DYN(const char *value) {
+    cake_process_command_dyn dyn = (cake_process_command_dyn) malloc(sizeof(__cake_process_command_dyn));
     dyn->args = NULL;
-    array_resize((ArrayList *) dyn, sizeof(char *), 2);
-    ulonglong length = str_count(value);
+    cake_array_resize((Cake_ArrayList *) dyn, sizeof(char *), 2);
+    ulonglong length = cake_str_count(value);
     dyn->args[0] = (char *) malloc(length * sizeof(char) + sizeof(char));
     memcpy(dyn->args[0], value, length * sizeof(char));
     dyn->args[0][length] = '\0';
@@ -117,17 +117,17 @@ pika_process_command_dyn PIKA_PROCESS_COMMAND_DYN(const char *value) {
     return dyn;
 }
 
-void PIKA_PROCESS_COMMAND_ADD_ARG(pika_process_command_dyn command, const char *arg) {
+void CAKE_PROCESS_COMMAND_ADD_ARG(cake_process_command_dyn command, const char *arg) {
     ulonglong current = command->data.length - 1;
-    array_resize((ArrayList *) command, sizeof(char *), current + 2);
-    ulonglong length = str_count(arg);
+    cake_array_resize((Cake_ArrayList *) command, sizeof(char *), current + 2);
+    ulonglong length = cake_str_count(arg);
     command->args[current] = (char *) malloc(length * sizeof(char) + sizeof(char));
     memcpy(command->args[current], arg, length * sizeof(char));
     command->args[current][length] = '\0';
     command->args[current + 1] = NULL;
 }
 
-void PIKA_PROCESS_COMMAND_FREE(pika_process_command_dyn command) {
+void CAKE_PROCESS_COMMAND_FREE(cake_process_command_dyn command) {
     ulonglong i;
     for(i = 0; i < command->data.length - 1; ++i)
         free(command->args[i]);

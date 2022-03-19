@@ -1,30 +1,30 @@
-#ifndef __PIKA_CONSOLE_H__
-#define __PIKA_CONSOLE_H__
+#ifndef __CAKE_CONSOLE_H__
+#define __CAKE_CONSOLE_H__
 
 #include "def.h"
 #include "utf8.h"
 
-#ifdef PIKA_UNIX
+#ifdef CAKE_UNIX
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <termios.h>
 
-typedef struct winsize ConsoleSize;
+typedef struct winsize Cake_ConsoleSize;
 
-#define get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
+#define cake_get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
 
 // Il faut free le buffer retourné.
-#define console_get_current_directory() getcwd(NULL, 0)
+#define cake_console_get_current_directory() getcwd(NULL, 0)
 #else
-typedef struct ConsoleSize {
+typedef struct cake_consolesize {
     short ws_col;
     short ws_row;
-} ConsoleSize;
+} Cake_ConsoleSize;
 
-void get_console_size(ConsoleSize *pConsoleSize);
+void cake_get_console_size(Cake_ConsoleSize *pConsoleSize);
 
-void console_enable_ansi_sequence();
-#define console_recover_mode() SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), s_ConsoleRecoveryMode)
+void cake_console_enable_ansi_sequence();
+#define cake_console_recover_mode() SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), s_ConsoleRecoveryMode)
 #endif
 
 // Caractère d'échappement.
@@ -83,13 +83,13 @@ void console_enable_ansi_sequence();
 #define CONSOLE_BLACK_ON_CYAN    CONSOLE_ESC"["CONSOLE_CODE_FG_BLACK";"CONSOLE_CODE_BG_CYAN"m"
 #define CONSOLE_BLACK_ON_WHITE   CONSOLE_ESC"["CONSOLE_CODE_FG_BLACK";"CONSOLE_CODE_BG_WHITE"m"
 
-void get_console_cursor_pos(short *x, short *y);
-void set_console_cursor_pos(short x, short y);
-void console_clear_screen();
+void cake_get_console_cursor_pos(short *x, short *y);
+void cake_set_console_cursor_pos(short x, short y);
+void cake_console_clear_screen();
 
-void draw_progress_bar(unsigned int current, unsigned int target, short widthScale, pika_char fillChar, pika_char emptyChar);
-void clear_progress_bar();
-void console_update_last_pos();
+void cake_draw_progress_bar(uint current, uint target, short widthScale, cake_char fillChar, cake_char emptyChar);
+void cake_clear_progress_bar();
+void cake_console_update_last_pos();
 
 
 /*
@@ -117,10 +117,10 @@ void console_update_last_pos();
 
         La fonction a été faite sur le tas, elle peut avoir des effets indésirables qu'il faudra patcher lors
         de leurs découvertes.
-void get_console_line(String_UTF8 *utf);
+void get_console_line(Cake_String_UTF8 *utf);
 */
 
-void console_hide_cursor(pika_bool value);
-void console_scroll(pika_bool up, short value);
+void cake_console_hide_cursor(cake_bool value);
+void cake_console_scroll(cake_bool up, short value);
 
 #endif

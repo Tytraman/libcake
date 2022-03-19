@@ -1,16 +1,16 @@
-#ifndef __PIKA_ARRAY_H__
-#define __PIKA_ARRAY_H__
+#ifndef __CAKE_ARRAY_H__
+#define __CAKE_ARRAY_H__
 
 #include "def.h"
 #include <stdlib.h>
 
 /*
-        Lorsqu'une structure utilise ArrayList, il faut que l'élément
+        Lorsqu'une structure utilise Cake_ArrayList, il faut que l'élément
         juste après soit un pointeur de pointeur de structure.
 */
-typedef struct ArrayList {
+typedef struct cake_arraylist {
     ulonglong length;
-} ArrayList;
+} Cake_ArrayList;
 
 
 /*
@@ -24,18 +24,18 @@ typedef struct ArrayList {
         mais c'est tout, aucune autre zone mémoire n'est créée.
 
         Exemple :
-        String_UTF8 *str = strutf8("Hello World bonjour");
+        Cake_String_UTF8 *str = cake_strutf8("Hello World bonjour");
 
-        List_String_UTF8 *list = strutf8_split(str, " ");
+        Cake_List_String_UTF8 *list = cake_strutf8_split(str, " ");
 
-        array_resize((ArrayList *) list, sizeof(String_UTF8 *), 4);
-        list->list[3] = strutf8("Test");
+        cake_array_resize((Cake_ArrayList *) list, sizeof(Cake_String_UTF8 *), 4);
+        list->list[3] = cake_strutf8("Test");
 
         printf("%llu\n", list->list[3]->data.length);
-        free_list_strutf8(list);
+        cake_free_list_strutf8(list);
 
-        free_strutf8(str);
+        cake_free_strutf8(str);
 */
-void array_resize(ArrayList *array, ulonglong elementSize, ulonglong newLength);
+void cake_array_resize(Cake_ArrayList *array, ulonglong elementSize, ulonglong newLength);
 
 #endif

@@ -1,11 +1,11 @@
 #include "../directory.h"
 
-#ifdef PIKA_WINDOWS
-pika_byte change_directory(const uchar *directory) {
-    String_UTF16 name;
-    create_strutf16(&name);
-    char_array_to_strutf16(directory, &name);
-    pika_bool ret = SetCurrentDirectoryW(name.characteres);
+#ifdef CAKE_WINDOWS
+cake_byte cake_change_directory(const uchar *directory) {
+    Cake_String_UTF16 name;
+    cake_create_strutf16(&name);
+    cake_char_array_to_strutf16(directory, &name);
+    cake_bool ret = SetCurrentDirectoryW(name.characteres);
     free(name.characteres);
     return ret;
 }

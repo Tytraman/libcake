@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex) {
+Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex) {
     if(source == NULL || source->bytes == NULL)
         return NULL;
     if(keyIndex != NULL)
@@ -18,20 +18,20 @@ Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulongl
     // On vérifie que la valeur trouvée soit bien une clé
     // en parcourant la ligne dans le sens inverse
     uchar *testKey;
-    pika_bool loop = pika_true;
+    cake_bool loop = cake_true;
     while(loop) {
-        keyFound = strutf8_search(source, key, &internalIndex);
+        keyFound = cake_strutf8_search(source, key, &internalIndex);
         if(keyFound == NULL)
             return NULL;
         testKey = keyFound - 1;
         // Si on trouve une valeur au lieu d'une clé
         if(*testKey == delim) {
-            testKey = strutf8_search(source, key, &internalIndex);
+            testKey = cake_strutf8_search(source, key, &internalIndex);
             if(testKey == NULL)
                 return NULL;
         }else if(testKey <= source->bytes || *testKey == '\n') {
             testKey++;
-            pika_bool firstSpace = pika_true;
+            cake_bool firstSpace = cake_true;
             uchar *space = NULL;
             while(1) {
                 while(1) {
@@ -39,7 +39,7 @@ Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulongl
                         if(source->bytes[internalIndex] == ' ' || source->bytes[internalIndex] == '\t') {
                             if(firstSpace) {
                                 space = &source->bytes[internalIndex];
-                                firstSpace = pika_false;
+                                firstSpace = cake_false;
                             }
                         }else
                             break;
@@ -63,17 +63,17 @@ Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulongl
             if(res == 0) {
                 if(keyIndex != NULL)
                     *keyIndex = testKey - source->bytes;
-                loop = pika_false;
+                loop = cake_false;
             }
             testKey--;
         }
         testKey--;
     }
 
-    Option *opt = (Option *) malloc(sizeof(Option));
+    Cake_Option *opt = (Cake_Option *) malloc(sizeof(Cake_Option));
 
-    opt->key = strutf8(key);
-    opt->value = strutf8("");
+    opt->key = cake_strutf8(key);
+    opt->value = cake_strutf8("");
 
     
 
@@ -96,7 +96,7 @@ Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulongl
                 opt->value->data.length = keyLength;
                 memcpy(opt->value->bytes, &source->bytes[startIndex], keyLength * sizeof(uchar));
                 opt->value->bytes[keyLength] = '\0';
-                opt->value->length = strutf8_length(opt->value);
+                opt->value->length = cake_strutf8_length(opt->value);
             }
         }
     }
@@ -104,46 +104,46 @@ Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulongl
     return opt;
 }
 
-void free_option(Option *opt) {
-    free_strutf8(opt->key);
-    free_strutf8(opt->value);
+void cake_free_option(Cake_Option *opt) {
+    cake_free_strutf8(opt->key);
+    cake_free_strutf8(opt->value);
     free(opt);
 }
 
-void set_option(Option **opt, const uchar *key, const uchar *value) {
+void set_option(Cake_Option **opt, const uchar *key, const uchar *value) {
     if(*opt == NULL)
-        *opt = (Option *) malloc(sizeof(Option));
+        *opt = (Cake_Option *) malloc(sizeof(Cake_Option));
 
-    (*opt)->key = strutf8(key);
-    (*opt)->value = strutf8(value);
+    (*opt)->key = cake_strutf8(key);
+    (*opt)->value = cake_strutf8(value);
 }
 
-FileOption *file_option_load(const uchar *filename, uchar delim) {
-    pika_fd fd = fdio_open_file(filename, FDIO_ACCESS_READ, FDIO_SHARE_READ, FDIO_OPEN_IF_EXISTS, FDIO_ATTRIBUTE_NORMAL);
-    if(fd == FDIO_ERROR_OPEN)
+Cake_FileOption *cake_file_option_load(const uchar *filename, uchar delim) {
+    cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_READ, CAKE_FDIO_SHARE_READ, CAKE_FDIO_OPEN_IF_EXISTS, CAKE_FDIO_ATTRIBUTE_NORMAL);
+    if(fd == CAKE_FDIO_ERROR_OPEN)
         return NULL;
-    FileOption *fileOpt = (FileOption *) malloc(sizeof(FileOption));
+    Cake_FileOption *fileOpt = (Cake_FileOption *) malloc(sizeof(Cake_FileOption));
     fileOpt->fd = fd;
-    fileOpt->fileCopy = strutf8("");
+    fileOpt->fileCopy = cake_strutf8("");
     fileOpt->delim = delim;
-    fdio_mem_copy_strutf8(fileOpt->fileCopy, fd, PIKA_BUFF_SIZE);
+    cake_fdio_mem_copy_strutf8(fileOpt->fileCopy, fd, CAKE_BUFF_SIZE);
     return fileOpt;
 }
 
-FileOptionElement *file_option_get(FileOption *fileOpt, const uchar *key) {
+Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const uchar *key) {
     ulonglong keyIndex, valueIndex;
-    Option *opt = __load_option(fileOpt->fileCopy, key, fileOpt->delim, &keyIndex, &valueIndex);
+    Cake_Option *opt = __cake_load_option(fileOpt->fileCopy, key, fileOpt->delim, &keyIndex, &valueIndex);
     if(opt == NULL)
         return NULL;
-    FileOptionElement *optElement = (FileOptionElement *) malloc(sizeof(FileOptionElement));
+    Cake_FileOptionElement *optElement = (Cake_FileOptionElement *) malloc(sizeof(Cake_FileOptionElement));
     optElement->keyIndex = keyIndex;
     optElement->valueIndex = valueIndex;
     optElement->opt = opt;
     return optElement;
 }
 
-void free_file_option(FileOption *fileOpt) {
-    fdio_close(fileOpt->fd);
-    free_strutf8(fileOpt->fileCopy);
+void cake_free_file_option(Cake_FileOption *fileOpt) {
+    cake_fdio_close(fileOpt->fd);
+    cake_free_strutf8(fileOpt->fileCopy);
     free(fileOpt);
 }

@@ -1,6 +1,7 @@
-#ifndef __PIKA_MEMORY_H__
-#define __PIKA_MEMORY_H__
+#ifndef __CAKE_MEMORY_H__
+#define __CAKE_MEMORY_H__
 
+#include "def.h"
 #include <stdio.h>
 
 /*
@@ -12,7 +13,7 @@
     `byteSize`, la taille d'un octet, par exemple, si je veux enlever des int, je met `sizeof(int)`.
     `arraySize`, un pointeur de la taille totale du tableau, ne peut pas être NULL.
 */
-void rem_allocate(void **array, void *start, size_t elements, size_t byteSize, unsigned long long *arraySize);
+void cake_rem_allocate(void **array, void *start, size_t elements, size_t byteSize, unsigned long long *arraySize);
 
 /*
     Ajoute des données dans un tableau dynamique à la position indiquée.
@@ -24,14 +25,13 @@ void rem_allocate(void **array, void *start, size_t elements, size_t byteSize, u
     `byteSize`, la taille d'un octet, par exemple, si je veux ajouter des short, je met `sizeof(short)`.
     `arraySize`, un pointeur de la taille totale du tableau, ne peut pas être NULL.
 */
-void move_allocate(void **array, void *pToAdd, void *src, size_t elements, size_t byteSize, unsigned long long *arraySize);
+void cake_move_allocate(void **array, void *pToAdd, void *src, size_t elements, size_t byteSize, ulonglong *arraySize);
 
 // Ajoute des données à un tableau.
-void add_allocate(void **array, void *src, size_t elements, size_t byteSize, unsigned long long *arraySize);
+void cake_add_allocate(void **array, void *src, size_t elements, size_t byteSize, ulonglong *arraySize);
 
 // Copie la valeur d'une clé récupérée grâce à get_key_value().
-void copy_value(char **buffer, unsigned char *src, unsigned long long valueSize);
-
+void cake_copy_value(char **buffer, uchar *src, ulonglong valueSize);
 
 
 #endif

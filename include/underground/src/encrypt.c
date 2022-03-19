@@ -6,7 +6,7 @@
 #include <openssl/sha.h>
 #include <openssl/rand.h>
 
-String_UTF8 *strutf8_random(int length) {
+Cake_String_UTF8 *cake_strutf8_random(int length) {
     uchar *buff = (uchar *) malloc(length * sizeof(uchar) + sizeof(uchar));
     buff[length] = '\0';
     RAND_bytes(buff, length);
@@ -37,12 +37,12 @@ String_UTF8 *strutf8_random(int length) {
         }
         buff[i] = val;    
     }
-    String_UTF8 *str = strutf8(buff);
+    Cake_String_UTF8 *str = cake_strutf8(buff);
     free(buff);
     return str;
 }
 
-void strutf8_sha512(String_UTF8 *utf) {
+void cake_strutf8_sha512(Cake_String_UTF8 *utf) {
     uchar hash[SHA512_DIGEST_LENGTH];
     uchar hexHash[SHA512_DIGEST_LENGTH * 2 + 1];
     hexHash[sizeof(hexHash) - 1] = '\0';
@@ -50,9 +50,9 @@ void strutf8_sha512(String_UTF8 *utf) {
     uchar i;
     uchar *current = hexHash;
     for(i = 0; i < SHA512_DIGEST_LENGTH; ++i) {
-        str_dec_to_hexchar(hash[i], current);
+        cake_str_dec_to_hexchar(hash[i], current);
         current += 2;
     }
-    array_char_to_strutf8(hexHash, utf);
+    cake_char_array_to_strutf8(hexHash, utf);
 }
 #endif

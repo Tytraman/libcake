@@ -2,18 +2,18 @@
 
 #include "../fdio.h"
 
-HTML *html_load(const uchar *filename) {
-    pika_fd fd = fdio_open_file(filename, FDIO_ACCESS_READ, FDIO_SHARE_READ, FDIO_OPEN_IF_EXISTS, FDIO_ATTRIBUTE_NORMAL);
-    if(fd == FDIO_ERROR_OPEN)
+Cake_HTML *cake_html_load(const uchar *filename) {
+    cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_READ, CAKE_FDIO_SHARE_READ, CAKE_FDIO_OPEN_IF_EXISTS, CAKE_FDIO_ATTRIBUTE_NORMAL);
+    if(fd == CAKE_FDIO_ERROR_OPEN)
         return NULL;
-    HTML *html = strutf8("");
-    fdio_mem_copy_strutf8(html, fd, PIKA_BUFF_SIZE);
-    fdio_close(fd);
+    Cake_HTML *html = cake_strutf8("");
+    cake_fdio_mem_copy_strutf8(html, fd, CAKE_BUFF_SIZE);
+    cake_fdio_close(fd);
     return html;
 }
 
-void html_optimize(HTML *html) {
-    strutf8_remove_all(html, "\r");
+void cake_html_optimize(Cake_HTML *html) {
+    cake_strutf8_remove_all(html, "\r");
     ulonglong i, savePos;
 
     // On enlève d'abord les espaces
@@ -24,12 +24,12 @@ void html_optimize(HTML *html) {
                 i++;
                 while(i < html->data.length && (html->bytes[i] == ' ' || html->bytes[i] == '\t'))
                     i++;
-                strutf8_remove_from_to_internal(html, savePos, i);
+                cake_strutf8_remove_from_to_internal(html, savePos, i);
                 i = savePos;
             }
         }
     }
-    strutf8_remove_all(html, "\n");
+    cake_strutf8_remove_all(html, "\n");
 
     // On enlève les commentaires
     for(i = 3; i < html->data.length; ++i) {
@@ -48,7 +48,7 @@ void html_optimize(HTML *html) {
             }
             if(i > html->data.length)
                 i = html->data.length;
-            strutf8_remove_from_to_internal(html, savePos, i);
+            cake_strutf8_remove_from_to_internal(html, savePos, i);
             i = savePos;
         }
     }

@@ -1,7 +1,8 @@
 .vscode/
 compile.sh
 compile.cmd
-pika
-pika.exe
+
+*.exe
+cake
 main.c
 config.txt

@@ -8,29 +8,29 @@
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
 
-#ifdef PIKA_WINDOWS
+#ifdef CAKE_WINDOWS
 #include <windows.h>
 #endif
 
-void create_strutf8(String_UTF8 *utf) {
+void cake_create_strutf8(Cake_String_UTF8 *utf) {
     utf->data.length = 0;
     utf->length = 0;
     utf->bytes = NULL;
 }
 
-String_UTF8 *strutf8(const uchar *value) {
-    String_UTF8 *utf = (String_UTF8 *) malloc(sizeof(String_UTF8));
+Cake_String_UTF8 *cake_strutf8(const uchar *value) {
+    Cake_String_UTF8 *utf = (Cake_String_UTF8 *) malloc(sizeof(Cake_String_UTF8));
 
-    utf->data.length = str_count(value);
+    utf->data.length = cake_str_count(value);
     utf->bytes = (uchar *) malloc(utf->data.length * sizeof(uchar) + sizeof(uchar));
     memcpy(utf->bytes, value, utf->data.length * sizeof(uchar));
     utf->bytes[utf->data.length] = '\0';
-    utf->length = strutf8_length(utf);
+    utf->length = cake_strutf8_length(utf);
 
     return utf;
 }
 
-void strutf8_copy(String_UTF8 *dest, String_UTF8 *src) {
+void cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src) {
     dest->data.length = src->data.length;
     dest->length = src->length;
     if(src->data.length == 0) {
@@ -42,12 +42,12 @@ void strutf8_copy(String_UTF8 *dest, String_UTF8 *src) {
     dest->bytes[dest->data.length] = STR_NULL_END;
 }
 
-void clear_strutf8(String_UTF8 *utf) {
+void cake_clear_strutf8(Cake_String_UTF8 *utf) {
     free(utf->bytes);
-    create_strutf8(utf);
+    cake_create_strutf8(utf);
 }
 
-ulonglong strutf8_length(String_UTF8 *utf) {
+ulonglong cake_strutf8_length(Cake_String_UTF8 *utf) {
     ulonglong length = 0;
     ulonglong i;
     for(i = 0; i < utf->data.length; i++) {
@@ -64,7 +64,7 @@ ulonglong strutf8_length(String_UTF8 *utf) {
     return length;
 }
 
-void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest) {
+void cake_strutf8_to_utf16(Cake_String_UTF8 *src, Cake_String_UTF16 *dest) {
     uchar *arrayEnd = &src->bytes[src->data.length - 1];
     uchar *pStart = src->bytes, *startEncode, *endEncode;
 
@@ -76,32 +76,32 @@ void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest) {
     int bytes;
     ushort value;
     while(pStart <= arrayEnd) {
-        strutf8_index_by_index(pStart, arrayEnd, 0L, &startEncode, &endEncode, &bytes);
-        value = strutf8_decode(startEncode, bytes);
-        strutf16_add_char(dest, value);
+        cake_strutf8_index_by_index(pStart, arrayEnd, 0L, &startEncode, &endEncode, &bytes);
+        value = cake_strutf8_decode(startEncode, bytes);
+        cake_strutf16_add_char(dest, value);
         pStart = endEncode;
     }
 }
 
-void strutf16_to_strutf8(String_UTF16 *src, String_UTF8 *dest) {
+void cake_strutf16_to_strutf8(Cake_String_UTF16 *src, Cake_String_UTF8 *dest) {
     dest->length = 0;
     dest->data.length = 0;
     ulonglong i;
     for(i = 0; i < src->length; i++)
-        strutf8_add_wchar(dest, src->characteres[i]);
-    strutf8_add_wchar(dest, L'\0');
+        cake_strutf8_add_wchar(dest, src->characteres[i]);
+    cake_strutf8_add_wchar(dest, L'\0');
 }
 
-void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest) {
+void cake_wchar_array_to_strutf8(const wchar_t *src, Cake_String_UTF8 *dest) {
     dest->length = 0;
     dest->data.length = 0;
     ulonglong length = wcslen(src);
     ulonglong i;
     for(i = 0; i < length; ++i)
-        strutf8_add_wchar(dest, src[i]);
+        cake_strutf8_add_wchar(dest, src[i]);
 }
 
-ulonglong strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes) {
+ulonglong cake_strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes) {
     ulonglong internalIndex = 0;
     ulonglong currentUtfIndex = 0UL;
     uchar *saveStart;
@@ -144,12 +144,12 @@ ulonglong strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulo
     return internalIndex;
 }
 
-ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, pika_byte *bytes) {
+ulonglong cake_strutf8_index_by_index_reverse(Cake_String_UTF8 *utf, ulonglong utfIndex, cake_byte *bytes) {
     if(utfIndex > utf->length - 1)
         return 0;
     ulonglong internalIndex = utf->data.length - 1;
     ulonglong currentUtfIndex = utf->length - 1;
-    pika_byte b;
+    cake_byte b;
     while(1) {
         // Si c'est un caractère ASCII
         if((utf->bytes[internalIndex] & 0x80) == 0) {
@@ -184,7 +184,7 @@ ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, p
     return internalIndex;
 }
 
-int strutf8_decode(const uchar *src, char bytes) {
+int cake_strutf8_decode(const uchar *src, char bytes) {
     if(bytes < 1 || bytes > 6) return -1;
     if(bytes == 1) return (int) src[0];
     int i, j;
@@ -220,54 +220,54 @@ int strutf8_decode(const uchar *src, char bytes) {
     return value;
 }
 
-ulonglong str_count(const uchar *str) {
+ulonglong cake_str_count(const uchar *str) {
     ulonglong i = 0;
     while(str[i] != '\0') i++;
     return i;
 }
 
-void strutf8_add_char_array(String_UTF8 *dest, const uchar *str) {
-    ulonglong strLength = str_count(str);
+void cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const uchar *str) {
+    ulonglong strLength = cake_str_count(str);
     dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + strLength) * sizeof(uchar) + sizeof(uchar));
     memcpy(&dest->bytes[dest->data.length], str, strLength * sizeof(uchar));
     dest->data.length += strLength;
     dest->bytes[dest->data.length] = '\0';
-    dest->length = strutf8_length(dest);
+    dest->length = cake_strutf8_length(dest);
 }
 
-void array_char_to_strutf8(const uchar *src, String_UTF8 *dest) {
-    dest->data.length = str_count(src);
+void cake_char_array_to_strutf8(const uchar *src, Cake_String_UTF8 *dest) {
+    dest->data.length = cake_str_count(src);
     dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
     memcpy(dest->bytes, src, dest->data.length * sizeof(uchar));
     dest->bytes[dest->data.length] = '\0';
-    dest->length = strutf8_length(dest);
+    dest->length = cake_strutf8_length(dest);
 }
 
-int8 strutf8_add_wchar(String_UTF8 *dest, wchar_t value) {
+uchar cake_strutf8_add_wchar(Cake_String_UTF8 *dest, wchar_t value) {
     wchar_t val[2] = { value, STR_NULL_END };
-    int8 preshot = strutf8_wchar_array_calc_size(val);
+    uchar preshot = cake_strutf8_wchar_array_calc_size(val);
     dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + preshot) * sizeof(uchar) + sizeof(uchar));
-    strutf8_wchar_to_byte_ext(value, &dest->bytes, &dest->data.length);
+    cake_strutf8_wchar_to_byte_ext(value, &dest->bytes, &dest->data.length);
     dest->bytes[dest->data.length] = '\0';
     (dest->length)++;
     return preshot;
 }
 
-char strutf8_add_wchar_array(String_UTF8 *dest, const wchar_t *str) {
+void cake_strutf8_add_wchar_array(Cake_String_UTF8 *dest, const wchar_t *str) {
     size_t length = wcslen(str);
     size_t i;
-    ulonglong preshotSize = strutf8_wchar_array_calc_size(str);
+    ulonglong preshotSize = cake_strutf8_wchar_array_calc_size(str);
 
     dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + preshotSize) * sizeof(uchar) + sizeof(uchar));
 
     for(i = 0; i < length; i++)
-        strutf8_wchar_to_byte_ext(str[i], &dest->bytes, &dest->data.length);
+        cake_strutf8_wchar_to_byte_ext(str[i], &dest->bytes, &dest->data.length);
 
     dest->bytes[dest->data.length] = '\0';
     (dest->length) += length;
 }
 
-ulonglong strutf8_wchar_array_calc_size(const wchar_t *str) {
+ulonglong cake_strutf8_wchar_array_calc_size(const wchar_t *str) {
     size_t length = wcslen(str);
     size_t i;
 
@@ -282,7 +282,7 @@ ulonglong strutf8_wchar_array_calc_size(const wchar_t *str) {
     return size;
 }
 
-char strutf8_wchar_to_byte(wchar_t value, uchar **buffer) {
+uchar cake_strutf8_wchar_to_byte(wchar_t value, uchar **buffer) {
     char bytes = 0;
     if(value <= 126) bytes = 1;
     else if(value <= 2047) bytes = 2;
@@ -313,7 +313,7 @@ char strutf8_wchar_to_byte(wchar_t value, uchar **buffer) {
     return bytes;
 }
 
-void strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index) {
+void cake_strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index) {
     char bytes = 0;
     if(value <= 126) bytes = 1;
     else if(value <= 2047) bytes = 2;
@@ -339,10 +339,10 @@ void strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index) 
     (*index) += bytes;
 }
 
-uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
+uchar *cake_strutf8_search_from_end(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
     if(*internalIndex > utf->data.length)
         return NULL;
-    size_t length = str_count(research);
+    ulonglong length = cake_str_count(research);
     if(*internalIndex > utf->data.length - length)
         *internalIndex = utf->data.length - length;
     uchar *found = NULL;
@@ -372,33 +372,33 @@ uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglon
     return found;
 }
 
-pika_bool strutf8_end_with(String_UTF8 *utf, const uchar *str) {
-    ulonglong length = str_count(str);
-    if(length > utf->data.length) return pika_false;
+cake_bool cake_strutf8_end_with(Cake_String_UTF8 *utf, const uchar *str) {
+    ulonglong length = cake_str_count(str);
+    if(length > utf->data.length) return cake_false;
 
     ulonglong i, j = 0;
     for(i = utf->data.length - length; i < utf->data.length; i++) {
         if(utf->bytes[i] != str[j])
-            return pika_false;
+            return cake_false;
         j++;
     }
-    return pika_true;
+    return cake_true;
 }
 
-pika_bool strutf8_start_with(String_UTF8 *utf, const uchar *research) {
-    ulonglong length = str_count(research);
-    if(length > utf->data.length) return pika_false;
+cake_bool cake_strutf8_start_with(Cake_String_UTF8 *utf, const uchar *research) {
+    ulonglong length = cake_str_count(research);
+    if(length > utf->data.length) return cake_false;
 
     ulonglong i;
     for(i = 0; i < length; i++)
         if(utf->bytes[i] != research[i])
-            return pika_false;
+            return cake_false;
 
-    return pika_true;
+    return cake_true;
 }
 
-uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
-    ulonglong length = str_count(research);
+uchar *cake_strutf8_search(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
+    ulonglong length = cake_str_count(research);
     if(length > utf->data.length - *internalIndex) return NULL;
 
     ulonglong j = 0;
@@ -421,9 +421,9 @@ uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *intern
     return NULL;
 }
 
-uchar *str_search_array(const uchar *str, const uchar *value) {
-    ulonglong baseLength = str_count(str);
-    ulonglong length = str_count(value);
+uchar *cake_str_search_array(const uchar *str, const uchar *value) {
+    ulonglong baseLength = cake_str_count(str);
+    ulonglong length = cake_str_count(value);
     if(length > baseLength) return NULL;
 
     ulonglong i, j = 0;
@@ -446,10 +446,10 @@ uchar *str_search_array(const uchar *str, const uchar *value) {
     return NULL;
 }
 
-List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim) {
-    List_String_UTF8 *list = list_strutf8();
+Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const uchar *delim) {
+    Cake_List_String_UTF8 *list = cake_list_strutf8();
 
-    if(str_count(delim) == 0)
+    if(cake_str_count(delim) == 0)
         return list;
     ulonglong length = 0;
     ulonglong internalIndex = 0;
@@ -457,31 +457,31 @@ List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim) {
     uchar *ptr;
     uchar temp;
 
-    while((ptr = strutf8_search(utf, delim, &internalIndex)) != NULL) {
+    while((ptr = cake_strutf8_search(utf, delim, &internalIndex)) != NULL) {
         temp = *ptr;
         *ptr = '\0';
-        list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
+        cake_list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
         *ptr = temp;
         lastInternalIndex = internalIndex;
     }
-    list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
+    cake_list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
     return list;
 }
 
-pika_bool str_starts_with(const uchar *pre, const uchar *str) {
+cake_bool cake_str_starts_with(const uchar *pre, const uchar *str) {
     size_t lenpre = strlen(pre),
            lenstr = strlen(str);
-    return lenstr < lenpre ? pika_false : memcmp(pre, str, lenpre * sizeof(char)) == 0;
+    return lenstr < lenpre ? cake_false : memcmp(pre, str, lenpre * sizeof(char)) == 0;
 }
 
-pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index) {
+cake_bool cake_strutf8_remove_index(Cake_String_UTF8 *utf, ulonglong index) {
     if(utf->length < index)
-        return pika_false;
+        return cake_false;
 
     uchar *pStart = NULL;
     uchar *pEnd   = NULL;
     int bytes;
-    strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
+    cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
     ulonglong length = &utf->bytes[utf->data.length] - pEnd;
 
     if(length > 0)
@@ -490,15 +490,15 @@ pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index) {
     utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
     utf->bytes[utf->data.length] = '\0';
     (utf->length)--;
-    return pika_true;
+    return cake_true;
 }
 
-int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
+uchar cake_strutf8_insert_wchar(Cake_String_UTF8 *utf, ulonglong index, wchar_t value) {
     if(index >= utf->length)
         return -1;
     
     uchar *valueUtf;
-    char bytesNeeded = strutf8_wchar_to_byte(value, &valueUtf);
+    char bytesNeeded = cake_strutf8_wchar_to_byte(value, &valueUtf);
     if(bytesNeeded == -1)
         return -1;
 
@@ -508,7 +508,7 @@ int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
     uchar *pStart = NULL;
     uchar *pEnd   = NULL;
     int bytes;
-    ulonglong internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
+    ulonglong internalIndex = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
 
     // On déplace vers la droite les données
     ulonglong length = utf->data.length - internalIndex;
@@ -525,15 +525,15 @@ int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value) {
     return bytesNeeded;
 }
 
-pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uchar *str) {
+cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index, const uchar *str) {
     if(index >= utf->length)
-        return pika_false;
+        return cake_false;
     
-    ulonglong insertLength = str_count(str);
+    ulonglong insertLength = cake_str_count(str);
     uchar *pStart, *pEnd;
     int bytes;
     // Index interne auquel insérer la chaîne.
-    ulonglong internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
+    ulonglong internalIndex = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
     utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + insertLength) * sizeof(uchar) + sizeof(uchar));
     // On déplace les octets vers la droite.
     memcpy(&utf->bytes[internalIndex + insertLength], &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
@@ -542,22 +542,46 @@ pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uch
     utf->data.length += insertLength;
     utf->bytes[utf->data.length] = '\0';
 
-    utf->length = strutf8_length(utf);
+    utf->length = cake_strutf8_length(utf);
 
-    return pika_true;
+    return cake_true;
 }
 
-pika_bool strutf8_equals(const String_UTF8 *utf, const uchar *compare) {
-    if(str_count(compare) != utf->data.length)
-        return pika_false;
+cake_bool cake_strutf8_equals(const Cake_String_UTF8 *utf, const uchar *compare) {
+    if(cake_str_count(compare) != utf->data.length)
+        return cake_false;
 
     return memcmp(utf->bytes, compare, utf->data.length) == 0;
 }
 
-ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *replacement) {
+cake_bool __strutf8_replace(Cake_String_UTF8 *utf, uchar *ptr, uchar *old, uchar *replacement) {
+    if(ptr == NULL) return cake_false;
+
+    ulonglong oldLength         = cake_str_count(old);
+    ulonglong replacementLength = cake_str_count(replacement);
+
+    if(oldLength > replacementLength) {
+        memcpy(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->bytes) + oldLength)) * sizeof(uchar));
+        memcpy(ptr, replacement, replacementLength * sizeof(uchar));
+        (utf->length) -= (oldLength - replacementLength);
+        utf->bytes = (uchar *) realloc(utf->bytes, utf->length * sizeof(uchar) + sizeof(uchar));
+        utf->bytes[utf->length] = '\0';
+    }else if(oldLength < replacementLength) {
+        (utf->length) += (replacementLength - oldLength);
+        utf->bytes = (uchar *) realloc(utf->bytes, utf->length * sizeof(uchar) + sizeof(uchar));
+        memcpy(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->bytes) + oldLength)) * sizeof(uchar));
+        memcpy(ptr, replacement, replacementLength * sizeof(uchar));
+        utf->bytes[utf->length] = '\0';
+    }else
+        memcpy(ptr, replacement, replacementLength * sizeof(uchar));
+
+    return cake_true;
+}
+
+ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
     ulonglong number            = 0;
-    ulonglong oldLength         = str_count(old);
-    ulonglong replacementLength = str_count(replacement);
+    ulonglong oldLength         = cake_str_count(old);
+    ulonglong replacementLength = cake_str_count(replacement);
     ulonglong diff              = 0;
     uchar     appendMode        = 0;
 
@@ -574,7 +598,7 @@ ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *r
     ulonglong tempIndex;
 
     // Tant qu'on trouve une occurence
-    while((ptr = strutf8_search(utf, old, &internalIndex)) != NULL) {
+    while((ptr = cake_strutf8_search(utf, old, &internalIndex)) != NULL) {
         // ptr n'est plus valide après realloc !
         // On récupère l'index de ptr pour pouvoir y réaccéder après realloc
         tempIndex = ptr - utf->bytes;
@@ -596,18 +620,29 @@ ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *r
     }
     if(number > 0) {
         utf->bytes[utf->data.length] = '\0';
-        utf->length = strutf8_length(utf);
+        utf->length = cake_strutf8_length(utf);
     }
     return number;
 }
 
-ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value) {
+
+// TODO: replace from end
+/*
+cake_bool cake_strutf8_replace_from_end(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
+    if(utf->data.length == 0 || utf->bytes == NULL)
+        return cake_false;
+    ulonglong internalIndex = utf->data.length - 1;
+    cake_strutf8_search_from_end()
+}
+*/
+
+ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const uchar *value) {
     ulonglong number = 0;
-    ulonglong length = str_count(value);
+    ulonglong length = cake_str_count(value);
 
     ulonglong internalIndex = 0;
     uchar *ptr;
-    while((ptr = strutf8_search(utf, value, &internalIndex)) != NULL) {
+    while((ptr = cake_strutf8_search(utf, value, &internalIndex)) != NULL) {
         memcpy(ptr, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
         internalIndex -= length;
         utf->data.length -= length;
@@ -616,33 +651,33 @@ ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value) {
     }
     if(number > 0) {
         utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
-        utf->length = strutf8_length(utf);
+        utf->length = cake_strutf8_length(utf);
     }
 
     return number;
 }
 
-pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value) {
-    if(!strutf8_start_with(utf, value))
-        return pika_false;
-    ulonglong length = str_count(value);
+cake_bool cake_strutf8_remove_start(Cake_String_UTF8 *utf, const uchar *value) {
+    if(!cake_strutf8_start_with(utf, value))
+        return cake_false;
+    ulonglong length = cake_str_count(value);
 
     utf->data.length -= length;
     memcpy(utf->bytes, &utf->bytes[length], utf->data.length * sizeof(uchar));
     utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
     utf->bytes[utf->data.length] = '\0';
 
-    utf->length = strutf8_length(utf);
+    utf->length = cake_strutf8_length(utf);
 
-    return pika_true;
+    return cake_true;
 }
 
-void free_strutf8(String_UTF8 *utf) {
+void cake_free_strutf8(Cake_String_UTF8 *utf) {
     free(utf->bytes);
     free(utf);
 }
 
-void strutf8_reverse(String_UTF8 *utf) {
+void cake_strutf8_reverse(Cake_String_UTF8 *utf) {
     uchar *buffer = (uchar *) malloc(utf->data.length * sizeof(uchar) + sizeof(uchar));
     buffer[utf->data.length] = '\0';
 
@@ -650,7 +685,7 @@ void strutf8_reverse(String_UTF8 *utf) {
     int bytes;
     uchar *pStart, *pEnd;
     for(index = 0; index < utf->length; ++index) {
-        internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
+        internalIndex = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
 
         while(pStart < pEnd) {
             buffer[internalIndexReverse - (pEnd - pStart - 1)] = *pStart;
@@ -664,29 +699,29 @@ void strutf8_reverse(String_UTF8 *utf) {
     utf->bytes = buffer;
 }
 
-List_String_UTF8 *list_strutf8() {
-    List_String_UTF8 *list = (List_String_UTF8 *) malloc(sizeof(List_String_UTF8));
+Cake_List_String_UTF8 *cake_list_strutf8() {
+    Cake_List_String_UTF8 *list = (Cake_List_String_UTF8 *) malloc(sizeof(Cake_List_String_UTF8));
     list->data.length = 0;
     list->list = NULL;
     return list;
 }
 
-void list_strutf8_add_char_array(List_String_UTF8 *list, const uchar *ptr) {
-    array_resize((ArrayList *) list, sizeof(String_UTF8 *), list->data.length + 1);
-    list->list[list->data.length - 1] = strutf8(ptr);
+void cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const uchar *ptr) {
+    cake_array_resize((Cake_ArrayList *) list, sizeof(Cake_String_UTF8 *), list->data.length + 1);
+    list->list[list->data.length - 1] = cake_strutf8(ptr);
 }
 
-void free_list_strutf8(List_String_UTF8 *list) {
+void cake_free_list_strutf8(Cake_List_String_UTF8 *list) {
     ulonglong i;
     for(i = 0; i < list->data.length; ++i)
-        free_strutf8(list->list[i]);
+        cake_free_strutf8(list->list[i]);
     free(list);
 }
 
-ulonglong str_search(const uchar *str, uchar value, uchar **ptr) {
+ulonglong cake_str_search(const uchar *str, uchar value, uchar **ptr) {
     ulonglong i;
 
-    for(i = 0; i < str_count(str); ++i)
+    for(i = 0; i < cake_str_count(str); ++i)
         if(str[i] == value) {
             *ptr = (uchar *) &str[i];
             break;
@@ -695,7 +730,7 @@ ulonglong str_search(const uchar *str, uchar value, uchar **ptr) {
     return i;
 }
 
-void strutf8_to_lower(String_UTF8 *utf) {
+void cake_strutf8_to_lower(Cake_String_UTF8 *utf) {
     ulonglong i;
     ulonglong internalIndex = 0;
     int bytes;
@@ -703,8 +738,8 @@ void strutf8_to_lower(String_UTF8 *utf) {
     int code;
     ulonglong tempInd;
     for(i = 0; i < utf->length; ++i) {
-        internalIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], i, &start, &end, &bytes);
-        code = strutf8_decode(start, bytes);
+        internalIndex = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], i, &start, &end, &bytes);
+        code = cake_strutf8_decode(start, bytes);
         // La liste des caractères pris en charge recouvrent les "principaux caractères"
         switch(bytes) {
             default: goto strutf8_to_lower_ignore;
@@ -737,21 +772,21 @@ void strutf8_to_lower(String_UTF8 *utf) {
                 break;
         }
         tempInd = 0;
-        strutf8_wchar_to_byte_ext(code, &start, &tempInd);
+        cake_strutf8_wchar_to_byte_ext(code, &start, &tempInd);
 strutf8_to_lower_ignore: ;
     }
 }
 
-ulonglong strutf8_to_ulonglong(String_UTF8 *utf) {
+ulonglong cake_strutf8_to_ulonglong(Cake_String_UTF8 *utf) {
     ulonglong value = 0;
     ulonglong pow = 1;
     ulonglong i = utf->length - 1;
     ulonglong internalIndex;
-    pika_byte bytes;
+    cake_byte bytes;
     int code;
     while(1) {
-        internalIndex = strutf8_index_by_index_reverse(utf, i, &bytes);
-        code = strutf8_decode(&utf->bytes[internalIndex], bytes);
+        internalIndex = cake_strutf8_index_by_index_reverse(utf, i, &bytes);
+        code = cake_strutf8_decode(&utf->bytes[internalIndex], bytes);
         if(code >= '0' && code <= '9') {
             value += (code - '0') * pow;
             pow *= 10;
@@ -765,13 +800,13 @@ ulonglong strutf8_to_ulonglong(String_UTF8 *utf) {
     return value;
 }
 
-void ulonglong_to_char_array(ulonglong value, uchar *buffer) {
+void cake_ulonglong_to_char_array(ulonglong value, uchar *buffer) {
     if(value == 0) {
         buffer[0] = '0';
         buffer[1] = '\0';
         return;
     }
-    pika_byte length = 0;
+    cake_byte length = 0;
     ulonglong copy = value;
     while(copy != 0) {
         copy /= 10;
@@ -785,20 +820,20 @@ void ulonglong_to_char_array(ulonglong value, uchar *buffer) {
     }
 }
 
-String_UTF8_Pair *strutf8_pair(const uchar *key, const uchar *value) {
-    String_UTF8_Pair *pair = (String_UTF8_Pair *) malloc(sizeof(String_UTF8_Pair));
-    pair->key   = strutf8(key);
-    pair->value = strutf8(value);
+Cake_String_UTF8_Pair *cake_strutf8_pair(const uchar *key, const uchar *value) {
+    Cake_String_UTF8_Pair *pair = (Cake_String_UTF8_Pair *) malloc(sizeof(Cake_String_UTF8_Pair));
+    pair->key   = cake_strutf8(key);
+    pair->value = cake_strutf8(value);
     return pair;
 }
 
-void free_strutf8_pair(String_UTF8_Pair *pair) {
-    free_strutf8(pair->key);
-    free_strutf8(pair->value);
+void cake_free_strutf8_pair(Cake_String_UTF8_Pair *pair) {
+    cake_free_strutf8(pair->key);
+    cake_free_strutf8(pair->value);
     free(pair);
 }
 
-uint str_hex_to_uint(const uchar *str) {
+uint cake_str_hex_to_uint(const uchar *str) {
     uint value = 0;
     const uchar *c = str;
     if(str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
@@ -818,8 +853,8 @@ uint str_hex_to_uint(const uchar *str) {
     return value;
 }
 
-void strutf8_decode_url(String_UTF8 *utf) {
-    strutf8_replace_all(utf, "+", " ");
+void cake_strutf8_decode_url(Cake_String_UTF8 *utf) {
+    cake_strutf8_replace_all(utf, "+", " ");
     char diff;
     uchar *begin   = utf->bytes;
     uchar *current = utf->bytes;
@@ -839,10 +874,10 @@ void strutf8_decode_url(String_UTF8 *utf) {
             }
             recovery = *current;
             *current = '\0';
-            uint dec = str_hex_to_uint(begin);
+            uint dec = cake_str_hex_to_uint(begin);
             *current = recovery;
             uchar *buffer;
-            uchar bytes = strutf8_dec_to_char(dec, &buffer);
+            uchar bytes = cake_strutf8_dec_to_char(dec, &buffer);
             char diff = bytes - (current - begin);
             ulonglong saveIndex = begin - utf->bytes + bytes;
             // On copie le caractère converti
@@ -860,10 +895,10 @@ void strutf8_decode_url(String_UTF8 *utf) {
         if(current > &utf->bytes[utf->data.length - 1])
             break;
     }
-    utf->length = strutf8_length(utf);
+    utf->length = cake_strutf8_length(utf);
 }
 
-uchar strutf8_dec_to_char(uint value, uchar **buffer) {
+uchar cake_strutf8_dec_to_char(uint value, uchar **buffer) {
     uchar bytes;
     if(value < 256) bytes = 1;
     else if(value < 65536) bytes = 2;
@@ -881,7 +916,7 @@ uchar strutf8_dec_to_char(uint value, uchar **buffer) {
     return bytes;
 }
 
-void str_dec_to_hexchar(uchar value, uchar dest[2]) {
+void cake_str_dec_to_hexchar(uchar value, uchar dest[2]) {
     uchar val1 = (value & 0x0F);
     uchar val2 = ((value & 0xF0) >> 4);
     if(val1 > 9)
@@ -894,52 +929,52 @@ void str_dec_to_hexchar(uchar value, uchar dest[2]) {
         dest[0] = val2 + '0';
 }
 
-void __strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
+void __strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
     ulonglong diff = toIndex - fromIndex;
     memcpy(&utf->bytes[fromIndex], &utf->bytes[toIndex], (&utf->bytes[utf->data.length] - &utf->bytes[toIndex]) * sizeof(uchar));
     (utf->data.length) -= diff;
     utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
     utf->bytes[utf->data.length] = '\0';
 
-    utf->length = strutf8_length(utf);
+    utf->length = cake_strutf8_length(utf);
 }
 
-pika_bool strutf8_remove_from_to(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
+cake_bool cake_strutf8_remove_from_to(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
     if(fromIndex > utf->length || toIndex > utf->length)
-        return pika_false;
+        return cake_false;
     if(fromIndex == toIndex)
-        return pika_true;
+        return cake_true;
 
     uchar *pFromStart, *pFromEnd;
     uchar *pToStart, *pToEnd;
-    ulonglong internalFromIndex = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], fromIndex, &pFromStart, &pFromEnd, NULL);
-    ulonglong internalToIndex   = strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], toIndex, &pToStart, &pToEnd, NULL);
+    ulonglong internalFromIndex = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], fromIndex, &pFromStart, &pFromEnd, NULL);
+    ulonglong internalToIndex   = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], toIndex, &pToStart, &pToEnd, NULL);
     
     __strutf8_remove_from_to_internal(utf, internalFromIndex, internalToIndex);
-    return pika_true;
+    return cake_true;
 }
 
-pika_bool strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
+cake_bool cake_strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
     if(fromIndex > utf->data.length || toIndex > utf->data.length)
-        return pika_false;
+        return cake_false;
     if(fromIndex == toIndex)
-        return pika_true;
+        return cake_true;
 
     __strutf8_remove_from_to_internal(utf, fromIndex, toIndex);
-    return pika_true;
+    return cake_true;
 }
 
 
-pika_bool str_equals(const uchar *str1, const uchar *str2) {
-    ulonglong length1 = str_count(str1);
-    ulonglong length2 = str_count(str2);
+cake_bool cake_str_equals(const uchar *str1, const uchar *str2) {
+    ulonglong length1 = cake_str_count(str1);
+    ulonglong length2 = cake_str_count(str2);
     if(length1 != length2)
-        return pika_false;
+        return cake_false;
 
     return memcmp(str1, str2, length1) == 0;
 }
 
-ulonglong str_number_of(const uchar *str, uchar value) {
+ulonglong cake_str_number_of(const uchar *str, uchar value) {
     ulonglong number = 0;
     while(*str != '\0') {
         if(*str == value)
@@ -949,12 +984,12 @@ ulonglong str_number_of(const uchar *str, uchar value) {
     return number;
 }
 
-void strutf8_vector_delete_callback(void *args) {
-    String_UTF8 *utf = (String_UTF8 *) args;
+void cake_strutf8_vector_delete_callback(void *args) {
+    Cake_String_UTF8 *utf = (Cake_String_UTF8 *) args;
     free(utf->bytes);
 }
 
-void strutf8_vector_delete_callback_ptr(void *args) {
-    String_UTF8 *utf = *((String_UTF8 **) args);
-    free_strutf8(utf);
+void cake_strutf8_vector_delete_callback_ptr(void *args) {
+    Cake_String_UTF8 *utf = *((Cake_String_UTF8 **) args);
+    cake_free_strutf8(utf);
 }

@@ -1,56 +1,56 @@
-#ifndef __PIKA_FILE_OBJECT_H__
-#define __PIKA_FILE_OBJECT_H__
+#ifndef __CAKE_FILE_OBJECT_H__
+#define __CAKE_FILE_OBJECT_H__
 
 #include "def.h"
 #include "utf8.h"
 
-typedef struct file_object_element {
-    String_UTF8 *key;
-    String_UTF8 *value;
-} FileObjectElement;
+typedef struct cake_file_object_element {
+    Cake_String_UTF8 *key;
+    Cake_String_UTF8 *value;
+} Cake_FileObjectElement;
 
-typedef struct list_file_object_element {
+typedef struct cake_list_file_object_element {
     ulonglong length;
-    FileObjectElement **list;
-} ListFileObjectElement;
+    Cake_FileObjectElement **list;
+} Cake_List_FileObjectElement;
 
-typedef struct file_object_container FileObjectContainer;
+typedef struct cake_file_object_container Cake_FileObjectContainer;
 
-typedef struct list_file_object_container {
+typedef struct cake_list_file_object_container {
     ulonglong length;
-    FileObjectContainer **list;
-} ListFileObjectContainer;
+    Cake_FileObjectContainer **list;
+} Cake_List_FileObjectContainer;
 
-typedef struct file_object_container {
-    String_UTF8 *key;
-    ListFileObjectElement elements;
-    ListFileObjectContainer containers;
-} FileObjectContainer;
+typedef struct cake_file_object_container {
+    Cake_String_UTF8 *key;
+    Cake_List_FileObjectElement elements;
+    Cake_List_FileObjectContainer containers;
+} Cake_FileObjectContainer;
 
-typedef struct file_object {
-    ListFileObjectElement elements;
-    ListFileObjectContainer containers;
-} FileObject;
+typedef struct cake_file_object {
+    Cake_List_FileObjectElement elements;
+    Cake_List_FileObjectContainer containers;
+} Cake_FileObject;
 
-typedef struct file_object_snapshot {
-    FileObjectContainer *actualContainer;
-    ListFileObjectElement *currentElements;
-    ListFileObjectContainer *currentContainers;
+typedef struct cake_file_object_snapshot {
+    Cake_FileObjectContainer *actualContainer;
+    Cake_List_FileObjectElement *currentElements;
+    Cake_List_FileObjectContainer *currentContainers;
     ushort id;
-} FileObjectSnapshot;
+} Cake_FileObjectSnapshot;
 
-FileObject *file_object_load(const uchar *filename);
-void free_file_object(FileObject *obj);
+Cake_FileObject *cake_file_object_load(const uchar *filename);
+void cake_free_file_object(Cake_FileObject *obj);
 
-FileObjectContainer *file_object_get_container(FileObject *obj, const uchar *key);
-FileObjectElement *file_object_get_element(FileObject *obj, const uchar *key);
+Cake_FileObjectContainer *cake_file_object_get_container(Cake_FileObject *obj, const uchar *key);
+Cake_FileObjectElement *cake_file_object_get_element(Cake_FileObject *obj, const uchar *key);
 
-void list_file_object_element_add(ListFileObjectElement *elements, const uchar *key, const uchar *value);
-void free_list_file_object_element(ListFileObjectElement *elements);
+void cake_list_file_object_element_add(Cake_List_FileObjectElement *elements, const uchar *key, const uchar *value);
+void cake_free_list_file_object_element(Cake_List_FileObjectElement *elements);
 
 // Ajoute un container à une liste.
-FileObjectSnapshot *list_file_object_container_add(ListFileObjectContainer *containers, const uchar *key);
+Cake_FileObjectSnapshot *cake_list_file_object_container_add(Cake_List_FileObjectContainer *containers, const uchar *key);
 
-String_UTF8 *file_object_to_strutf8(FileObject *obj);
+Cake_String_UTF8 *cake_file_object_to_strutf8(Cake_FileObject *obj);
 
 #endif

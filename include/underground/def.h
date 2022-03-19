@@ -1,36 +1,38 @@
-#ifndef __PIKA_DEF_H__
-#define __PIKA_DEF_H__
+#ifndef __CAKE_DEF_H__
+#define __CAKE_DEF_H__
 
 #include <string.h>
 
 /*
-        Certains typedef qui commencent par pika_ sont des wrappers des structures / fonctions
-        des différents OS, par exemple, pika_char sous Windows correspond à wchar_t tandis que sous
+        Certains typedef qui commencent par _ sont des wrappers des structures / fonctions
+        des différents OS, par exemple, cake_char sous Windows correspond à wchar_t tandis que sous
         Linux à char.
         Ça permet d'avoir un code beaucoup plus portable.
 
-        pika_bool est un typedef de char peu importe l'OS, ça permet d'avoir une cohésion
-        lors d'appels de fonctions de la pikapi.
+        cake_bool est un typedef de char peu importe l'OS, ça permet d'avoir une cohésion
+        lors d'appels de fonctions de la pi.
 */
+
+// TODO: pika en cake
 #if defined(_WIN32)
-#define PIKA_WINDOWS 1
+#define CAKE_WINDOWS 1
 #include <stddef.h>
 #include <WinSock2.h>
 #include <windows.h>
 
-#define PIKA_ERROR 0
+#define CAKE_ERROR 0
 
-// Sous Windows un pika_char est équivalent à un wchar_t.
-typedef wchar_t pika_char;
+// Sous Windows un cake_char est équivalent à un wchar_t.
+typedef wchar_t cake_char;
 
-typedef DWORD pika_exit_code;
-typedef DWORD pika_size;
+typedef DWORD cake_exit_code;
+typedef DWORD cake_size;
 
 /*
         Permet d'ajouter le L automatiquement devant la chaîne de caractères, ne le fait pas sous Linux,
         permet un code plus portable.
 */
-#define PIKA_CHAR(value) CONCAT(L, value)
+#define CAKE_CHAR(value) CAKE_CONCAT(L, value)
 
 #define FILE_SEPARATOR             L'\\'
 #define FILE_SEPARATOR_REVERSE     L'/'
@@ -49,23 +51,24 @@ typedef DWORD pika_size;
 #define char_cmp(s1, s2) wcscmp(s1, s2)
 
 #elif defined(unix) || defined(__unix__) || defined(__unix)
-#define PIKA_UNIX 1
+#define CAKE_UNIX 1
 #include <sys/types.h>
 
-#define PIKA_ERROR -1
+#define CAKE_ERROR   -1
+#define CAKE_NO_ERROR 0
 
-// Sous Unix un pika_char est équivalent à un char.
-typedef char pika_char;
+// Sous Unix un cake_char est équivalent à un char.
+typedef char cake_char;
 
-typedef int pika_exit_code;
+typedef int cake_exit_code;
 
-typedef ssize_t pika_size;
+typedef ssize_t cake_size;
 
 /*
         Permet d'ajouter le L automatiquement devant la chaîne de caractères, ne le fait pas sous Linux,
         permet un code plus portable.
 */
-#define PIKA_CHAR(value) value
+#define CAKE_CHAR(value) value
 
 #define FILE_SEPARATOR             '/'
 #define FILE_SEPARATOR_REVERSE     '\\'
@@ -80,38 +83,37 @@ typedef ssize_t pika_size;
 #define STR_NULL_END '\0'
 #define ASTERISK     '*'
 
-#define char_length(s) strlen(s)
-#define char_cmp(s1, s2) strcmp(s1, s2)
+#define CAKE_CHAR_LENGTH(s) strlen(s)
+#define CAKE_CHAR_CMP(s1, s2) strcmp(s1, s2)
 
 #endif
 
-typedef char pika_bool;
 
-#define pika_true  1
-#define pika_false 0
+/* ===== Types ===== */
 
-#define PIKA_BUFF_SIZE 2048
-
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+typedef char cake_bool;
+typedef unsigned char      uchar;
+typedef unsigned short     ushort;
+typedef unsigned int       uint;
+typedef unsigned long      ulong;
 typedef unsigned long long ulonglong;
+typedef uchar cake_byte;
+typedef uchar cake_undefined_type;
 
-typedef signed char   int8;
-typedef unsigned char uint8;
 
-typedef uchar pika_byte;
+/* ===== Defines ===== */
 
-typedef uchar pika_undefined_type;
+#define cake_true  1
+#define cake_false 0
 
-#define PIKA_PTR(value) &value
+#define CAKE_BUFF_SIZE 2048
+#define CAKE_PTR(value) &value
 
-#define PIKA_NO_ERROR 0
 
-typedef struct BytesBuffer {
-    pika_byte *buffer;
+/* ===== Structures ===== */
+typedef struct cake_bytesbuffer {
+    cake_byte *buffer;
     ulonglong size;
-} BytesBuffer;
+} Cake_BytesBuffer;
 
 #endif

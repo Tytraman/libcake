@@ -1,55 +1,55 @@
-#ifndef __PIKA_UTF8_H__
-#define __PIKA_UTF8_H__
+#ifndef __CAKE_UTF8_H__
+#define __CAKE_UTF8_H__
 
 #include "def.h"
 #include "utf16.h"
 #include "array.h"
 
-// Données internes utilisées par String_UTF8.
-typedef struct UTF_Data {
+// Données internes utilisées par Cake_String_UTF8.
+typedef struct cake_utf_data {
     ulonglong length;
-} UTF_Data;
+} Cake_UTF_Data;
 
-typedef struct String_UTF8 {
-    UTF_Data data;
+typedef struct cake_string_utf8 {
+    Cake_UTF_Data data;
     ulonglong length;
     uchar *bytes;
-} String_UTF8;
+} Cake_String_UTF8;
 
-typedef struct List_String_UTF8 {
-    ArrayList data;
-    String_UTF8 **list;
-} List_String_UTF8;
+typedef struct cake_list_string_utf8 {
+    Cake_ArrayList data;
+    Cake_String_UTF8 **list;
+} Cake_List_String_UTF8;
 
-typedef struct String_UTF8_Pair {
-    String_UTF8 *key;
-    String_UTF8 *value;
-} String_UTF8_Pair;
+typedef struct cake_string_utf8_pair {
+    Cake_String_UTF8 *key;
+    Cake_String_UTF8 *value;
+} Cake_String_UTF8_Pair;
 
-typedef struct LinkedList_String_UTF8_Pair {
-    String_UTF8_Pair *pair;
-    struct LinkedList_String_UTF8_Pair *next;
-} LinkedList_String_UTF8_Pair;
+typedef struct cake_linkedlist_string_utf8_pair {
+    Cake_String_UTF8_Pair *pair;
+    struct cake_linkedlist_string_utf8_pair *next;
+} Cake_LinkedList_String_UTF8_Pair;
 
 /* ===== Initialisation ===== */
 
-String_UTF8_Pair *strutf8_pair(const uchar *key, const uchar *value);
-void free_strutf8_pair(String_UTF8_Pair *pair);
+Cake_String_UTF8_Pair *cake_strutf8_pair(const uchar *key, const uchar *value);
+void cake_free_strutf8_pair(Cake_String_UTF8_Pair *pair);
 
 /*
-        Initialise toutes les valeurs de la structure String_UTF8.
+        Initialise toutes les valeurs de la structure Cake_String_UTF8.
 
-        A utiliser une seule fois après chaque déclaration d'une variable String_UTF8,
+        A utiliser une seule fois après chaque déclaration d'une variable Cake_String_UTF8,
         sauf cas exceptionnels où certaines fonctions le spécifie.
 */
-void create_strutf8(String_UTF8 *utf);
+void cake_create_strutf8(Cake_String_UTF8 *utf);
 
-String_UTF8 *strutf8(const uchar *value);
+Cake_String_UTF8 *cake_strutf8(const uchar *value);
 
-List_String_UTF8 *list_strutf8();
+Cake_List_String_UTF8 *cake_list_strutf8();
 
 // Copie une chaîne UTF-8 vers une autre.
-void strutf8_copy(String_UTF8 *dest, String_UTF8 *src);
+void cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src);
 
 
 /* ===== Ajout ===== */
@@ -60,115 +60,115 @@ void strutf8_copy(String_UTF8 *dest, String_UTF8 *src);
 
         Retourne le nombre d'octets UTF-8 utilisés pour stocker le caractère.
 */
-int8 strutf8_add_wchar(String_UTF8 *dest, wchar_t value);
+uchar cake_strutf8_add_wchar(Cake_String_UTF8 *dest, wchar_t value);
 
 /*
         Ajoute une chaîne de caractères unicode dans la chaîne UTF-8.
 */
-char strutf8_add_wchar_array(String_UTF8 *dest, const wchar_t *str);
+void cake_strutf8_add_wchar_array(Cake_String_UTF8 *dest, const wchar_t *str);
 
 /*
         Ajoute une chaîne de caractères dans la chaîne UTF-8.
         La chaîne peut contenir des caractères UTF-8 voir même uniquement un caractère UTF-8.
 */
-void strutf8_add_char_array(String_UTF8 *dest, const uchar *str);
+void cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const uchar *str);
 
 /*
         Insère un caractère unicode dans la chaîne UTF-8.
 
         Retourne le nombre d'octets UTF-8 utilisés pour stocker le caractère.
 */
-int8 strutf8_insert_wchar(String_UTF8 *utf, ulonglong index, wchar_t value);
+uchar cake_strutf8_insert_wchar(Cake_String_UTF8 *utf, ulonglong index, wchar_t value);
 
-pika_bool strutf8_insert_char_array(String_UTF8 *utf, ulonglong index, const uchar *str);
+cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index, const uchar *str);
 
-void list_strutf8_add_char_array(List_String_UTF8 *list, const uchar *str);
+void cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const uchar *str);
 
 
 /* ===== Modification ===== */
 
-void strutf8_reverse(String_UTF8 *utf);
+void cake_strutf8_reverse(Cake_String_UTF8 *utf);
 
 /* ===== Suppression ===== */
 
 /*
         Supprime le caractère UTF-8 stocké à l'index passé.
 
-        Retourne pika_false si l'index est supérieur au nombre de caractères.
+        Retourne cake_false si l'index est supérieur au nombre de caractères.
 */
-pika_bool strutf8_remove_index(String_UTF8 *utf, ulonglong index);
+cake_bool cake_strutf8_remove_index(Cake_String_UTF8 *utf, ulonglong index);
 
-ulonglong strutf8_remove_all(String_UTF8 *utf, const uchar *value);
+ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const uchar *value);
 
-pika_bool strutf8_remove_start(String_UTF8 *utf, const uchar *value);
+cake_bool cake_strutf8_remove_start(Cake_String_UTF8 *utf, const uchar *value);
 
 /*
         Supprime tous les caractères à partir de fromIndex (compris) jusqu'à toIndex (non compris).
 
-        Retourne pika_false si un des deux index est supérieur au nombre de caractères.
+        Retourne cake_false si un des deux index est supérieur au nombre de caractères.
 */
-pika_bool strutf8_remove_from_to(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex);
+cake_bool cake_strutf8_remove_from_to(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex);
 
-pika_bool strutf8_remove_from_to_internal(String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex);
+cake_bool cake_strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex);
 
 
 /* ===== Conversion ===== */
 
 // Convertit une chaîne UTF-8 en chaîne UTF-16.
-void strutf8_to_utf16(String_UTF8 *src, String_UTF16 *dest);
+void cake_strutf8_to_utf16(Cake_String_UTF8 *src, Cake_String_UTF16 *dest);
 
 /*
         Copie une chaîne de caractères dans une chaîne UTF-8,
         aucune conversion n'est effectuée, si la chaîne de caractères
         n'est pas de l'UTF-8, des effets indésirables peuvent survenir.
 */
-void array_char_to_strutf8(const uchar *src, String_UTF8 *dest);
+void cake_char_array_to_strutf8(const uchar *src, Cake_String_UTF8 *dest);
 
 // Convertit une suite d'octets en une valeur numérique Unicode.
-int strutf8_decode(const uchar *src, char bytes);
+int cake_strutf8_decode(const uchar *src, char bytes);
 
 /*
         Convertit un caractère UTF-16 en suite d'octets UTF-8.
 
         Retourne le nombre d'octets utilisés pour stocker le caractère.
 */
-char strutf8_wchar_to_byte(wchar_t value, uchar **buffer);
+uchar cake_strutf8_wchar_to_byte(wchar_t value, uchar **buffer);
 
 /*
-        Version avancée de strutf8_wchar_to_byte.
+        Version avancée de cake_strutf8_wchar_to_byte.
 
         Convertit un caractère UTF-16 en suite d'octets UTF-8 et
         les stocks directement dans le buffer destination.
 */
-void strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index);
+void cake_strutf8_wchar_to_byte_ext(wchar_t value, uchar **buffer, ulonglong *index);
 
 // Convertit une chaîne UTF-16 en UTF-8.
-void strutf16_to_strutf8(String_UTF16 *src, String_UTF8 *dest);
+void cake_strutf16_to_strutf8(Cake_String_UTF16 *src, Cake_String_UTF8 *dest);
 
-// Pas besoin d'utiliser create_strutf8.
-// Par contre si cette fonction est utilisée plusieurs fois sur le même String_UTF8,
+// Pas besoin d'utiliser cake_create_strutf8.
+// Par contre si cette fonction est utilisée plusieurs fois sur le même Cake_String_UTF8,
 // alors il faut le free entre temps.
-void wchar_array_to_strutf8(const wchar_t *src, String_UTF8 *dest);
+void cake_wchar_array_to_strutf8(const wchar_t *src, Cake_String_UTF8 *dest);
 
 
-ulonglong strutf8_to_ulonglong(String_UTF8 *utf);
+ulonglong cake_strutf8_to_ulonglong(Cake_String_UTF8 *utf);
 
-void ulonglong_to_char_array(ulonglong value, uchar *buffer);
+void cake_ulonglong_to_char_array(ulonglong value, uchar *buffer);
 
 /* ===== Cleaner ===== */
 
 // Nettoie la chaîne UTF-8 en utilisant free et en remettant les valeurs à 0 et NULL.
-void clear_strutf8(String_UTF8 *utf);
+void cake_clear_strutf8(Cake_String_UTF8 *utf);
 
 
 /*
-        Libère la mémoire d'un String_UTF8 dynamique.
+        Libère la mémoire d'un Cake_String_UTF8 dynamique.
 
         Ne met pas les valeurs à 0 ni à NULL, la fonction n'effectue que des free.
 */
-void free_strutf8(String_UTF8 *utf);
+void cake_free_strutf8(Cake_String_UTF8 *utf);
 
-void free_list_strutf8(List_String_UTF8 *list);
+void cake_free_list_strutf8(Cake_List_String_UTF8 *list);
 
 
 /* ===== Recherches ===== */
@@ -180,9 +180,9 @@ void free_list_strutf8(List_String_UTF8 *list);
         Permet de trouver l'adresse dans une chaîne UTF-8 par rapport à un index, étant donné qu'un caractère peut avoir plusieurs octets,
         faire utf[6] peut avoir des effets indésirables, cette fonction parcourt la chaîne et compte les index.
 */
-ulonglong strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
+ulonglong cake_strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
 
-ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, pika_byte *bytes);
+ulonglong cake_strutf8_index_by_index_reverse(Cake_String_UTF8 *utf, ulonglong utfIndex, cake_byte *bytes);
 
 /*
         Recherche la sous-chaîne dans la chaîne UTF-8 à partir de la fin.
@@ -191,7 +191,7 @@ ulonglong strutf8_index_by_index_reverse(String_UTF8 *utf, ulonglong utfIndex, p
 
         internalIndex sera égal à sa valeur - le nombre de recherches - 1.
 */
-uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
+uchar *cake_strutf8_search_from_end(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 
 /*
         Recherche la sous-chaîne dans la chaîne UTF-8 à partir de internalIndex en allant vers la fin de la chaîne.
@@ -200,30 +200,30 @@ uchar *strutf8_search_from_end(String_UTF8 *utf, const uchar *research, ulonglon
 
         internalIndex sera égal à sa valeur + la longueur de la recherche + 1.
 */
-uchar *strutf8_search(String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
+uchar *cake_strutf8_search(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
 
-ulonglong str_search(const uchar *str, uchar value, uchar **ptr);
+ulonglong cake_str_search(const uchar *str, uchar value, uchar **ptr);
 
-uchar *str_search_array(const uchar *str, const uchar *value);
+uchar *cake_str_search_array(const uchar *str, const uchar *value);
 
 /* ===== Vérificateurs ===== */
 
 // Vérifie que la chaîne UTF-8 termine avec la sous-chaîne passée.
-pika_bool strutf8_end_with(String_UTF8 *utf, const uchar *str);
+cake_bool cake_strutf8_end_with(Cake_String_UTF8 *utf, const uchar *str);
 // Vérifie que la chaîne UTF-8 commence avec la sous-chaîne passée.
-pika_bool strutf8_start_with(String_UTF8 *utf, const uchar *research);
+cake_bool cake_strutf8_start_with(Cake_String_UTF8 *utf, const uchar *research);
 
 // Vérifie que la chaîne de caractères commence avec la sous-chaîne passée.
-pika_bool str_starts_with(const uchar *src, const uchar *str);
+cake_bool cake_str_starts_with(const uchar *src, const uchar *str);
 
 // Vérifie que la chaîne UTF-8 soit exactement égale à la chaîne de caractères passée.
-pika_bool strutf8_equals(const String_UTF8 *utf, const uchar *compare);
+cake_bool cake_strutf8_equals(const Cake_String_UTF8 *utf, const uchar *compare);
 
 
 /* ===== Création ===== */
 
 
-List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim);
+Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const uchar *delim);
 
 /* ===== Remplacement ===== */
 
@@ -232,44 +232,46 @@ List_String_UTF8 *strutf8_split(String_UTF8 *utf, const uchar *delim);
 
         Retourne le nombre d'occurences remplacées.
 */
-ulonglong strutf8_replace_all(String_UTF8 *utf, const uchar *old, const uchar *replacement);
+ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
 
-void strutf8_to_lower(String_UTF8 *utf);
+cake_bool cake_strutf8_replace_from_end(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
+
+void cake_strutf8_to_lower(Cake_String_UTF8 *utf);
 
 
 /* ===== Autres ===== */
 
-unsigned long long strutf8_wchar_array_calc_size(const wchar_t *str);
+ulonglong cake_strutf8_wchar_array_calc_size(const wchar_t *str);
 
 // Calcule la longueur d'une chaîne UTF-8 avec un algorithme.
-ulonglong strutf8_length(String_UTF8 *utf);
+ulonglong cake_strutf8_length(Cake_String_UTF8 *utf);
 
 // Equivalent de strlen.
-ulonglong str_count(const uchar *str);
+ulonglong cake_str_count(const uchar *str);
 
-uint str_hex_to_uint(const uchar *str);
+uint cake_str_hex_to_uint(const uchar *str);
 
-void strutf8_decode_url(String_UTF8 *utf);
+void cake_strutf8_decode_url(Cake_String_UTF8 *utf);
 
 /*
         Convertie une valeur décimale en chaîne de caractères.
 
         buffer est dynamiquement alloué grâce à malloc, ne pas oublier de free quand il ne sert plus.
 */
-uchar strutf8_dec_to_char(uint value, uchar **buffer);
+uchar cake_strutf8_dec_to_char(uint value, uchar **buffer);
 
 /*
         Stock une valeur décimale convertie en hexadécimale dans un buffer,
         aucun caractère NULL n'est mis à la fin !
 */
-void str_dec_to_hexchar(uchar value, uchar dest[2]);
+void cake_str_dec_to_hexchar(uchar value, uchar dest[2]);
 
-pika_bool str_equals(const uchar *str1, const uchar *str2);
+cake_bool cake_str_equals(const uchar *str1, const uchar *str2);
 
-ulonglong str_number_of(const uchar *str, uchar value);
+ulonglong cake_str_number_of(const uchar *str, uchar value);
 
 
-void strutf8_vector_delete_callback(void *args);
-void strutf8_vector_delete_callback_ptr(void *args);
+void cake_strutf8_vector_delete_callback(void *args);
+void cake_strutf8_vector_delete_callback_ptr(void *args);
 
 #endif

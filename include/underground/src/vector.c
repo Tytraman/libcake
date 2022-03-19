@@ -3,18 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Vector *vector_new(ushort elementSize, void (*delete_callback)(void *args)) {
-    Vector *vec = (Vector *) malloc(sizeof(Vector));
+Cake_Vector *cake_vector_new(ushort elementSize, void (*delete_callback)(void *args)) {
+    Cake_Vector *vec = (Cake_Vector *) malloc(sizeof(Cake_Vector));
 
     if(vec == NULL)
         return NULL;
     
-    vec->data = (uchar *) malloc(elementSize * PIKA_VECTOR_DEFAULT_CAPACITY);
+    vec->data = (uchar *) malloc(elementSize * CAKE_VECTOR_DEFAULT_CAPACITY);
     if(vec->data == NULL) {
         free(vec);
         return NULL;
     }
-    vec->capacity = PIKA_VECTOR_DEFAULT_CAPACITY;
+    vec->capacity = CAKE_VECTOR_DEFAULT_CAPACITY;
     vec->elementSize = elementSize;
     vec->length = 0;
     vec->delete_callback = delete_callback;
@@ -22,7 +22,7 @@ Vector *vector_new(ushort elementSize, void (*delete_callback)(void *args)) {
     return vec;
 }
 
-pika_bool vector_resize(Vector *vec, ulonglong capacity) {
+cake_bool cake_vector_resize(Cake_Vector *vec, ulonglong capacity) {
     // si capacity < length, free la différence d'éléments
     if(capacity < vec->length
         && vec->delete_callback != NULL) {
@@ -35,17 +35,17 @@ pika_bool vector_resize(Vector *vec, ulonglong capacity) {
 
     // Si realloc n'a pas fonctionné, les données au-dessus ne seront pas restaurées
     if(ptr == NULL)
-        return pika_false;
+        return cake_false;
     vec->data = ptr;
     vec->capacity = capacity;
-    return pika_true;
+    return cake_true;
 }
 
 #include "../utf8.h"
 
-void *vector_push_back(Vector *vec, void *data) {
+void *cake_vector_push_back(Cake_Vector *vec, void *data) {
     if(vec->length == vec->capacity) {
-        if(!vector_resize(vec, vec->capacity + 1)) {
+        if(!cake_vector_resize(vec, vec->capacity + 1)) {
             return NULL;
         }
     }
@@ -54,13 +54,13 @@ void *vector_push_back(Vector *vec, void *data) {
     return ptr;
 }
 
-void *vector_get(Vector *vec, ulonglong index) {
+void *cake_vector_get(Cake_Vector *vec, ulonglong index) {
     if(index >= vec->length)
         return NULL;
     return vec->data + index * vec->elementSize;
 }
 
-void vector_delete(Vector *vec) {
+void cake_vector_delete(Cake_Vector *vec) {
     if(vec->delete_callback != NULL) {
         ulonglong i;
         for(i = 0; i < vec->length; ++i) {

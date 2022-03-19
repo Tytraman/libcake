@@ -1,36 +1,44 @@
-#ifndef __PIKA_OPTION_H__
-#define __PIKA_OPTION_H__
+#ifndef __CAKE_OPTION_H__
+#define __CAKE_OPTION_H__
 
 #include "def.h"
 #include "fdio.h"
 #include "utf8.h"
 
-typedef struct Option {
-    String_UTF8 *key;
-    String_UTF8 *value;
-} Option;
+
+/*
+        Obsolète !
+        Ancienne version de Cake_FileObject !
+*/
+
+
+
+typedef struct cake_option {
+    Cake_String_UTF8 *key;
+    Cake_String_UTF8 *value;
+} Cake_Option;
 
 
 /*
-    Structure liée à FileOption.
+    Structure liée à Cake_FileOption.
 */
-typedef struct FileOptionElement {
-    Option *opt;
+typedef struct cake_fileoptionelement {
+    Cake_Option *opt;
     // Index du début de la clé dans la source.
     ulonglong keyIndex;
     // Index du début de la valeur dans la source.
     ulonglong valueIndex;
-} FileOptionElement;
+} Cake_FileOptionElement;
 
 
 /*
         Les éléments internes à cette structure ne doivent pas être modifiés.
 */
-typedef struct FileOption {
-    pika_fd fd;
-    String_UTF8 *fileCopy;
+typedef struct cake_fileoption {
+    cake_fd fd;
+    Cake_String_UTF8 *fileCopy;
     uchar delim;
-} FileOption;
+} Cake_FileOption;
 
 
 /*
@@ -39,19 +47,19 @@ typedef struct FileOption {
 
         Retourne NULL si le fichier n'existe pas ou si la clé n'a pas été trouvée.
 
-        Ne pas oublier de free_option lorsque la structure ne sert plus.
+        Ne pas oublier de cake_free_option lorsque la structure ne sert plus.
 */
-Option *__load_option(String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex);
+Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex);
 
-#define load_option(source, key, delim) __load_option(source, key, delim, NULL, NULL)
-void free_option(Option *opt);
+#define cake_load_option(source, key, delim) __cake_load_option(source, key, delim, NULL, NULL)
+void cake_free_option(Cake_Option *opt);
 
-/* ===== FileOption ===== */
+/* ===== Cake_FileOption ===== */
 
-FileOption *file_option_load(const uchar *filename, uchar delim);
-FileOptionElement *file_option_get(FileOption *fileOpt, const uchar *key);
-void free_file_option(FileOption *fileOpt);
+Cake_FileOption *cake_file_option_load(const uchar *filename, uchar delim);
+Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const uchar *key);
+void cake_free_file_option(Cake_FileOption *fileOpt);
 
-#define free_file_option_element(e) free_option(e->opt)
+#define cake_free_file_option_element(e) cake_free_option(e->opt)
 
 #endif

@@ -1,13 +1,13 @@
-#ifndef __PIKA_CSS_H__
-#define __PIKA_CSS_H__
+#ifndef __CAKE_CSS_H__
+#define __CAKE_CSS_H__
 
 #include "utf8.h"
 
-typedef String_UTF8 CSS;
+typedef Cake_String_UTF8 Cake_CSS;
 
-CSS *css_load(const uchar *filename);
-#define free_css(css) free_strutf8(css)
+Cake_CSS *cake_css_load(const uchar *filename);
+#define cake_free_css(css) cake_free_strutf8(css)
 
-void css_optimize(CSS *css);
+void cake_css_optimize(Cake_CSS *css);
 
 #endif

@@ -6,19 +6,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-CSS *css_load(const uchar *filename) {
-    pika_fd fd = fdio_open_file(filename, FDIO_ACCESS_READ, FDIO_SHARE_READ, FDIO_OPEN_IF_EXISTS, FDIO_ATTRIBUTE_NORMAL);
-    if(fd == FDIO_ERROR_OPEN)
+Cake_CSS *cake_css_load(const uchar *filename) {
+    cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_READ, CAKE_FDIO_SHARE_READ, CAKE_FDIO_OPEN_IF_EXISTS, CAKE_FDIO_ATTRIBUTE_NORMAL);
+    if(fd == CAKE_FDIO_ERROR_OPEN)
         return NULL;
-    CSS *css = strutf8("");
-    fdio_mem_copy_strutf8(css, fd, PIKA_BUFF_SIZE);
-    fdio_close(fd);
+    Cake_CSS *css = cake_strutf8("");
+    cake_fdio_mem_copy_strutf8(css, fd, CAKE_BUFF_SIZE);
+    cake_fdio_close(fd);
     return css;
 }
 
-void css_optimize(CSS *css) {
-    strutf8_remove_all(css, "\r");
-    strutf8_remove_all(css, "\n");
+void cake_css_optimize(Cake_CSS *css) {
+    cake_strutf8_remove_all(css, "\r");
+    cake_strutf8_remove_all(css, "\n");
     ulonglong i;
     ulonglong savePos;
 
@@ -36,7 +36,7 @@ void css_optimize(CSS *css) {
                 i++;
                 while(i < css->data.length && (css->bytes[i] == ' ' || css->bytes[i] == '\t'))
                     i++;
-                strutf8_remove_from_to_internal(css, savePos, i);
+                cake_strutf8_remove_from_to_internal(css, savePos, i);
                 i = savePos;
             }
         }
@@ -59,7 +59,7 @@ void css_optimize(CSS *css) {
             }
             if(i > css->data.length)
                 i = css->data.length;
-            strutf8_remove_from_to_internal(css, savePos, i);
+            cake_strutf8_remove_from_to_internal(css, savePos, i);
             i = savePos;
         }
     }

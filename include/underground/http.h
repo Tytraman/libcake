@@ -1,162 +1,162 @@
-#ifndef __PIKA_HTTP_H__
-#define __PIKA_HTTP_H__
+#ifndef __CAKE_HTTP_H__
+#define __CAKE_HTTP_H__
 
 #include "def.h"
 #include "socket.h"
 #include "utf8.h"
 
-#ifndef PIKA_SSL
-#define PIKA_SSL 0
+#ifndef CAKE_SSL
+#define CAKE_SSL 0
 #endif
 
-#if PIKA_SSL > 0
+#if CAKE_SSL > 0
 #include <openssl/ssl.h>
 #else
-typedef pika_undefined_type SSL;
-typedef pika_undefined_type SSL_CTX;
+typedef cake_undefined_type SSL;
+typedef cake_undefined_type SSL_CTX;
 #endif
 
-#define PIKA_HTTP_GET  0
-#define PIKA_HTTP_POST 1
+#define CAKE_HTTP_GET  0
+#define CAKE_HTTP_POST 1
 
-#define PIKA_HTTP_REQUEST  0
-#define PIKA_HTTP_RESPONSE 1
+#define CAKE_HTTP_REQUEST  0
+#define CAKE_HTTP_RESPONSE 1
 
 // Code d'erreur interne
-#define PIKA_HTTP_ERROR_SEND PIKA_SOCKET_ERROR
+#define CAKE_HTTP_ERROR_SEND CAKE_SOCKET_ERROR
 // Code d'erreur interne
-#define PIKA_HTTP_ERROR_RECV PIKA_SOCKET_ERROR
+#define CAKE_HTTP_ERROR_RECV CAKE_SOCKET_ERROR
 
-#define PIKA_HTTP_CONNECTION_CLOSED 100
+#define CAKE_HTTP_CONNECTION_CLOSED 100
 
-#define PIKA_HTTP_HEADER  0
-#define PIKA_HTTP_MESSAGE 1
+#define CAKE_HTTP_HEADER  0
+#define CAKE_HTTP_MESSAGE 1
 
-#define PIKA_HTTP_ERROR_RECEIVE   1
-#define PIKA_HTTP_ERROR_OVERSIDED 2
+#define CAKE_HTTP_ERROR_RECEIVE   1
+#define CAKE_HTTP_ERROR_OVERSIDED 2
 
-typedef struct HttpHeader {
-    struct HttpHeader *next;
-    String_UTF8 *key;
-    String_UTF8 *value;
-} HttpHeader;
+typedef struct cake_httpheader {
+    struct cake_httpheader *next;
+    Cake_String_UTF8 *key;
+    Cake_String_UTF8 *value;
+} Cake_HttpHeader;
 
-typedef struct HttpResponse {
-    BytesBuffer receivedData;
+typedef struct cake_httpresponse {
+    Cake_BytesBuffer receivedData;
 
-    HttpHeader *header;
-    HttpHeader **nextHeaderValue;
+    Cake_HttpHeader *header;
+    Cake_HttpHeader **nextHeaderValue;
     
-    String_UTF8 *formattedHeader;
-    BytesBuffer message;
+    Cake_String_UTF8 *formattedHeader;
+    Cake_BytesBuffer message;
 
     uchar *status;
-} HttpResponse;
+} Cake_HttpResponse;
 
-typedef struct HttpRequest {
-    BytesBuffer receivedData;
+typedef struct cake_httprequest {
+    Cake_BytesBuffer receivedData;
 
-    HttpHeader *header;
-    HttpHeader **nextHeaderValue;
+    Cake_HttpHeader *header;
+    Cake_HttpHeader **nextHeaderValue;
 
-    String_UTF8 *url;
+    Cake_String_UTF8 *url;
 
-    String_UTF8 *formattedHeader;
-    BytesBuffer message;
+    Cake_String_UTF8 *formattedHeader;
+    Cake_BytesBuffer message;
 
-    pika_byte method;
-} HttpRequest;
+    cake_byte method;
+} Cake_HttpRequest;
 
-typedef struct HttpClient {
-    ClientSocket sock;
+typedef struct cake_httpclient {
+    Cake_ClientSocket sock;
     // La requête est ce qui est demandée au serveur.
-    HttpRequest request;
+    Cake_HttpRequest request;
     // La réponse est ce qui est reçue du serveur.
-    HttpResponse response;
-} HttpClient;
+    Cake_HttpResponse response;
+} Cake_HttpClient;
 
-typedef struct AcceptedHttpClient {
-    AcceptedClientSocket *sock;
+typedef struct cake_acceptedhttpclient {
+    Cake_AcceptedClientSocket *sock;
     // La requête est ce qui est demandée par le client.
-    HttpRequest request;
+    Cake_HttpRequest request;
     // La réponse est ce qui est envoyée au client.
-    HttpResponse response;
+    Cake_HttpResponse response;
     ulonglong dataReceivedMaxLength;
-} AcceptedHttpClient;
+} Cake_AcceptedHttpClient;
 
-typedef ServerSocket HttpServer;
+typedef Cake_ServerSocket Cake_HttpServer;
 
 
-typedef struct AcceptedHttpsClient {
-    AcceptedHttpClient *client;
+typedef struct cake_acceptedhttpsclient {
+    Cake_AcceptedHttpClient *client;
     SSL *ssl;
-} AcceptedHttpsClient;
+} Cake_AcceptedHttpsClient;
 
-typedef struct HttpsServer {
-    HttpServer server;
+typedef struct cake_httpsserver {
+    Cake_HttpServer server;
     SSL_CTX *ctx;
-} HttpsServer;
+} Cake_HttpsServer;
 
 
 /* ===== Global ===== */
 
-pika_byte http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, pika_socket sock);
-pika_byte https_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, SSL *ssl);
+cake_byte cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, cake_socket sock);
+cake_byte cake_https_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, SSL *ssl);
 
-/* ===== HttpResponse ===== */
+/* ===== Cake_HttpResponse ===== */
 
-void http_response_format(HttpResponse *response);
-void create_http_response(HttpResponse *response);
-void clear_http_response(HttpResponse *response);
-
-
-/* ===== HttpRequest ===== */
-
-void http_request_format(HttpRequest *request);
-void create_http_request(HttpRequest *request);
-void clear_http_request(HttpRequest *request);
+void cake_http_response_format(Cake_HttpResponse *response);
+void cake_create_http_response(Cake_HttpResponse *response);
+void cake_clear_http_response(Cake_HttpResponse *response);
 
 
-/* ===== HttpClient ===== */
+/* ===== Cake_HttpRequest ===== */
 
-pika_bool create_http_client(HttpClient *client, const char *hostname, const char *port);
-
-pika_bool http_client_send(HttpClient *client, pika_byte mode);
-#define http_client_receive(client) http_receive(&(client).data, (client).sock.socket)
-void free_http_client(HttpClient *client);
+void cake_http_request_format(Cake_HttpRequest *request);
+void cake_create_http_request(Cake_HttpRequest *request);
+void cake_clear_http_request(Cake_HttpRequest *request);
 
 
-/* ===== HttpServer ===== */
+/* ===== Cake_HttpClient ===== */
 
-#define create_http_server(pServer, port, backlog) create_server_socket(pServer, port, PIKA_IP_V4, backlog)
+cake_bool cake_create_http_client(Cake_HttpClient *client, const char *hostname, const char *port);
 
-pika_bool create_https_server(HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath);
-AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestMessageMaxLength);
-void free_https_server(HttpsServer *server);
-
-AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMessageMaxLength);
-#define free_http_server(server) free_server_socket(server)
+cake_bool cake_http_client_send(Cake_HttpClient *client, cake_byte mode);
+#define cake_http_client_receive(client) cake_http_receive(&(client).data, (client).sock.socket)
+void cake_free_http_client(Cake_HttpClient *client);
 
 
-/* ===== HttpHeader ===== */
+/* ===== Cake_HttpServer ===== */
 
-void http_add_header_element(HttpHeader **header, const uchar *key, const uchar *value);
-void free_http_header(HttpHeader *header);
-HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *getOrPost, String_UTF8 *url);
+#define cake_create_http_server(pServer, port, backlog) cake_create_server_socket(pServer, port, CAKE_IP_V4, backlog)
+
+cake_bool cake_create_https_server(Cake_HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath);
+Cake_AcceptedHttpsClient *cake_https_server_accept(Cake_HttpsServer *server, ulonglong requestMessageMaxLength);
+void cake_free_https_server(Cake_HttpsServer *server);
+
+Cake_AcceptedHttpClient *cake_http_server_accept(Cake_HttpServer *server, ulonglong requestMessageMaxLength);
+#define cake_free_http_server(server) cake_free_server_socket(server)
 
 
-/* ===== AcceptedHttpClient ===== */
+/* ===== Cake_HttpHeader ===== */
 
-pika_bool accepted_http_client_send(AcceptedHttpClient *client, pika_byte mode);
-#define accepted_http_client_receive(c) http_receive(&(c).request.receivedData, &(c).request.message, &(c).request.header, &(c).request.method, (c).request.url, (c).sock->socket)
-LinkedList_String_UTF8_Pair *accepted_http_client_parse_post_message(AcceptedHttpClient *client);
-void free_accepted_http_client(AcceptedHttpClient *client);
+void cake_http_add_header_element(Cake_HttpHeader **header, const uchar *key, const uchar *value);
+void cake_free_http_header(Cake_HttpHeader *header);
+Cake_HttpHeader *cake_http_header_parse(Cake_BytesBuffer *data, Cake_HttpHeader **start, cake_byte *getOrPost, Cake_String_UTF8 *url);
 
-pika_bool accepted_https_client_send(AcceptedHttpsClient *client, pika_byte mode);
-#define accepted_https_client_receive(c) https_receive(&(*(c).client).request.receivedData, &(*(c).client).request.message, &(*(c).client).request.header, &(*(c).client).request.method, (*(c).client).request.url, (c).ssl)
-void free_accepted_https_client(AcceptedHttpsClient *client);
-void init_openssl();
 
-HttpHeader *http_header_find(HttpHeader *first, const uchar *key);
+/* ===== Cake_AcceptedHttpClient ===== */
+
+cake_bool cake_accepted_http_client_send(Cake_AcceptedHttpClient *client, cake_byte mode);
+#define cake_accepted_http_client_receive(c) cake_http_receive(&(c).request.receivedData, &(c).request.message, &(c).request.header, &(c).request.method, (c).request.url, (c).sock->socket)
+Cake_LinkedList_String_UTF8_Pair *cake_accepted_http_client_parse_post_message(Cake_AcceptedHttpClient *client);
+void cake_free_accepted_http_client(Cake_AcceptedHttpClient *client);
+
+cake_bool cake_accepted_https_client_send(Cake_AcceptedHttpsClient *client, cake_byte mode);
+#define cake_accepted_https_client_receive(c) cake_https_receive(&(*(c).client).request.receivedData, &(*(c).client).request.message, &(*(c).client).request.header, &(*(c).client).request.method, (*(c).client).request.url, (c).ssl)
+void cake_free_accepted_https_client(Cake_AcceptedHttpsClient *client);
+void cake_init_openssl();
+
+Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const uchar *key);
 
 #endif

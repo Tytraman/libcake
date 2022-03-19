@@ -6,15 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
-    #ifdef PIKA_WINDOWS
+char cake_fdio_compare_time(cake_fd fd, cake_fd compareTo, cake_byte mode) {
+    #ifdef CAKE_WINDOWS
     FILETIME time1, time2;
     switch(mode) {
         case FDIO_COMPARE_CREATION_TIME:
             GetFileTime(fd, &time1, NULL, NULL);
             GetFileTime(compareTo, &time2, NULL, NULL);
             break;
-        case FDIO_COMPARE_ACCESS_TIME:
+        case CAKE_FDIO_COMPARE_ACCESS_TIME:
             GetFileTime(fd, NULL, &time1, NULL);
             GetFileTime(compareTo, NULL, &time2, NULL);
             break;
@@ -34,54 +34,54 @@ char fdio_compare_time(pika_fd fd, pika_fd compareTo, pika_byte mode) {
 
     switch(mode) {
         default:
-            return FDIO_EQUAL;
-        case FDIO_COMPARE_ACCESS_TIME:
+            return CAKE_FDIO_EQUAL;
+        case CAKE_FDIO_COMPARE_ACCESS_TIME:
             timex1 = &time1.st_atim;
             timex2 = &time2.st_atim;
             break;
-        case FDIO_COMPARE_LAST_WRITE_TIME:
+        case CAKE_FDIO_COMPARE_LAST_WRITE_TIME:
             timex1 = &time1.st_mtim;
             timex2 = &time2.st_mtim;
             break;
     }
 
     if(timex1->tv_sec > timex2->tv_sec)
-        return FDIO_NEWER;
+        return CAKE_FDIO_NEWER;
     else if(timex1->tv_sec < timex2->tv_sec)
-        return FDIO_OLDER;
+        return CAKE_FDIO_OLDER;
     else {
         if(timex1->tv_nsec > timex2->tv_nsec)
-            return FDIO_NEWER;
+            return CAKE_FDIO_NEWER;
         else if(timex1->tv_nsec < timex2->tv_nsec)
-            return FDIO_OLDER;
+            return CAKE_FDIO_OLDER;
         else
-            return FDIO_EQUAL;
+            return CAKE_FDIO_EQUAL;
     }
 
     #endif
 }
 
-void fdio_mem_copy_strutf8(String_UTF8 *dest, pika_fd fd, ushort buffSize) {
+void cake_fdio_mem_copy_strutf8(Cake_String_UTF8 *dest, cake_fd fd, ushort buffSize) {
     uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
-    pika_size bytesRead;
+    cake_size bytesRead;
     while(1) {
-        fdio_read(fd, buffSize, bytesRead, buffer);
-        if(bytesRead == FDIO_ERROR_READ || bytesRead == 0)
+        cake_fdio_read(fd, buffSize, bytesRead, buffer);
+        if(bytesRead == CAKE_FDIO_ERROR_READ || bytesRead == 0)
             break;
         dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar) + sizeof(uchar));
         memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
         (dest->data.length) += bytesRead;
     }
     dest->bytes[dest->data.length] = '\0';
-    dest->length = strutf8_length(dest);
+    dest->length = cake_strutf8_length(dest);
     free(buffer);
 }
 
-void fdio_mem_copy(uchar **dest, ulonglong *destLength, pika_fd fd, ushort buffSize) {
-    pika_size bytesRead;
+void cake_fdio_mem_copy(uchar **dest, ulonglong *destLength, cake_fd fd, ushort buffSize) {
+    cake_size bytesRead;
     uchar *buffer = (uchar *) malloc(buffSize * sizeof(uchar));
     *destLength = 0;
-    while(fdio_read(fd, buffSize, bytesRead, buffer) != FDIO_ERROR_READ && bytesRead != 0) {
+    while(cake_fdio_read(fd, buffSize, bytesRead, buffer) != CAKE_FDIO_ERROR_READ && bytesRead != 0) {
         *dest = (uchar *) realloc(*dest, (*destLength + bytesRead) * sizeof(uchar) + sizeof(uchar));
         memcpy(&(*dest)[*destLength], buffer, bytesRead * sizeof(uchar));
         (*destLength) += bytesRead;
@@ -90,12 +90,12 @@ void fdio_mem_copy(uchar **dest, ulonglong *destLength, pika_fd fd, ushort buffS
     free(buffer);
 }
 
-#ifdef PIKA_WINDOWS
-pika_fd fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes) {
-    String_UTF16 name;
-    create_strutf16(&name);
-    char_array_to_strutf16(filename, &name);
-    pika_fd fd = CreateFileW(name.characteres, desiredAccess, shareMode, NULL, openMode, attributes, NULL);
+#ifdef CAKE_WINDOWS
+cake_fd cake_fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes) {
+    Cake_String_UTF16 name;
+    cake_create_strutf16(&name);
+    cake_char_array_to_strutf16(filename, &name);
+    cake_fd fd = CreateFileW(name.characteres, desiredAccess, shareMode, NULL, openMode, attributes, NULL);
     free(name.characteres);
     return fd;
 }

@@ -1,14 +1,14 @@
-#ifndef __PIKA_TIME_H__
-#define __PIKA_TIME_H__
+#ifndef __CAKE_TIME_H__
+#define __CAKE_TIME_H__
 
 #include "def.h"
 
-#ifdef PIKA_WINDOWS
-ulonglong filetime_to_ularge(FILETIME *ft);
+#ifdef CAKE_WINDOWS
+ulonglong cake_filetime_to_ularge(FILETIME *ft);
 #else
 
 #endif
 
-ulonglong get_current_time_millis();
+ulonglong cake_get_current_time_millis();
 
 #endif

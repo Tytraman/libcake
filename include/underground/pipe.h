@@ -1,12 +1,12 @@
-#ifndef __PIKA_PIPE_H__
-#define __PIKA_PIPE_H__
+#ifndef __CAKE_PIPE_H__
+#define __CAKE_PIPE_H__
 
 #include "def.h"
 #include "fdio.h"
 
-#ifdef PIKA_WINDOWS
+#ifdef CAKE_WINDOWS
 
-char __create_pipe(pika_fd pipefd[2], pika_byte mode);
+char __cake_create_pipe(cake_fd pipefd[2], cake_byte mode);
 
 
 /*
@@ -15,7 +15,7 @@ char __create_pipe(pika_fd pipefd[2], pika_byte mode);
         pipefd[0] = stream de lecture
         pipefd[1] = stream d'écriture
 */
-#define create_pipe(pipefd) __create_pipe(pipefd, 0)
+#define cake_create_pipe(pipefd) __cake_create_pipe(pipefd, 0)
 
 /*
         Crée un pipe pour STDIN.
@@ -23,10 +23,10 @@ char __create_pipe(pika_fd pipefd[2], pika_byte mode);
         pipefd[0] = stream de lecture
         pipefd[1] = stream d'écriture
 */
-#define create_pipe_stdin(pipefd) __create_pipe(pipefd, 1)
+#define cake_create_pipe_stdin(pipefd) __cake_create_pipe(pipefd, 1)
 
 #else
-#define create_pipe(pipefd) pipe(pipefd)
+#define cake_create_pipe(pipefd) pipe(pipefd)
 
 #endif
 

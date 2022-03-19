@@ -2,42 +2,42 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#if PIKA_SSL > 0
+#if CAKE_SSL > 0
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #endif
 
-pika_bool create_http_client(HttpClient *client, const char *hostname, const char *port) {
-    if(!create_client_socket(&client->sock, hostname, port, PIKA_IP_V4))
-        return pika_false;
+cake_bool cake_create_http_client(Cake_HttpClient *client, const char *hostname, const char *port) {
+    if(!cake_create_client_socket(&client->sock, hostname, port, CAKE_IP_V4))
+        return cake_false;
 
-    if(!client_socket_connect(&client->sock)) {
-        free_client_socket(&client->sock);
-        return pika_false;
+    if(!cake_client_socket_connect(&client->sock)) {
+        cake_free_client_socket(&client->sock);
+        return cake_false;
     }
 
-    create_http_request(&client->request);
-    create_http_response(&client->response);
+    cake_create_http_request(&client->request);
+    cake_create_http_response(&client->response);
 
-    http_add_header_element(&client->request.header, "host", hostname);
+    cake_http_add_header_element(&client->request.header, "host", hostname);
     client->request.nextHeaderValue = &client->request.header->next;
-    http_add_header_element(client->request.nextHeaderValue, "user-agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
+    cake_http_add_header_element(client->request.nextHeaderValue, "user-agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
     client->request.nextHeaderValue = &(*client->request.nextHeaderValue)->next;
-    http_add_header_element(client->request.nextHeaderValue, "accept", "*/*");
+    cake_http_add_header_element(client->request.nextHeaderValue, "accept", "*/*");
     client->request.nextHeaderValue = &(*client->request.nextHeaderValue)->next;
-    http_add_header_element(client->request.nextHeaderValue, "accept-language", "en-US");
+    cake_http_add_header_element(client->request.nextHeaderValue, "accept-language", "en-US");
     client->request.nextHeaderValue = &(*client->request.nextHeaderValue)->next;
-    http_add_header_element(client->request.nextHeaderValue, "connection", "close");
+    cake_http_add_header_element(client->request.nextHeaderValue, "connection", "close");
     client->request.nextHeaderValue = &(*client->request.nextHeaderValue)->next;
 
-    return pika_true;
+    return cake_true;
 }
 
-#if PIKA_SSL > 0
-AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMessageMaxLength) {
-    AcceptedHttpClient *client = (AcceptedHttpClient *) malloc(sizeof(AcceptedHttpClient));
+#if CAKE_SSL > 0
+Cake_AcceptedHttpClient *cake_http_server_accept(Cake_HttpServer *server, ulonglong requestMessageMaxLength) {
+    Cake_AcceptedHttpClient *client = (Cake_AcceptedHttpClient *) malloc(sizeof(Cake_AcceptedHttpClient));
 
-    client->sock = server_socket_accept(server);
+    client->sock = cake_server_socket_accept(server);
     client->dataReceivedMaxLength = requestMessageMaxLength;
 
     if(client->sock == NULL) {
@@ -45,18 +45,18 @@ AcceptedHttpClient *http_server_accept(HttpServer *server, ulonglong requestMess
         return NULL;
     }
 
-    create_http_request(&client->request);
-    create_http_response(&client->response);
+    cake_create_http_request(&client->request);
+    cake_create_http_response(&client->response);
 
-    http_add_header_element(&client->response.header, "connection", "close");
+    cake_http_add_header_element(&client->response.header, "connection", "close");
     client->response.nextHeaderValue = &client->response.header->next;
 
     return client;
 }
 
-AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestMessageMaxLength) {
-    AcceptedHttpsClient *client = (AcceptedHttpsClient *) malloc(sizeof(AcceptedHttpsClient));
-    client->client = http_server_accept(&server->server, requestMessageMaxLength);
+Cake_AcceptedHttpsClient *cake_https_server_accept(Cake_HttpsServer *server, ulonglong requestMessageMaxLength) {
+    Cake_AcceptedHttpsClient *client = (Cake_AcceptedHttpsClient *) malloc(sizeof(Cake_AcceptedHttpsClient));
+    client->client = cake_http_server_accept(&server->server, requestMessageMaxLength);
     if(client->client == NULL) {
         free(client);
         return NULL;
@@ -65,7 +65,7 @@ AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestM
     if(client->ssl == NULL) {
         fprintf(stderr, "Erreur: SSL_new\n");
         ERR_print_errors_fp(stderr);
-        free_accepted_http_client(client->client);
+        cake_free_accepted_http_client(client->client);
         free(client);
         return NULL;
     }
@@ -73,7 +73,7 @@ AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestM
     if(!SSL_set_fd(client->ssl, (int) client->client->sock->socket)) {
         fprintf(stderr, "Erreur: SSL_set_fd\n");
         ERR_print_errors_fp(stderr);
-        free_accepted_http_client(client->client);
+        cake_free_accepted_http_client(client->client);
         free(client);
         return NULL;
     }
@@ -81,7 +81,7 @@ AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestM
     if(SSL_accept(client->ssl) != 1) {
         fprintf(stderr, "Erreur: SSL_accept\n");
         ERR_print_errors_fp(stderr);
-        free_accepted_http_client(client->client);
+        cake_free_accepted_http_client(client->client);
         free(client);
         return NULL;
     }
@@ -89,26 +89,26 @@ AcceptedHttpsClient *https_server_accept(HttpsServer *server, ulonglong requestM
 }
 #endif
 
-void free_http_client(HttpClient *client) {
-    clear_http_response(&client->response);
-    clear_http_request(&client->request);
-    close_socket(client->sock.socket);
+void cake_free_http_client(Cake_HttpClient *client) {
+    cake_clear_http_response(&client->response);
+    cake_clear_http_request(&client->request);
+    cake_close_socket(client->sock.socket);
 }
 
-void http_add_header_element(HttpHeader **header, const uchar *key, const uchar *value) {
-    *header = (HttpHeader *) malloc(sizeof(HttpHeader));
-    (*header)->key = strutf8(key);
-    (*header)->value = strutf8(value);
+void cake_http_add_header_element(Cake_HttpHeader **header, const uchar *key, const uchar *value) {
+    *header = (Cake_HttpHeader *) malloc(sizeof(Cake_HttpHeader));
+    (*header)->key = cake_strutf8(key);
+    (*header)->value = cake_strutf8(value);
     (*header)->next = NULL;
 }
 
-void free_http_header(HttpHeader *header) {
+void cake_free_http_header(Cake_HttpHeader *header) {
     if(header != NULL) {
-        HttpHeader *current = header;
-        HttpHeader *next = current->next;
+        Cake_HttpHeader *current = header;
+        Cake_HttpHeader *next = current->next;
         while(current != NULL) {
-            free_strutf8(current->key);
-            free_strutf8(current->value);
+            cake_free_strutf8(current->key);
+            cake_free_strutf8(current->value);
             next = current->next;
             free(current);
             current = next;
@@ -116,77 +116,77 @@ void free_http_header(HttpHeader *header) {
     }
 }
 
-void __http_format_header(String_UTF8 *dest, BytesBuffer *message, HttpHeader *header) {
+void __http_format_header(Cake_String_UTF8 *dest, Cake_BytesBuffer *message, Cake_HttpHeader *header) {
     while(header != NULL) {
-        strutf8_add_char_array(dest, header->key->bytes);
-        strutf8_add_char_array(dest, ":");
-        strutf8_add_char_array(dest, header->value->bytes);
-        strutf8_add_char_array(dest, "\r\n");
+        cake_strutf8_add_char_array(dest, header->key->bytes);
+        cake_strutf8_add_char_array(dest, ":");
+        cake_strutf8_add_char_array(dest, header->value->bytes);
+        cake_strutf8_add_char_array(dest, "\r\n");
         header = header->next;
     }
     if(message->size > 0) {
-        pika_byte lengthBuff[256];
-        ulonglong_to_char_array(message->size, lengthBuff);
-        strutf8_add_char_array(dest, "content-length");
-        strutf8_add_char_array(dest, ":");
-        strutf8_add_char_array(dest, lengthBuff);
-        strutf8_add_char_array(dest, "\r\n");
+        cake_byte lengthBuff[256];
+        cake_ulonglong_to_char_array(message->size, lengthBuff);
+        cake_strutf8_add_char_array(dest, "content-length");
+        cake_strutf8_add_char_array(dest, ":");
+        cake_strutf8_add_char_array(dest, lengthBuff);
+        cake_strutf8_add_char_array(dest, "\r\n");
     }
-    strutf8_add_char_array(dest, "\r\n");
+    cake_strutf8_add_char_array(dest, "\r\n");
 }
 
-void http_response_format(HttpResponse *response) {
-    array_char_to_strutf8("HTTP/1.1 ", response->formattedHeader);
-    strutf8_add_char_array(response->formattedHeader, response->status);
-    strutf8_add_char_array(response->formattedHeader, "\r\n");
+void cake_http_response_format(Cake_HttpResponse *response) {
+    cake_char_array_to_strutf8("HTTP/1.1 ", response->formattedHeader);
+    cake_strutf8_add_char_array(response->formattedHeader, response->status);
+    cake_strutf8_add_char_array(response->formattedHeader, "\r\n");
     __http_format_header(response->formattedHeader, &response->message, response->header);
 }
 
-void http_request_format(HttpRequest *request) {
-    if(request->method == PIKA_HTTP_GET)
-        array_char_to_strutf8("GET ", request->formattedHeader);
+void cake_http_request_format(Cake_HttpRequest *request) {
+    if(request->method == CAKE_HTTP_GET)
+        cake_char_array_to_strutf8("GET ", request->formattedHeader);
     else
-        array_char_to_strutf8("POST ", request->formattedHeader);
-    strutf8_add_char_array(request->formattedHeader, request->url->bytes);
-    strutf8_add_char_array(request->formattedHeader, " HTTP/1.1\r\n");
+        cake_char_array_to_strutf8("POST ", request->formattedHeader);
+    cake_strutf8_add_char_array(request->formattedHeader, request->url->bytes);
+    cake_strutf8_add_char_array(request->formattedHeader, " HTTP/1.1\r\n");
     __http_format_header(request->formattedHeader, &request->message, request->header);
 }
 
-pika_bool http_client_send(HttpClient *client, pika_byte mode) {
+cake_bool cake_http_client_send(Cake_HttpClient *client, cake_byte mode) {
     ulonglong index = 0;
     int bytesSent;
     ulonglong diff;
     switch(mode) {
-        case PIKA_HTTP_HEADER:
+        case CAKE_HTTP_HEADER:
             while(1) {
                 diff = client->request.formattedHeader->data.length - index;
                 if(diff == 0)
                     break;
-                if((bytesSent = send(client->sock.socket, &client->request.formattedHeader->bytes[index], (diff > PIKA_BUFF_SIZE ? PIKA_BUFF_SIZE : diff), 0)) == PIKA_HTTP_ERROR_SEND)
-                    return pika_false;
+                if((bytesSent = send(client->sock.socket, &client->request.formattedHeader->bytes[index], (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff), 0)) == CAKE_HTTP_ERROR_SEND)
+                    return cake_false;
                 index += bytesSent;
             }
             break;
-        case PIKA_HTTP_MESSAGE:
+        case CAKE_HTTP_MESSAGE:
             while(1) {
                 diff = client->request.message.size - index;
                 if(diff == 0)
                     break;
-                if((bytesSent = send(client->sock.socket, &client->request.message.buffer[index], (diff > PIKA_BUFF_SIZE ? PIKA_BUFF_SIZE : diff), 0)) == PIKA_HTTP_ERROR_SEND)
-                    return pika_false;
+                if((bytesSent = send(client->sock.socket, &client->request.message.buffer[index], (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff), 0)) == CAKE_HTTP_ERROR_SEND)
+                    return cake_false;
                 index += bytesSent;
             }
             break;
         default:
-            return pika_false;
+            return cake_false;
     }
 
-    return pika_true;
+    return cake_true;
 }
 
 typedef struct HttpSendFusion {
-    pika_socket sock;
-    #if PIKA_SSL > 0
+    cake_socket sock;
+    #if CAKE_SSL > 0
     SSL *ssl;
     #endif
 } HttpSendFusion;
@@ -195,75 +195,75 @@ int __http_send_callback(HttpSendFusion *fusion, uchar *buff, int length) {
     return send(fusion->sock, buff, length, 0);
 }
 
-#if PIKA_SSL > 0
+#if CAKE_SSL > 0
 int __https_send_callback(HttpSendFusion *fusion, uchar *buff, int length) {
     return SSL_write(fusion->ssl, buff, length);
 }
 #endif
 
-pika_bool __accepted_http_client_send(AcceptedHttpClient *client, pika_byte mode, HttpSendFusion *fusion, int (*sendCallback)(HttpSendFusion *, uchar *, int)) {
+cake_bool __accepted_http_client_send(Cake_AcceptedHttpClient *client, cake_byte mode, HttpSendFusion *fusion, int (*sendCallback)(HttpSendFusion *, uchar *, int)) {
     ulonglong index = 0;
     int bytesSent;
     ulonglong diff;
     switch(mode) {
-        case PIKA_HTTP_HEADER:
+        case CAKE_HTTP_HEADER:
             while(1) {
                 diff = client->response.formattedHeader->data.length - index;
                 if(diff == 0)
                     break;
-                if((bytesSent = sendCallback(fusion, &client->response.formattedHeader->bytes[index], (diff > PIKA_BUFF_SIZE ? PIKA_BUFF_SIZE : diff))) == PIKA_HTTP_ERROR_SEND)
-                    return pika_false;
+                if((bytesSent = sendCallback(fusion, &client->response.formattedHeader->bytes[index], (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff))) == CAKE_HTTP_ERROR_SEND)
+                    return cake_false;
                 index += bytesSent;
             }
             break;
-        case PIKA_HTTP_MESSAGE:
+        case CAKE_HTTP_MESSAGE:
             while(1) {
                 diff = client->response.message.size - index;
                 if(diff == 0)
                     break;
-                if((bytesSent = sendCallback(fusion, &client->response.message.buffer[index], (diff > PIKA_BUFF_SIZE ? PIKA_BUFF_SIZE : diff))) == PIKA_HTTP_ERROR_SEND)
-                    return pika_false;
+                if((bytesSent = sendCallback(fusion, &client->response.message.buffer[index], (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff))) == CAKE_HTTP_ERROR_SEND)
+                    return cake_false;
                 index += bytesSent;
             }
             break;
         default:
-            return pika_false;
+            return cake_false;
     }
 
-    return pika_true;
+    return cake_true;
 }
 
-pika_bool accepted_http_client_send(AcceptedHttpClient *client, pika_byte mode) {
+cake_bool cake_accepted_http_client_send(Cake_AcceptedHttpClient *client, cake_byte mode) {
     HttpSendFusion fusion;
     fusion.sock = client->sock->socket;
     return __accepted_http_client_send(client, mode, &fusion, __http_send_callback);
 }
 
-#if PIKA_SSL > 0
-pika_bool accepted_https_client_send(AcceptedHttpsClient *client, pika_byte mode) {
+#if CAKE_SSL > 0
+cake_bool cake_accepted_https_client_send(Cake_AcceptedHttpsClient *client, cake_byte mode) {
     HttpSendFusion fusion;
     fusion.ssl = client->ssl;
     return __accepted_http_client_send(client->client, mode, &fusion, __https_send_callback);
 }
 #endif
 
-void free_accepted_http_client(AcceptedHttpClient *client) {
-    clear_http_response(&client->response);
-    clear_http_request(&client->request);
-    free_accepted_client_socket(client->sock);
+void cake_free_accepted_http_client(Cake_AcceptedHttpClient *client) {
+    cake_clear_http_response(&client->response);
+    cake_clear_http_request(&client->request);
+    cake_free_accepted_client_socket(client->sock);
     free(client);
 }
 
-HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *getOrPost, String_UTF8 *url) {
+Cake_HttpHeader *cake_http_header_parse(Cake_BytesBuffer *data, Cake_HttpHeader **start, cake_byte *getOrPost, Cake_String_UTF8 *url) {
     *start = NULL;
-    HttpHeader *header;
-    http_add_header_element(&header, "", "");
-    HttpHeader **lastElement = &header->next;
+    Cake_HttpHeader *header;
+    cake_http_add_header_element(&header, "", "");
+    Cake_HttpHeader **lastElement = &header->next;
 
-    pika_byte *ptr = data->buffer, *ptrKey = data->buffer, *ptrValue = NULL;
-    pika_bool loop = pika_true;
-    pika_bool startFound = pika_false, found = pika_false;
-    pika_bool b;
+    cake_byte *ptr = data->buffer, *ptrKey = data->buffer, *ptrValue = NULL;
+    cake_bool loop = cake_true;
+    cake_bool startFound = cake_false, found = cake_false;
+    cake_bool b;
     while(loop) {
         while(1) {
             // On cherche le séparateur ':'
@@ -278,7 +278,7 @@ HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *
                 while(*ptr != '\r' && *ptr != '\n')
                     ptr++;
                 if(*ptr == '\0') {
-                    loop = pika_false;
+                    loop = cake_false;
                     break;
                 }
                 *ptr = '\0';
@@ -286,11 +286,11 @@ HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *
                 while(*ptr == '\r' || *ptr == '\n')
                     ptr++;
                 if(startFound)
-                    found = pika_true;
+                    found = cake_true;
                 break;
             // Si on trouve un saut de ligne
             }else if(*ptr == '\r' || *ptr =='\n') {
-                startFound = pika_true;
+                startFound = cake_true;
                 *ptr = '\0';
                 ptrValue = ptr;
                 ptr++;
@@ -301,16 +301,16 @@ HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *
                 goto accepted_http_client_parse_header_ignore;
             ptr++;
         }
-        http_add_header_element(lastElement, ptrKey, ptrValue);
-        b = pika_false;
-        if(strutf8_start_with((*lastElement)->key, "GET")) {
-            b = pika_true;
+        cake_http_add_header_element(lastElement, ptrKey, ptrValue);
+        b = cake_false;
+        if(cake_strutf8_start_with((*lastElement)->key, "GET")) {
+            b = cake_true;
             if(getOrPost)
-                *getOrPost = PIKA_HTTP_GET;
-        }else if(strutf8_start_with(((*lastElement)->key), "POST")) {
-            b = pika_true;
+                *getOrPost = CAKE_HTTP_GET;
+        }else if(cake_strutf8_start_with(((*lastElement)->key), "POST")) {
+            b = cake_true;
             if(getOrPost)
-                *getOrPost = PIKA_HTTP_POST;
+                *getOrPost = CAKE_HTTP_POST;
         }
         if(b && url != NULL) {
             uchar *waw = (*lastElement)->key->bytes;
@@ -323,13 +323,13 @@ HttpHeader *http_header_parse(BytesBuffer *data, HttpHeader **start, pika_byte *
                 waw++;
             uchar tempWaw = *waw;
             *waw = '\0';
-            array_char_to_strutf8(www, url);
+            cake_char_array_to_strutf8(www, url);
             *waw = tempWaw;
         }
         if(found) {
             *start = *lastElement;
-            startFound = pika_false;
-            found      = pika_false;
+            startFound = cake_false;
+            found      = cake_false;
         }
         lastElement = &(*lastElement)->next;
         ptrKey = ptr;
@@ -340,8 +340,8 @@ accepted_http_client_parse_header_ignore:
 }
 
 typedef struct HttpReceiveFusion {
-    pika_socket sock;
-    #if PIKA_SSL > 0 
+    cake_socket sock;
+    #if CAKE_SSL > 0 
     SSL *ssl;
     #endif
 } HttpReceiveFusion;
@@ -350,40 +350,40 @@ int __http_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length) 
     return recv(fusion->sock, buff, length, 0);
 }
 
-#if PIKA_SSL > 0
+#if CAKE_SSL > 0
 int __https_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length) {
     return SSL_read(fusion->ssl, buff, length);
 }
 #endif
 
-pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, uchar *, int)) {
+cake_byte __http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, uchar *, int)) {
     int bytesRead;
     
-    uchar buffer[PIKA_BUFF_SIZE];
+    uchar buffer[CAKE_BUFF_SIZE];
     ulonglong tempLength = 0;
     uchar *search;
-    pika_bool pass = pika_false;
+    cake_bool pass = cake_false;
 
     // On lit d'abord le header
     ulonglong index = 0;
     while(1) {
-        if((bytesRead = recvCallback(fusion, buffer, PIKA_BUFF_SIZE)) == PIKA_HTTP_ERROR_RECV)
-            return PIKA_HTTP_ERROR_RECEIVE;
+        if((bytesRead = recvCallback(fusion, buffer, CAKE_BUFF_SIZE)) == CAKE_HTTP_ERROR_RECV)
+            return CAKE_HTTP_ERROR_RECEIVE;
         else if(bytesRead == 0)
-            return PIKA_HTTP_CONNECTION_CLOSED;
+            return CAKE_HTTP_CONNECTION_CLOSED;
         dest->size += bytesRead;
         dest->buffer = (uchar *) realloc(dest->buffer, dest->size * sizeof(uchar) + sizeof(uchar));
         if(pass)
             search = &dest->buffer[tempLength - 3];
         else {
-            pass = pika_true;
+            pass = cake_true;
             search = &dest->buffer[tempLength];
         }
         memcpy(&dest->buffer[tempLength], buffer, bytesRead);
         dest->buffer[dest->size] = '\0';
         tempLength = dest->size;
         
-        if((search = str_search_array(search, "\r\n\r\n")) != NULL) {
+        if((search = cake_str_search_array(search, "\r\n\r\n")) != NULL) {
             index = search - dest->buffer + 4;
             dest->buffer = (uchar *) realloc(dest->buffer, dest->size * sizeof(uchar) + sizeof(uchar) * 2);
             memcpy(&dest->buffer[index + 1], &dest->buffer[index], dest->size + 1 - index);
@@ -391,17 +391,17 @@ pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader
             break;
         }
     }
-    HttpHeader *start, *found = NULL;
-    *header = http_header_parse(dest, &start, getOrPost, url);
+    Cake_HttpHeader *start, *found = NULL;
+    *header = cake_http_header_parse(dest, &start, getOrPost, url);
     while(start != NULL) {
-        strutf8_to_lower(start->key);
-        if(strutf8_equals(start->key, "content-length"))
+        cake_strutf8_to_lower(start->key);
+        if(cake_strutf8_equals(start->key, "content-length"))
             found = start;
         start = start->next;
     }
 
     if(found != NULL) {
-        destMessage->size = strutf8_to_ulonglong(found->value);
+        destMessage->size = cake_strutf8_to_ulonglong(found->value);
         if(destMessage->size > 0) {
             destMessage->buffer = (uchar *) malloc(destMessage->size * sizeof(uchar) + sizeof(uchar));
             destMessage->buffer[destMessage->size] = '\0';
@@ -414,11 +414,11 @@ pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader
                 remain = destMessage->size;
             if(remain > 0) {
                 while(1) {
-                    bytesRead = recvCallback(fusion, &destMessage->buffer[current], (remain > PIKA_BUFF_SIZE ? PIKA_BUFF_SIZE : remain));
-                    if(bytesRead == PIKA_HTTP_ERROR_RECV)
-                        return PIKA_HTTP_ERROR_RECEIVE;
+                    bytesRead = recvCallback(fusion, &destMessage->buffer[current], (remain > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : remain));
+                    if(bytesRead == CAKE_HTTP_ERROR_RECV)
+                        return CAKE_HTTP_ERROR_RECEIVE;
                     else if(bytesRead == 0)
-                        return PIKA_HTTP_CONNECTION_CLOSED;
+                        return CAKE_HTTP_CONNECTION_CLOSED;
                     current += bytesRead;
                     dest->size += bytesRead;
                     remain -= bytesRead;
@@ -429,28 +429,28 @@ pika_byte __http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader
         }
     }
 
-    return PIKA_NO_ERROR;
+    return CAKE_NO_ERROR;
 }
 
-pika_byte http_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, pika_socket sock) {
+cake_byte cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, cake_socket sock) {
     HttpReceiveFusion fusion;
     fusion.sock = sock;
     return __http_receive(dest, destMessage, header, getOrPost, url, &fusion, __http_receive_callback);
 }
 
-#if PIKA_SSL > 0
-pika_byte https_receive(BytesBuffer *dest, BytesBuffer *destMessage, HttpHeader **header, pika_byte *getOrPost, String_UTF8 *url, SSL *ssl) {
+#if CAKE_SSL > 0
+cake_byte cake_https_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, SSL *ssl) {
     HttpReceiveFusion fusion;
     fusion.ssl = ssl;
     return __http_receive(dest, destMessage, header, getOrPost, url, &fusion, __https_receive_callback);
 }
 #endif
 
-LinkedList_String_UTF8_Pair *accepted_http_client_parse_post_message(AcceptedHttpClient *client) {
-    LinkedList_String_UTF8_Pair *current = NULL;
-    LinkedList_String_UTF8_Pair *last = NULL;
-    LinkedList_String_UTF8_Pair *list = NULL;
-    pika_bool b = pika_false;
+Cake_LinkedList_String_UTF8_Pair *cake_accepted_http_client_parse_post_message(Cake_AcceptedHttpClient *client) {
+    Cake_LinkedList_String_UTF8_Pair *current = NULL;
+    Cake_LinkedList_String_UTF8_Pair *last = NULL;
+    Cake_LinkedList_String_UTF8_Pair *list = NULL;
+    cake_bool b = cake_false;
 
     ulonglong i = 0;
     uchar *lastPtr = client->request.message.buffer;
@@ -463,32 +463,32 @@ LinkedList_String_UTF8_Pair *accepted_http_client_parse_post_message(AcceptedHtt
             ptrValue = replace + 1;
         }else if(client->request.message.buffer[i] == '&') {
             client->request.message.buffer[i] = '\0';
-            current = (LinkedList_String_UTF8_Pair *) malloc(sizeof(LinkedList_String_UTF8_Pair));
+            current = (Cake_LinkedList_String_UTF8_Pair *) malloc(sizeof(Cake_LinkedList_String_UTF8_Pair));
 
             if(b)
                 last->next = current;
             else {
-                b = pika_true;
+                b = cake_true;
                 list = current;
             }
 
             last = current;
             current->next = NULL;
-            current->pair = strutf8_pair(lastPtr, ptrValue);
-            strutf8_decode_url(current->pair->value);
+            current->pair = cake_strutf8_pair(lastPtr, ptrValue);
+            cake_strutf8_decode_url(current->pair->value);
             client->request.message.buffer[i] = '&';
             *replace = '=';
             lastPtr = &client->request.message.buffer[i + 1];
         }
         if(i == client->request.message.size) {
-            current = (LinkedList_String_UTF8_Pair *) malloc(sizeof(LinkedList_String_UTF8_Pair));
+            current = (Cake_LinkedList_String_UTF8_Pair *) malloc(sizeof(Cake_LinkedList_String_UTF8_Pair));
             if(b)
                 last->next = current;
                 else
                     list = current;
             current->next = NULL;
-            current->pair = strutf8_pair(lastPtr, ptrValue);
-            strutf8_decode_url(current->pair->value);
+            current->pair = cake_strutf8_pair(lastPtr, ptrValue);
+            cake_strutf8_decode_url(current->pair->value);
             break;
         }
         i++;
@@ -497,32 +497,32 @@ LinkedList_String_UTF8_Pair *accepted_http_client_parse_post_message(AcceptedHtt
     return list;
 }
 
-HttpHeader *http_header_find(HttpHeader *first, const uchar *key) {
+Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const uchar *key) {
     while(first != NULL) {
-        if(strutf8_equals(first->key, key))
+        if(cake_strutf8_equals(first->key, key))
             break;
         first = first->next;
     }
     return first;
 }
 
-#if PIKA_SSL > 0
-void init_openssl() {
+#if CAKE_SSL > 0
+void cake_init_openssl() {
     ERR_load_crypto_strings();
     SSL_load_error_strings();
     SSL_library_init();
 }
 
 
-pika_bool create_https_server(HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath) {
-    if(!create_http_server(&serverDest->server, port, backlog))
-        return pika_false;
+cake_bool cake_create_https_server(Cake_HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath) {
+    if(!cake_create_http_server(&serverDest->server, port, backlog))
+        return cake_false;
     serverDest->ctx = SSL_CTX_new(TLS_server_method());
     if(!serverDest->ctx) {
         fprintf(stderr, "Erreur: SSL_CTX_new\n");
 	    ERR_print_errors_fp(stderr);
-        free_http_server(serverDest->server);
-        return pika_false;
+        cake_free_http_server(serverDest->server);
+        return cake_false;
     }
 
     
@@ -538,8 +538,8 @@ pika_bool create_https_server(HttpsServer *serverDest, const uchar *port, int ba
     if(!SSL_CTX_load_verify_locations(serverDest->ctx, cacertPath, NULL)) {
         fprintf(stderr, "Erreur: SSL_CTX_load_verify_locations\n");
         ERR_print_errors_fp(stderr);
-        free_http_server(serverDest->server);
-        return pika_false;
+        cake_free_http_server(serverDest->server);
+        return cake_false;
     }
 
     SSL_CTX_set_cipher_list(serverDest->ctx, "ALL:eNULL");
@@ -547,42 +547,42 @@ pika_bool create_https_server(HttpsServer *serverDest, const uchar *port, int ba
     if(SSL_CTX_use_certificate_chain_file(serverDest->ctx, certPath) <= 0) {
         fprintf(stderr, "Erreur: SSL_CTX_use_certificate_chain_file\n");
         ERR_print_errors_fp(stderr);
-        free_http_server(serverDest->server);
-        return pika_false;
+        cake_free_http_server(serverDest->server);
+        return cake_false;
     }
 
     if(SSL_CTX_use_PrivateKey_file(serverDest->ctx, keyPath, SSL_FILETYPE_PEM) <= 0) {
         fprintf(stderr, "Erreur: SSL_CTX_use_PrivateKey_file\n");
         ERR_print_errors_fp(stderr);
-        free_http_server(serverDest->server);
-        return pika_false;
+        cake_free_http_server(serverDest->server);
+        return cake_false;
     }
 
     if(!SSL_CTX_check_private_key(serverDest->ctx)) {
         fprintf(stderr, "Erreur: SSL_CTX_check_private_key\n");
         ERR_print_errors_fp(stderr);
-        free_http_server(serverDest->server);
-        return pika_false;
+        cake_free_http_server(serverDest->server);
+        return cake_false;
     }
 
-    return pika_true;
+    return cake_true;
 }
 
-void free_https_server(HttpsServer *server) {
-    free_http_server(server->server);
+void cake_free_https_server(Cake_HttpsServer *server) {
+    cake_free_http_server(server->server);
     SSL_CTX_free(server->ctx);
 }
 
-void free_accepted_https_client(AcceptedHttpsClient *client) {
+void cake_free_accepted_https_client(Cake_AcceptedHttpsClient *client) {
     SSL_shutdown(client->ssl);
     SSL_free(client->ssl);
-    free_accepted_http_client(client->client);
+    cake_free_accepted_http_client(client->client);
     free(client);
 }
 #endif
 
-void create_http_response(HttpResponse *response) {
-    response->formattedHeader = strutf8("");
+void cake_create_http_response(Cake_HttpResponse *response) {
+    response->formattedHeader = cake_strutf8("");
     response->header = NULL;
     response->nextHeaderValue = &response->header;
     response->message.buffer = NULL;
@@ -592,29 +592,29 @@ void create_http_response(HttpResponse *response) {
     response->status = "200";
 }
 
-void create_http_request(HttpRequest *request) {
-    request->formattedHeader = strutf8("");
+void cake_create_http_request(Cake_HttpRequest *request) {
+    request->formattedHeader = cake_strutf8("");
     request->header = NULL;
     request->nextHeaderValue = &request->header;
     request->message.buffer = NULL;
     request->message.size = 0;
     request->receivedData.buffer = NULL;
     request->receivedData.size = 0;
-    request->method = PIKA_HTTP_GET;
-    request->url = strutf8("");
+    request->method = CAKE_HTTP_GET;
+    request->url = cake_strutf8("");
 }
 
-void clear_http_response(HttpResponse *response) {
-    free_strutf8(response->formattedHeader);
-    free_http_header(response->header);
+void cake_clear_http_response(Cake_HttpResponse *response) {
+    cake_free_strutf8(response->formattedHeader);
+    cake_free_http_header(response->header);
     free(response->receivedData.buffer);
     free(response->message.buffer);
 }
 
-void clear_http_request(HttpRequest *request) {
-    free_strutf8(request->formattedHeader);
-    free_strutf8(request->url);
-    free_http_header(request->header);
+void cake_clear_http_request(Cake_HttpRequest *request) {
+    cake_free_strutf8(request->formattedHeader);
+    cake_free_strutf8(request->url);
+    cake_free_http_header(request->header);
     free(request->receivedData.buffer);
     free(request->message.buffer);
 }

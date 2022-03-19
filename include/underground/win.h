@@ -1,13 +1,13 @@
-#ifndef __PIKA_WIN_H__
-#define __PIKA_WIN_H__
+#ifndef __CAKE_WIN_H__
+#define __CAKE_WIN_H__
 
 #include "def.h"
 
-#ifdef PIKA_WINDOWS
+#ifdef CAKE_WINDOWS
 
 #include <windows.h>
 
-pika_bool is_double_clicked();
+cake_bool cake_is_double_clicked();
 
 #endif
 

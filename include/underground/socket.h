@@ -1,24 +1,24 @@
-#ifndef __PIKA_SOCKET_H__
-#define __PIKA_SOCKET_H__
+#ifndef __CAKE_SOCKET_H__
+#define __CAKE_SOCKET_H__
 
 #include "def.h"
 
-#ifdef PIKA_WINDOWS
+#ifdef CAKE_WINDOWS
 #include <ws2tcpip.h>
 
-#define init_winsock() WSADATA __winsock_data;\
+#define cake_init_winsock() WSADATA __winsock_data;\
                        WSAStartup(MAKEWORD(2, 2), &__winsock_data)
 
-#define clean_winsock() WSACleanup()
+#define cake_clean_winsock() WSACleanup()
 
-typedef SOCKET pika_socket;
+typedef SOCKET cake_socket;
 
-#define PIKA_SOCKET_BAD_SOCKET INVALID_SOCKET
-#define PIKA_SOCKET_ERROR SOCKET_ERROR
+#define CAKE_SOCKET_BAD_SOCKET INVALID_SOCKET
+#define CAKE_SOCKET_ERROR SOCKET_ERROR
 
-#define socket_get_last_error_code() WSAGetLastError()
+#define cake_socket_get_last_error_code() WSAGetLastError()
 
-#define close_socket(sock) closesocket(sock)
+#define cake_close_socket(sock) closesocket(sock)
 #else
 #include <unistd.h>
 #include <sys/types.h>
@@ -28,64 +28,64 @@ typedef SOCKET pika_socket;
 #include <netdb.h>
 #include <errno.h>
 
-#define init_winsock() 
-#define clean_winsock() 
+#define cake_init_winsock() 
+#define cake_clean_winsock() 
 
-typedef int pika_socket;
+typedef int cake_socket;
 
-#define PIKA_SOCKET_BAD_SOCKET -1
-#define PIKA_SOCKET_ERROR      -1
+#define CAKE_SOCKET_BAD_SOCKET -1
+#define CAKE_SOCKET_ERROR      -1
 
-#define socket_get_last_error_code() errno
+#define cake_socket_get_last_error_code() errno
 
-#define close_socket(sock) close(sock)
+#define cake_close_socket(sock) close(sock)
 #endif
 
-#define PIKA_IP_V4 AF_INET
-#define PIKA_IP_V6 AF_INET6
+#define CAKE_IP_V4 AF_INET
+#define CAKE_IP_V6 AF_INET6
 
-typedef struct ClientSocket {
-    pika_socket socket;
+typedef struct cake_clientsocket {
+    cake_socket socket;
     struct addrinfo *address;
-    pika_byte errorFrom;
+    cake_byte errorFrom;
     int errorCode;
-} ClientSocket;
+} Cake_ClientSocket;
 
-typedef struct ServerSocket {
-    pika_socket socket;
-    pika_byte errorFrom;
+typedef struct cake_serversocket {
+    cake_socket socket;
+    cake_byte errorFrom;
     int errorCode;
-} ServerSocket;
+} Cake_ServerSocket;
 
-typedef struct AcceptedClientSocket {
-    pika_socket socket;
+typedef struct cake_acceptedclientsocket {
+    cake_socket socket;
     struct sockaddr_in addr;
-} AcceptedClientSocket;
+} Cake_AcceptedClientSocket;
 
-#define PIKA_CLIENT_SOCKET_CONNECT_OK 0
+#define CAKE_CLIENT_SOCKET_CONNECT_OK 0
 
-#define PIKA_SOCKET_CLOSE 0
-#define PIKA_SOCKET_READ_ERROR SOCKET_ERROR
+#define CAKE_SOCKET_CLOSE 0
+#define CAKE_SOCKET_READ_ERROR SOCKET_ERROR
 
-#define socket_read(socket, buffer, size) recv(socket, buffer, size, 0)
+#define cake_socket_read(socket, buffer, size) recv(socket, buffer, size, 0)
 
-#define socket_send(socket, buffer, size) send(socket, buffer, size, 0)
+#define cake_socket_send(socket, buffer, size) send(socket, buffer, size, 0)
 
-#define PIKA_SOCKET_ERROR_FROM_GETADDRINFO 1
-#define PIKA_SOCKET_ERROR_FROM_SOCKET      2
-#define PIKA_SOCKET_ERROR_FROM_CONNECT     3
-#define PIKA_SOCKET_ERROR_FROM_BIND        4
-#define PIKA_SOCKET_ERROR_FROM_LISTEN      5
-#define PIKA_SOCKET_ERROR_FROM_ACCEPT      6
+#define CAKE_SOCKET_ERROR_FROM_GETADDRINFO 1
+#define CAKE_SOCKET_ERROR_FROM_SOCKET      2
+#define CAKE_SOCKET_ERROR_FROM_CONNECT     3
+#define CAKE_SOCKET_ERROR_FROM_BIND        4
+#define CAKE_SOCKET_ERROR_FROM_LISTEN      5
+#define CAKE_SOCKET_ERROR_FROM_ACCEPT      6
 
-pika_bool create_client_socket(ClientSocket *sock, const char *hostname, const char *port, pika_byte ipMode);
-pika_bool client_socket_connect(ClientSocket *sock);
-void free_client_socket(ClientSocket *sock);
+cake_bool cake_create_client_socket(Cake_ClientSocket *sock, const char *hostname, const char *port, cake_byte ipMode);
+cake_bool cake_client_socket_connect(Cake_ClientSocket *sock);
+void cake_free_client_socket(Cake_ClientSocket *sock);
 
-pika_bool create_server_socket(ServerSocket *sock, const char *port, pika_byte ipMode, int backlog);
-#define free_server_socket(sock) close_socket(sock.socket)
+cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, cake_byte ipMode, int backlog);
+#define cake_free_server_socket(sock) cake_close_socket(sock.socket)
 
-AcceptedClientSocket *server_socket_accept(ServerSocket *sock);
-void free_accepted_client_socket(AcceptedClientSocket *sock);
+Cake_AcceptedClientSocket *cake_server_socket_accept(Cake_ServerSocket *sock);
+void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *sock);
 
 #endif
