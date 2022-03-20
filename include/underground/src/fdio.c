@@ -10,7 +10,7 @@ char cake_fdio_compare_time(cake_fd fd, cake_fd compareTo, cake_byte mode) {
     #ifdef CAKE_WINDOWS
     FILETIME time1, time2;
     switch(mode) {
-        case FDIO_COMPARE_CREATION_TIME:
+        case CAKE_FDIO_COMPARE_CREATION_TIME:
             GetFileTime(fd, &time1, NULL, NULL);
             GetFileTime(compareTo, &time2, NULL, NULL);
             break;

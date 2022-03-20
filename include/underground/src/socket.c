@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if defined(CAKE_UNIX) || (defined(CAKE_WINDOWS) && CAKE_WIN_SOCK > 0)
 cake_bool cake_create_client_socket(Cake_ClientSocket *sock, const char *hostname, const char *port, cake_byte ipMode) {
     sock->errorFrom = CAKE_NO_ERROR;
     struct addrinfo hints = { 0 };
@@ -102,3 +103,4 @@ void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *sock) {
     cake_close_socket(sock->socket);
     free(sock);
 }
+#endif

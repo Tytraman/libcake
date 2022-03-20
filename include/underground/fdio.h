@@ -49,7 +49,7 @@ typedef HANDLE cake_fd;
 #define cake_fdio_read(fd, numberOfBytesToRead, bytesRead, buffer) __cake_fdio_read(fd, numberOfBytesToRead, CAKE_FDIO_PTR(bytesRead), buffer)
 
 #define __cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) WriteFile(fd, buffer, numberOfBytesToWrite, bytesWritten, NULL)
-#define cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) __fdio_write(fd, numberOfBytesToWrite, CAKE_FDIO_PTR(bytesWritten), buffer)
+#define cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) __cake_fdio_write(fd, numberOfBytesToWrite, CAKE_FDIO_PTR(bytesWritten), buffer)
 
 /*
         Ouvre un fichier et retourne son FileDescriptor.
@@ -139,7 +139,7 @@ typedef int cake_fdio_mode;
         Compare le temps entre 2 fichiers.
 
         mode permet de spécifier quelle valeur de temps comparer :
-        - FDIO_COMPARE_CREATION_TIME
+        - CAKE_FDIO_COMPARE_CREATION_TIME
         - CAKE_FDIO_COMPARE_ACCESS_TIME
         - CAKE_FDIO_COMPARE_LAST_WRITE_TIME
 
@@ -151,7 +151,7 @@ typedef int cake_fdio_mode;
 
         Note :
         Sous Unix, la date de création des fichiers n'est pas stockés, sauf sur certains OS.
-        De ce fait, FDIO_COMPARE_CREATION_TIME sous Unix retournera toujours FDIO_UNDEFINED.
+        De ce fait, CAKE_FDIO_COMPARE_CREATION_TIME sous Unix retournera toujours FDIO_UNDEFINED.
 */
 char cake_fdio_compare_time(cake_fd fd, cake_fd compareTo, cake_byte mode);
 

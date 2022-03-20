@@ -1,4 +1,5 @@
 #include "../directory.h"
+#include "../utf16.h"
 
 #ifdef CAKE_WINDOWS
 cake_byte cake_change_directory(const uchar *directory) {

@@ -4,7 +4,14 @@
 #include "def.h"
 
 #ifdef CAKE_WINDOWS
+
+#ifndef CAKE_WIN_SOCK
+#define CAKE_WIN_SOCK 0
+#endif
+
+#if CAKE_WIN_SOCK > 0
 #include <ws2tcpip.h>
+#endif
 
 #define cake_init_winsock() WSADATA __winsock_data;\
                        WSAStartup(MAKEWORD(2, 2), &__winsock_data)

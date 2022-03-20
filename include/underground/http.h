@@ -5,6 +5,10 @@
 #include "socket.h"
 #include "utf8.h"
 
+#ifndef CAKE_WIN_SOCK
+#define CAKE_WIN_SOCK 0
+#endif
+
 #ifndef CAKE_SSL
 #define CAKE_SSL 0
 #endif

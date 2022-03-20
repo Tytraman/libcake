@@ -12,7 +12,7 @@ static void *internal_thread(void *pParam)
         thread->endCallback(thread->args);
     
     #ifdef CAKE_WINDOWS
-    thread_exit(0);
+    cake_thread_exit(0);
     cake_free_thread(thread);
     return returnValue;
     #else

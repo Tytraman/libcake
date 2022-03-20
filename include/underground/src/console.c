@@ -10,7 +10,7 @@
 #else
 static DWORD s_ConsoleRecoveryMode = 0;
 
-void cake_get_console_size(ConsoleSize *pConsoleSize) {
+void cake_get_console_size(Cake_ConsoleSize *pConsoleSize) {
     CONSOLE_SCREEN_BUFFER_INFO screenInfo;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &screenInfo);
     pConsoleSize->ws_col = screenInfo.srWindow.Right - screenInfo.srWindow.Left + 1;
@@ -69,7 +69,7 @@ void cake_get_console_cursor_pos(short *x, short *y) {
         #else
         if(!ReadFile(GetStdHandle(STD_INPUT_HANDLE), &c, sizeof(c), &bytes, NULL)) {
             SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), recoveryMode);
-            console_recover_mode();
+            cake_console_recover_mode();
             return;
         }
         #endif
@@ -81,7 +81,7 @@ void cake_get_console_cursor_pos(short *x, short *y) {
         tcsetattr(STDIN_FILENO, TCSAFLUSH, &restore);
         #else
         SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), recoveryMode);
-        console_recover_mode();
+        cake_console_recover_mode();
         #endif
         return;
     }
@@ -117,7 +117,7 @@ void cake_set_console_cursor_pos(short x, short y) {
     cake_console_enable_ansi_sequence();
     DWORD bytes;
     WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), pos, length * sizeof(char), &bytes, NULL);
-    console_recover_mode();
+    cake_console_recover_mode();
     #endif
 }
 
@@ -210,7 +210,7 @@ void get_console_line(Cake_String_UTF8 *utf) {
                     short x, y;
                     cake_get_console_cursor_pos(&x, &y);
                     if(x == 1) {
-                        ConsoleSize size;
+                        Cake_ConsoleSize size;
                         cake_get_console_size(&size);
                         x = size.ws_col;
                         y--;
@@ -293,7 +293,7 @@ void get_console_line(Cake_String_UTF8 *utf) {
                                     short x, y;
                                     cake_get_console_cursor_pos(&x, &y);
                                     if(x == 1) {
-                                        ConsoleSize size;
+                                        Cake_ConsoleSize size;
                                         cake_get_console_size(&size);
                                         cake_set_console_cursor_pos(size.ws_col, y - 1);
                                     }else {
@@ -317,7 +317,7 @@ void get_console_line(Cake_String_UTF8 *utf) {
                                 if(textPosition < utf->length) {
                                     short x, y;
                                     cake_get_console_cursor_pos(&x, &y);
-                                    ConsoleSize size;
+                                    Cake_ConsoleSize size;
                                     cake_get_console_size(&size);
                                     if(x == size.ws_col) {
                                         cake_set_console_cursor_pos(1, y + 1);
@@ -358,7 +358,7 @@ void get_console_line(Cake_String_UTF8 *utf) {
             // Caractères
             default:{
                 short x, y;
-                ConsoleSize size;
+                Cake_ConsoleSize size;
                 cake_bool hideCursor = cake_false;
                 #ifdef CAKE_WINDOWS
                 bytesNeeded = 1;
@@ -507,7 +507,7 @@ void cake_draw_progress_bar(unsigned int current, unsigned int target, short wid
     WORD recoveryAttributes = g_ScreenInfo.wAttributes;
     #endif
 
-    ConsoleSize size;
+    Cake_ConsoleSize size;
     cake_get_console_size(&size);
     
     // Formule pour calculer la longueur de la barre d'avancement.
@@ -580,10 +580,10 @@ void cake_clear_progress_bar() {
 void cake_console_hide_cursor(cake_bool value) {
     char sequence[] = { 0x1b, '[', '?', '2', '5', (value ? 'l' : 'h') };
     #ifdef CAKE_WINDOWS
-    console_enable_ansi_sequence();
+    cake_console_enable_ansi_sequence();
     DWORD bytes;
     WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), sequence, sizeof(sequence), &bytes, NULL);
-    console_recover_mode();
+    cake_console_recover_mode();
     #else
     write(STDOUT_FILENO, sequence, sizeof(sequence));
     #endif
@@ -596,7 +596,7 @@ void cake_console_scroll(cake_bool up, short value) {
     cake_console_enable_ansi_sequence();
     DWORD bytes;
     WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), sequence, length * sizeof(char), &bytes, NULL);
-    console_recover_mode();
+    cake_console_recover_mode();
     #else
     write(STDOUT_FILENO, sequence, length * sizeof(char));
     #endif

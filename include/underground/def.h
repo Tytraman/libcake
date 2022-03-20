@@ -20,8 +20,6 @@
 #include <WinSock2.h>
 #include <windows.h>
 
-#define CAKE_ERROR 0
-
 // Sous Windows un cake_char est équivalent à un wchar_t.
 typedef wchar_t cake_char;
 
@@ -53,9 +51,6 @@ typedef DWORD cake_size;
 #elif defined(unix) || defined(__unix__) || defined(__unix)
 #define CAKE_UNIX 1
 #include <sys/types.h>
-
-#define CAKE_ERROR   -1
-#define CAKE_NO_ERROR 0
 
 // Sous Unix un cake_char est équivalent à un char.
 typedef char cake_char;
@@ -108,6 +103,9 @@ typedef uchar cake_undefined_type;
 
 #define CAKE_BUFF_SIZE 2048
 #define CAKE_PTR(value) &value
+
+#define CAKE_ERROR   -1
+#define CAKE_NO_ERROR 0
 
 
 /* ===== Structures ===== */

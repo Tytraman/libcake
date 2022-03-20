@@ -7,6 +7,8 @@
 #include <openssl/err.h>
 #endif
 
+
+#if defined(CAKE_UNIX) || (defined(CAKE_WINDOWS) && CAKE_WIN_SOCK > 0)
 cake_bool cake_create_http_client(Cake_HttpClient *client, const char *hostname, const char *port) {
     if(!cake_create_client_socket(&client->sock, hostname, port, CAKE_IP_V4))
         return cake_false;
@@ -356,7 +358,7 @@ int __https_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length)
 }
 #endif
 
-cake_byte __http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, uchar *, int)) {
+cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, uchar *, int)) {
     int bytesRead;
     
     uchar buffer[CAKE_BUFF_SIZE];
@@ -435,14 +437,14 @@ cake_byte __http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, 
 cake_byte cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, cake_socket sock) {
     HttpReceiveFusion fusion;
     fusion.sock = sock;
-    return __http_receive(dest, destMessage, header, getOrPost, url, &fusion, __http_receive_callback);
+    return __cake_http_receive(dest, destMessage, header, getOrPost, url, &fusion, __http_receive_callback);
 }
 
 #if CAKE_SSL > 0
 cake_byte cake_https_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, SSL *ssl) {
     HttpReceiveFusion fusion;
     fusion.ssl = ssl;
-    return __http_receive(dest, destMessage, header, getOrPost, url, &fusion, __https_receive_callback);
+    return __cake_http_receive(dest, destMessage, header, getOrPost, url, &fusion, __https_receive_callback);
 }
 #endif
 
@@ -618,3 +620,4 @@ void cake_clear_http_request(Cake_HttpRequest *request) {
     free(request->receivedData.buffer);
     free(request->message.buffer);
 }
+#endif
