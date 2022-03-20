@@ -12,6 +12,38 @@
 #include <windows.h>
 #endif
 
+void __cake_strutf8_replace(Cake_String_UTF8 *utf, const uchar *replacement, cake_byte appendMode, uchar *ptr, ulonglong *oldLength, ulonglong *replacementLength, ulonglong *diff, ulonglong *internalIndex) {
+    ulonglong tempIndex = ptr - utf->bytes;
+    if(appendMode == 1) {
+        // On diminue la longueur
+        memcpy(ptr + *replacementLength, &utf->bytes[*internalIndex], (utf->data.length - *internalIndex) * sizeof(uchar));
+        utf->data.length -= *diff;
+        utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+        utf->bytes[utf->data.length] = '\0';
+    }else if(appendMode == 2) {
+        // On augmente la longueur
+        utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + *diff) * sizeof(uchar) + sizeof(uchar));
+        ptr = &utf->bytes[tempIndex];
+        memcpy(ptr + *replacementLength, ptr + *oldLength, (utf->data.length - tempIndex - *oldLength) * sizeof(uchar) + sizeof(uchar));
+        utf->data.length += *diff;
+        utf->bytes[utf->data.length] = '\0';
+    }
+    memcpy(&utf->bytes[tempIndex], replacement, *replacementLength * sizeof(uchar));
+}
+
+cake_byte __cake_strutf8_replace_diff(ulonglong *oldLength, ulonglong *replacementLength, ulonglong *diff) {
+    cake_byte appendMode = 0;
+    *diff = 0;
+    if(*oldLength > *replacementLength) {
+        appendMode = 1;
+        *diff = *oldLength - *replacementLength;
+    }else if(*replacementLength > *oldLength) {
+        appendMode = 2;
+        *diff = *replacementLength - *oldLength;
+    }
+    return appendMode;
+}
+
 void cake_create_strutf8(Cake_String_UTF8 *utf) {
     utf->data.length = 0;
     utf->length = 0;
@@ -397,7 +429,7 @@ cake_bool cake_strutf8_start_with(Cake_String_UTF8 *utf, const uchar *research) 
     return cake_true;
 }
 
-uchar *cake_strutf8_search(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
+uchar *cake_strutf8_search_from_start(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex) {
     ulonglong length = cake_str_count(research);
     if(length > utf->data.length - *internalIndex) return NULL;
 
@@ -457,7 +489,7 @@ Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const uchar *de
     uchar *ptr;
     uchar temp;
 
-    while((ptr = cake_strutf8_search(utf, delim, &internalIndex)) != NULL) {
+    while((ptr = cake_strutf8_search_from_start(utf, delim, &internalIndex)) != NULL) {
         temp = *ptr;
         *ptr = '\0';
         cake_list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
@@ -554,87 +586,99 @@ cake_bool cake_strutf8_equals(const Cake_String_UTF8 *utf, const uchar *compare)
     return memcmp(utf->bytes, compare, utf->data.length) == 0;
 }
 
-cake_bool __strutf8_replace(Cake_String_UTF8 *utf, uchar *ptr, uchar *old, uchar *replacement) {
-    if(ptr == NULL) return cake_false;
-
-    ulonglong oldLength         = cake_str_count(old);
-    ulonglong replacementLength = cake_str_count(replacement);
-
-    if(oldLength > replacementLength) {
-        memcpy(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->bytes) + oldLength)) * sizeof(uchar));
-        memcpy(ptr, replacement, replacementLength * sizeof(uchar));
-        (utf->length) -= (oldLength - replacementLength);
-        utf->bytes = (uchar *) realloc(utf->bytes, utf->length * sizeof(uchar) + sizeof(uchar));
-        utf->bytes[utf->length] = '\0';
-    }else if(oldLength < replacementLength) {
-        (utf->length) += (replacementLength - oldLength);
-        utf->bytes = (uchar *) realloc(utf->bytes, utf->length * sizeof(uchar) + sizeof(uchar));
-        memcpy(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->bytes) + oldLength)) * sizeof(uchar));
-        memcpy(ptr, replacement, replacementLength * sizeof(uchar));
-        utf->bytes[utf->length] = '\0';
-    }else
-        memcpy(ptr, replacement, replacementLength * sizeof(uchar));
-
-    return cake_true;
-}
-
 ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
     ulonglong number            = 0;
     ulonglong oldLength         = cake_str_count(old);
     ulonglong replacementLength = cake_str_count(replacement);
     ulonglong diff              = 0;
-    uchar     appendMode        = 0;
-
-    if(oldLength > replacementLength) {
-        appendMode = 1;
-        diff = oldLength - replacementLength;
-    }else if(replacementLength > oldLength) {
-        appendMode = 2;
-        diff = replacementLength - oldLength;
-    }
+    cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
 
     ulonglong internalIndex = 0;
     uchar *ptr;
     ulonglong tempIndex;
 
     // Tant qu'on trouve une occurence
-    while((ptr = cake_strutf8_search(utf, old, &internalIndex)) != NULL) {
-        // ptr n'est plus valide après realloc !
-        // On récupère l'index de ptr pour pouvoir y réaccéder après realloc
-        tempIndex = ptr - utf->bytes;
-        if(appendMode == 1) {
-            // On diminue la longueur
-            memcpy(ptr + replacementLength, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
-            utf->data.length -= diff;
-            utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
-            utf->bytes[utf->data.length] = '\0';
-        }else if(appendMode == 2) {
-            // On augmente la longueur
-            utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + diff) * sizeof(uchar) + sizeof(uchar));
-            ptr = &utf->bytes[tempIndex];
-            memcpy(ptr + replacementLength, ptr + oldLength, (utf->data.length - tempIndex - oldLength) * sizeof(uchar) + sizeof(uchar));
-            utf->data.length += diff;
-        }
-        memcpy(&utf->bytes[tempIndex], replacement, replacementLength * sizeof(uchar));
+    while((ptr = cake_strutf8_search_from_start(utf, old, &internalIndex)) != NULL) {
+        __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
         number++;
     }
-    if(number > 0) {
-        utf->bytes[utf->data.length] = '\0';
+    if(number > 0)
         utf->length = cake_strutf8_length(utf);
-    }
     return number;
 }
 
+cake_bool cake_strutf8_replace_start(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
+    if(utf->data.length == 0 || utf->bytes == NULL)
+        return cake_false;
+    if(!cake_strutf8_start_with(utf, old))
+        return cake_false;
+    
+    ulonglong oldLength = cake_str_count(old);
+    ulonglong replacementLength = cake_str_count(replacement);
+    ulonglong diff;
+    cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
+    uchar *ptr = utf->bytes;
+    ulonglong internalIndex = oldLength;
+    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    utf->length = cake_strutf8_length(utf);
+    return cake_true;
+}
 
-// TODO: replace from end
-/*
+cake_bool cake_strutf8_replace_end(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
+    if(utf->data.length == 0 || utf->bytes == NULL)
+        return cake_false;
+    if(!cake_strutf8_end_with(utf, old))
+        return cake_false;
+    
+    ulonglong oldLength = cake_str_count(old);
+    ulonglong replacementLength = cake_str_count(replacement);
+    ulonglong internalIndex = utf->data.length - oldLength;
+    uchar *ptr = &utf->bytes[internalIndex];
+
+    ulonglong diff;
+    cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
+    
+    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    utf->length = cake_strutf8_length(utf);
+    
+    return cake_true;
+}
+
+cake_bool cake_strutf8_replace_from_start(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
+    if(utf->data.length == 0 || utf->bytes == NULL)
+        return cake_false;
+    ulonglong internalIndex = 0;
+    uchar *ptr = cake_strutf8_search_from_start(utf, old, &internalIndex);
+    if(ptr == NULL)
+        return cake_false;
+    
+    ulonglong oldLength = cake_str_count(old);
+    ulonglong replacementLength = cake_str_count(replacement);
+    ulonglong diff;
+    cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
+    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    utf->length = cake_strutf8_length(utf);
+    return cake_true;
+}
+
 cake_bool cake_strutf8_replace_from_end(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement) {
     if(utf->data.length == 0 || utf->bytes == NULL)
         return cake_false;
     ulonglong internalIndex = utf->data.length - 1;
-    cake_strutf8_search_from_end()
+    uchar *ptr = cake_strutf8_search_from_end(utf, old, &internalIndex);
+    if(ptr == NULL)
+        return cake_false;
+
+    ulonglong oldLength = cake_str_count(old);
+    internalIndex += oldLength + 1;
+    ulonglong replacementLength = cake_str_count(replacement);
+    ulonglong diff;
+    cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
+    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    utf->length = cake_strutf8_length(utf);
+    return cake_true;
 }
-*/
+
 
 ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const uchar *value) {
     ulonglong number = 0;
@@ -642,7 +686,7 @@ ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const uchar *value) {
 
     ulonglong internalIndex = 0;
     uchar *ptr;
-    while((ptr = cake_strutf8_search(utf, value, &internalIndex)) != NULL) {
+    while((ptr = cake_strutf8_search_from_start(utf, value, &internalIndex)) != NULL) {
         memcpy(ptr, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
         internalIndex -= length;
         utf->data.length -= length;
@@ -940,10 +984,8 @@ void __strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong fromInde
 }
 
 cake_bool cake_strutf8_remove_from_to(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
-    if(fromIndex > utf->length || toIndex > utf->length)
+    if(fromIndex > utf->length || toIndex > utf->length || fromIndex >= toIndex)
         return cake_false;
-    if(fromIndex == toIndex)
-        return cake_true;
 
     uchar *pFromStart, *pFromEnd;
     uchar *pToStart, *pToEnd;
@@ -955,10 +997,8 @@ cake_bool cake_strutf8_remove_from_to(Cake_String_UTF8 *utf, ulonglong fromIndex
 }
 
 cake_bool cake_strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
-    if(fromIndex > utf->data.length || toIndex > utf->data.length)
+    if(fromIndex > utf->data.length || toIndex > utf->data.length || fromIndex >= toIndex)
         return cake_false;
-    if(fromIndex == toIndex)
-        return cake_true;
 
     __strutf8_remove_from_to_internal(utf, fromIndex, toIndex);
     return cake_true;

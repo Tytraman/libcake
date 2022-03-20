@@ -20,13 +20,13 @@ Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const uchar *key, ucha
     uchar *testKey;
     cake_bool loop = cake_true;
     while(loop) {
-        keyFound = cake_strutf8_search(source, key, &internalIndex);
+        keyFound = cake_strutf8_search_from_start(source, key, &internalIndex);
         if(keyFound == NULL)
             return NULL;
         testKey = keyFound - 1;
         // Si on trouve une valeur au lieu d'une clé
         if(*testKey == delim) {
-            testKey = cake_strutf8_search(source, key, &internalIndex);
+            testKey = cake_strutf8_search_from_start(source, key, &internalIndex);
             if(testKey == NULL)
                 return NULL;
         }else if(testKey <= source->bytes || *testKey == '\n') {
