@@ -1,5 +1,5 @@
 #include "../file.h"
-#include "../utf8.h"
+#include "../strutf8.h"
 
 #include <stdlib.h>
 #include <string.h>

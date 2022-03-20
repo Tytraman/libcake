@@ -2,7 +2,7 @@
 #define __CAKE_CONSOLE_H__
 
 #include "def.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 #ifdef CAKE_UNIX
 #include <sys/ioctl.h>

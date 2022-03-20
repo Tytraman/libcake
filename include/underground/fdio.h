@@ -2,7 +2,7 @@
 #define __CAKE_FDIO_H__
 
 #include "def.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 #define CAKE_FDIO_PTR(var) &var
 

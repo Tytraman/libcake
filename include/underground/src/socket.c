@@ -1,5 +1,5 @@
 #include "../socket.h"
-#include "../utf8.h"
+#include "../strutf8.h"
 
 #include <stdio.h>
 #include <stdlib.h>

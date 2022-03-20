@@ -1,7 +1,7 @@
 #ifndef __CAKE_CSS_H__
 #define __CAKE_CSS_H__
 
-#include "utf8.h"
+#include "strutf8.h"
 
 typedef Cake_String_UTF8 Cake_CSS;
 

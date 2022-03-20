@@ -3,7 +3,7 @@
 
 #include "def.h"
 #include "fdio.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 
 /*

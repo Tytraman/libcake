@@ -3,7 +3,7 @@
 
 #include "def.h"
 #include "socket.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 #ifndef CAKE_WIN_SOCK
 #define CAKE_WIN_SOCK 0

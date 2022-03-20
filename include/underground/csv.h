@@ -4,7 +4,7 @@
 #include "def.h"
 #include "fdio.h"
 #include "array.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 /*
         La structure contient une liste de listes de Cake_String_UTF8 étant donné que chaque ligne

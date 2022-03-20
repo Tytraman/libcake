@@ -41,7 +41,7 @@ cake_bool cake_vector_resize(Cake_Vector *vec, ulonglong capacity) {
     return cake_true;
 }
 
-#include "../utf8.h"
+#include "../strutf8.h"
 
 void *cake_vector_push_back(Cake_Vector *vec, void *data) {
     if(vec->length == vec->capacity) {

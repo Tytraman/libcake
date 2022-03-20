@@ -2,7 +2,7 @@
 #define __CAKE_FILE_OBJECT_H__
 
 #include "def.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 typedef struct cake_file_object_element {
     Cake_String_UTF8 *key;

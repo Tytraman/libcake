@@ -2,7 +2,7 @@
 #define __CAKE_UTF8_H__
 
 #include "def.h"
-#include "utf16.h"
+#include "strutf16.h"
 #include "array.h"
 
 // Données internes utilisées par Cake_String_UTF8.

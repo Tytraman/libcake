@@ -2,7 +2,7 @@
 #define __CAKE_ENCRYPT_H__
 
 #include "def.h"
-#include "utf8.h"
+#include "strutf8.h"
 
 #ifndef CAKE_ENCRYPT
 #define CAKE_ENCRYPT 0
