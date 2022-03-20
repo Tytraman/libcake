@@ -135,7 +135,7 @@ void cake_wchar_array_to_strutf8(const wchar_t *src, Cake_String_UTF8 *dest) {
 
 ulonglong cake_strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes) {
     ulonglong internalIndex = 0;
-    ulonglong currentUtfIndex = 0UL;
+    ulonglong currentUtfIndex = 0;
     uchar *saveStart;
     ulonglong saveInternalIndex;
 
@@ -1032,4 +1032,20 @@ void cake_strutf8_vector_delete_callback(void *args) {
 void cake_strutf8_vector_delete_callback_ptr(void *args) {
     Cake_String_UTF8 *utf = *((Cake_String_UTF8 **) args);
     cake_free_strutf8(utf);
+}
+
+Cake_String_UTF8 *cake_strutf8_substring(Cake_String_UTF8 *from, ulonglong startIndex, ulonglong endIndex) {
+    if(from->data.length == 0 || from->bytes == NULL || endIndex > from->length || startIndex >= endIndex)
+        return NULL;
+    uchar *pStartStart, *pStartEnd;
+    uchar *pEndStart, *pEndEnd;
+    int bytes;
+    ulonglong internalStartIndex = cake_strutf8_index_by_index(from->bytes, &from->bytes[from->data.length - 1], startIndex, &pStartStart, &pStartEnd, &bytes);
+    ulonglong internalEndIndex   = cake_strutf8_index_by_index(from->bytes, &from->bytes[from->data.length - 1], endIndex, &pEndStart, &pEndEnd, &bytes);
+
+    uchar temp = *pEndStart;
+    *pEndStart = '\0';
+    Cake_String_UTF8 *utf = cake_strutf8(pStartStart);
+    *pEndStart = temp;
+    return utf;
 }

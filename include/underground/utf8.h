@@ -475,4 +475,6 @@ ulonglong cake_str_number_of(const uchar *str, uchar value);
 void cake_strutf8_vector_delete_callback(void *args);
 void cake_strutf8_vector_delete_callback_ptr(void *args);
 
+Cake_String_UTF8 *cake_strutf8_substring(Cake_String_UTF8 *from, ulonglong startIndex, ulonglong endIndex);
+
 #endif
