@@ -1,8 +1,8 @@
 #ifndef __CAKE_ARRAY_H__
 #define __CAKE_ARRAY_H__
 
-#include "def.h"
 #include <stdlib.h>
+#include "def.h"
 
 /*
         Lorsqu'une structure utilise Cake_ArrayList, il faut que l'élément
@@ -12,6 +12,9 @@ typedef struct cake_arraylist {
     ulonglong length;
 } Cake_ArrayList;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
         Change la taille d'une liste, pour l'augmenter ou la réduire.
@@ -37,5 +40,9 @@ typedef struct cake_arraylist {
         cake_free_strutf8(str);
 */
 void cake_array_resize(Cake_ArrayList *array, ulonglong elementSize, ulonglong newLength);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

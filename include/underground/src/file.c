@@ -1,5 +1,6 @@
 #include "../file.h"
 #include "../strutf8.h"
+#include "../strutf16.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -12,27 +13,6 @@
 #endif
 
 
-void cake_create_filelist(Cake_FileList *list) {
-    list->list = NULL;
-    list->length = 0;
-}
-
-void cake_clear_filelist(Cake_FileList *list) {
-    unsigned long long i;
-    for(i = 0; i < list->length; i++)
-        free(list->list[i].bytes);
-    free(list->list);
-}
-
-void cake_add_file_element(Cake_String_UTF8 *element, Cake_FileList *dest) {
-    dest->list = (Cake_String_UTF8 *) realloc(dest->list, (dest->length + 1) * sizeof(Cake_String_UTF8));
-
-    cake_create_strutf8(&dest->list[dest->length]);
-    cake_strutf8_copy(&dest->list[dest->length], element);
-
-    (dest->length)++;
-}
-
 void cake_create_list_filesnapshot(Cake_List_FileSnapshot *list) {
     list->list = NULL;
     list->current = 0;
@@ -43,6 +23,7 @@ cake_bool cake_list_filesnapshot_add(Cake_String_UTF8 *newPath, Cake_List_FileSn
     if(list->current == list->length) {
         (list->length)++;
         list->list = (Cake_FileSnapshot *) realloc(list->list, list->length * sizeof(Cake_FileSnapshot));
+        cake_create_strutf8(&list->list[list->current].path);
     }
 
     cake_strutf8_copy(&list->list[list->current].path, newPath);
@@ -88,6 +69,7 @@ cake_bool cake_list_filesnapshot_add(Cake_String_UTF8 *newPath, Cake_List_FileSn
 void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list) {
     (list->current)--;
     free(list->list[list->current].path.bytes);
+    list->list[list->current].path.bytes = NULL;
     #ifdef CAKE_WINDOWS
     FindClose(list->list[list->current].dir);
     #else
@@ -95,35 +77,25 @@ void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list) {
     #endif
 }
 
-unsigned long long cake_list_files_recursive(cake_char *path, Cake_FileList *files, Cake_FileList *folders, ListFileFilter filter) {
+void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter) {
     Cake_List_FileSnapshot snapshots;
     cake_create_list_filesnapshot(&snapshots);
 
-    Cake_String_UTF8 utf8Path;
+    Cake_String_UTF8 *utf8Path = cake_strutf8(path);
 
-    #ifdef CAKE_WINDOWS
-    cake_wchar_array_to_strutf8(path, &utf8Path);
-    #else
-    cake_create_strutf8(&utf8Path);
-    cake_char_array_to_strutf8(path, &utf8Path);
-    #endif
-
-    if(!cake_list_filesnapshot_add(&utf8Path, &snapshots)) {
+    if(!cake_list_filesnapshot_add(utf8Path, &snapshots)) {
         free(snapshots.list);
-        free(utf8Path.bytes);
-        return 0;
+        cake_free_strutf8(utf8Path);
+        return;
     }
-
-    free(utf8Path.bytes);
 
     #ifdef CAKE_UNIX
     struct dirent *ep;
     struct stat epStat;
     #endif
 
-    unsigned long long number = 0;
-
     while(1) {
+        // Si on trouve quelque chose
         if(
             #ifdef CAKE_WINDOWS
             FindNextFileW(snapshots.list[snapshots.current - 1].dir, &snapshots.list[snapshots.current - 1].dataw)
@@ -131,19 +103,17 @@ unsigned long long cake_list_files_recursive(cake_char *path, Cake_FileList *fil
             (ep = readdir(snapshots.list[snapshots.current - 1].dir)) != NULL
             #endif
         ){
-            cake_create_strutf8(&utf8Path);
-            cake_strutf8_copy(&utf8Path, &snapshots.list[snapshots.current - 1].path);
-            if(utf8Path.bytes[utf8Path.data.length - 1] != FILE_SEPARATOR)
-                cake_strutf8_add_char_array(&utf8Path, "\\");
-
+            cake_strutf8_copy(utf8Path, &snapshots.list[snapshots.current - 1].path);
+            if(utf8Path->bytes[utf8Path->data.length - 1] != FILE_SEPARATOR)
+                cake_strutf8_add_char_array(utf8Path, FILE_SEPARATOR_CHAR_STR);
             #ifdef CAKE_WINDOWS
-            cake_strutf8_add_wchar_array(&utf8Path, snapshots.list[snapshots.current - 1].dataw.cFileName);
+            cake_strutf8_add_wchar_array(utf8Path, snapshots.list[snapshots.current - 1].dataw.cFileName);
             #else
-            cake_strutf8_add_char_array(&utf8Path, ep->d_name);
+            cake_strutf8_add_char_array(utf8Path, ep->d_name);
             #endif
 
             #ifdef CAKE_UNIX
-            stat(utf8Path.bytes, &epStat);
+            stat(utf8Path->bytes, &epStat);
             #endif
 
             // Si c'est un dossier
@@ -162,28 +132,26 @@ unsigned long long cake_list_files_recursive(cake_char *path, Cake_FileList *fil
                     #endif
                 ) {
                     if(folders != NULL)
-                        cake_add_file_element(&utf8Path, folders);
-                    cake_list_filesnapshot_add(&utf8Path, &snapshots);
+                        cake_list_strutf8_add_char_array(folders, utf8Path->bytes);
+                    cake_list_filesnapshot_add(utf8Path, &snapshots);
                 }
             }else {
-                if(filter != NULL && !filter(&utf8Path)) goto list_files_ignore;
-                number++;
+                if(filter != NULL && !filter(utf8Path)) goto list_files_ignore;
                 if(files != NULL)
-                    cake_add_file_element(&utf8Path, files);
+                    cake_list_strutf8_add_char_array(files, utf8Path->bytes);
                 else
-                    printf("%s\n", utf8Path.bytes);
+                    printf("%s\n", utf8Path->bytes);
 list_files_ignore: ;
             }
-            free(utf8Path.bytes);
         }else {
             cake_list_filesnapshot_remove_last(&snapshots);
             if(snapshots.current == 0)
                 break;
         }
     }
+    cake_free_strutf8(utf8Path);
 
     free(snapshots.list);
-    return number;
 }
 
 cake_bool file_mem_copy(
@@ -262,3 +230,82 @@ cake_bool file_mem_copy(
     return cake_true;
 }
 
+#ifdef CAKE_WINDOWS
+cake_bool cake_file_exists(const uchar *filename) {
+    Cake_String_UTF16 name16;
+    cake_create_strutf16(&name16);
+    cake_char_array_to_strutf16(filename, &name16);
+
+    cake_bool res = (GetFileAttributesW(name16.characteres) != INVALID_FILE_ATTRIBUTES);
+    free(name16.characteres);
+    return res;
+}
+#endif
+
+
+// TODO: portage Linux
+cake_bool cake_mkdirs(const uchar *filepath) {
+    Cake_String_UTF16 pathCopy;
+    cake_create_strutf16(&pathCopy);
+    cake_char_array_to_strutf16(filepath, &pathCopy);
+
+    wchar_t *p = NULL;
+    wchar_t slash;
+
+    // On enlève le dernier slash si y en a un
+    while(
+        pathCopy.characteres[pathCopy.length - 1] == FILE_SEPARATOR ||
+        pathCopy.characteres[pathCopy.length - 1] == FILE_SEPARATOR_REVERSE
+    ) {
+        if(pathCopy.length == 1)
+            return cake_false;
+        pathCopy.length--;
+        pathCopy.characteres[pathCopy.length] = L'\0';
+    }
+
+    #ifdef CAKE_WINDOWS
+    DWORD fAttribute = GetFileAttributesW(pathCopy.characteres);
+    #endif
+
+    if(
+        #ifdef CAKE_WINDOWS
+        (fAttribute != INVALID_FILE_ATTRIBUTES && (fAttribute & FILE_ATTRIBUTE_DIRECTORY))
+        #else
+
+        #endif
+    ) {
+        free(pathCopy.characteres);
+        return cake_false;
+    }
+
+    if(pathCopy.characteres[1] == L':' && (pathCopy.characteres[2] == L'\\' || pathCopy.characteres[2] == L'/'))
+        p = pathCopy.characteres + 3;
+    else
+        p = pathCopy.characteres + 1;
+
+    for(; *p; p++) {
+        if(*p == L'/' || *p == L'\\') {
+            slash = *p;
+            *p = L'\0';
+            CreateDirectoryW(pathCopy.characteres, NULL);
+            *p = slash;
+        }
+    }
+    if(!CreateDirectoryW(pathCopy.characteres, NULL)) {
+        free(pathCopy.characteres);
+        return cake_false;
+    }
+    free(pathCopy.characteres);
+    return cake_true;
+}
+
+#ifdef CAKE_WINDOWS
+cake_bool cake_delete_file(const uchar *filename) {
+    Cake_String_UTF16 name16;
+    cake_create_strutf16(&name16);
+    cake_char_array_to_strutf16(filename, &name16);
+    cake_bool ret = DeleteFileW(name16.characteres);
+    free(name16.characteres);
+    return ret;
+}
+#endif

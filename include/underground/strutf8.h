@@ -278,6 +278,8 @@ ulonglong cake_strutf8_to_ulonglong(Cake_String_UTF8 *utf);
 
 void cake_ulonglong_to_char_array(ulonglong value, uchar *buffer);
 
+uchar *cake_ulonglong_to_char_array_dyn(ulonglong value);
+
 /* ===== Cleaner ===== */
 
 // Nettoie la chaîne UTF-8 en utilisant free et en remettant les valeurs à 0 et NULL.

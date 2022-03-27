@@ -13,7 +13,8 @@
         lors d'appels de fonctions de la pi.
 */
 
-// TODO: pika en cake
+#define CAKE_CONCAT(a,b) a##b
+
 #if defined(_WIN32)
 #define CAKE_WINDOWS 1
 #include <stddef.h>
@@ -31,6 +32,8 @@ typedef DWORD cake_size;
         permet un code plus portable.
 */
 #define CAKE_CHAR(value) CAKE_CONCAT(L, value)
+#define CAKE_CHAR_LENGTH(s) wcslen(s)
+#define CAKE_CHAR_CMP(s1, s2) wcscmp(s1,s2)
 
 #define FILE_SEPARATOR             L'\\'
 #define FILE_SEPARATOR_REVERSE     L'/'

@@ -69,7 +69,7 @@ void cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src) {
         dest->bytes = NULL;
         return;
     }
-    dest->bytes = (unsigned char *) realloc(dest->bytes, src->data.length * sizeof(uchar) + sizeof(uchar));
+    dest->bytes = (uchar *) realloc(dest->bytes, src->data.length * sizeof(uchar) + sizeof(uchar));
     memcpy(dest->bytes, src->bytes, src->data.length * sizeof(uchar));
     dest->bytes[dest->data.length] = STR_NULL_END;
 }
@@ -862,6 +862,30 @@ void cake_ulonglong_to_char_array(ulonglong value, uchar *buffer) {
         value /= 10;
         length--;
     }
+}
+
+uchar *cake_ulonglong_to_char_array_dyn(ulonglong value) {
+    uchar *buffer = NULL;
+    if(value == 0) {
+        buffer = (uchar *) malloc(2 * sizeof(uchar));
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return buffer;
+    }
+    uchar length = 0;
+    ulonglong copy = value;
+    while(copy != 0) {
+        copy /= 10;
+        length++;
+    }
+    buffer = (uchar *) malloc(length * sizeof(uchar) + sizeof(uchar));
+    buffer[length] = '\0';
+    while(value != 0) {
+        buffer[length - 1] = value % 10 + '0';
+        value /= 10;
+        length--;
+    }
+    return buffer;
 }
 
 Cake_String_UTF8_Pair *cake_strutf8_pair(const uchar *key, const uchar *value) {

@@ -71,7 +71,10 @@
 
 #ifdef CAKE_WINDOWS
 
-typedef HANDLE cake_process;
+typedef struct cake_process {
+    HANDLE process;
+    HANDLE thread;
+} Cake_Process;
 
 typedef wchar_t cake_process_command[];
 typedef Cake_String_UTF16 *cake_process_command_dyn;
@@ -85,19 +88,22 @@ typedef Cake_String_UTF16 *cake_process_command_dyn;
 
 void CAKE_PROCESS_COMMAND_ADD_ARG(cake_process_command_dyn command, const wchar_t *arg);
 
-#define CAKE_PROCESS_COMMAND_STR(command) command->characteres
+#define CAKE_PROCESS_COMMAND_DYN_STR(command) command->characteres
 
-#define CAKE_PROCESS_COMMAND_FREE(command) cake_free_strutf16(command)
+#define CAKE_PROCESS_COMMAND_DYN_FREE(command) cake_free_strutf16(command)
 
-void __cake_process_wait(cake_process process, cake_exit_code *pExitCode);
+void __cake_process_wait(Cake_Process *process, cake_exit_code *pExitCode);
 
-#define cake_process_wait(process, exitCode) __cake_process_wait(process, CAKE_PTR(exitCode))
+#define cake_process_start(process) ResumeThread(process.thread)
+
+#define cake_process_wait(pProcess, exitCode) __cake_process_wait(pProcess, CAKE_PTR(exitCode))
 
 #else
 #include <sys/wait.h>
 
 typedef pid_t cake_process;
 
+// TODO: refaire portage
 #define cake_process_wait(process, exitCode) waitpid(process, CAKE_PTR(exitCode), 0); \
                                          exitCode = ((exitCode & 0xff00) >> 8)
 
@@ -131,6 +137,8 @@ void CAKE_PROCESS_COMMAND_FREE(cake_process_command_dyn command);
         - Dans le code : CAKE_PROCESS_COMMAND(value)
         - Dynamiquement : utiliser cake_process_command_dyn et CAKE_PROCESS_COMMAND_DYN(value)
 */
-cake_bool cake_start_process(cake_process_command command, cake_process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]);
+cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]);
+
+
 
 #endif

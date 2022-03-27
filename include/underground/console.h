@@ -4,29 +4,6 @@
 #include "def.h"
 #include "strutf8.h"
 
-#ifdef CAKE_UNIX
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <termios.h>
-
-typedef struct winsize Cake_ConsoleSize;
-
-#define cake_get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
-
-// Il faut free le buffer retourné.
-#define cake_console_get_current_directory() getcwd(NULL, 0)
-#else
-typedef struct cake_consolesize {
-    short ws_col;
-    short ws_row;
-} Cake_ConsoleSize;
-
-void cake_get_console_size(Cake_ConsoleSize *pConsoleSize);
-
-void cake_console_enable_ansi_sequence();
-#define cake_console_recover_mode() SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), s_ConsoleRecoveryMode)
-#endif
-
 // Caractère d'échappement.
 #define CONSOLE_ESC "\x1B"
 // \033 est la valeur octale de \x1B
@@ -82,6 +59,31 @@ void cake_console_enable_ansi_sequence();
 #define CONSOLE_BLACK_ON_MAGENTA CONSOLE_ESC"["CONSOLE_CODE_FG_BLACK";"CONSOLE_CODE_BG_MAGENTA"m"
 #define CONSOLE_BLACK_ON_CYAN    CONSOLE_ESC"["CONSOLE_CODE_FG_BLACK";"CONSOLE_CODE_BG_CYAN"m"
 #define CONSOLE_BLACK_ON_WHITE   CONSOLE_ESC"["CONSOLE_CODE_FG_BLACK";"CONSOLE_CODE_BG_WHITE"m"
+
+#ifdef CAKE_UNIX
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <termios.h>
+
+typedef struct winsize Cake_ConsoleSize;
+
+#define cake_get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
+
+// Il faut free le buffer retourné.
+#define cake_console_get_current_directory() getcwd(NULL, 0)
+#else
+typedef struct cake_consolesize {
+    short ws_col;
+    short ws_row;
+} Cake_ConsoleSize;
+
+void cake_get_console_size(Cake_ConsoleSize *pConsoleSize);
+
+void cake_console_enable_ansi_sequence();
+#define cake_console_recover_mode() SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), s_ConsoleRecoveryMode)
+#endif
+
+
 
 void cake_get_console_cursor_pos(short *x, short *y);
 void cake_set_console_cursor_pos(short x, short y);

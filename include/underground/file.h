@@ -10,7 +10,8 @@
 typedef HANDLE cake_dir;
 
 #define cake_close_dir(x) FindClose(x)
-#define cake_file_exists(filename) (GetFileAttributesW(filename) != INVALID_FILE_ATTRIBUTES)
+
+cake_bool cake_file_exists(const uchar *filename);
 
 #else
 #include <sys/types.h>
@@ -37,22 +38,13 @@ typedef struct cake_list_filesnapshot {
     ulonglong length;
 } Cake_List_FileSnapshot;
 
-typedef struct cake_filelist {
-    ulonglong length;
-    Cake_String_UTF8 *list;
-} Cake_FileList;
-
 typedef cake_bool (*ListFileFilter)(Cake_String_UTF8 *filename);
 
 void cake_create_list_filesnapshot(Cake_List_FileSnapshot *list);
 cake_bool cake_list_filesnapshot_add(Cake_String_UTF8 *newPath, Cake_List_FileSnapshot *list);
 void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list);
 
-void cake_create_filelist(Cake_FileList *list);
-void cake_clear_filelist(Cake_FileList *list);
-void cake_add_file_element(Cake_String_UTF8 *element, Cake_FileList *dest);
-
-ulonglong cake_list_files_recursive(cake_char *path, Cake_FileList *files, Cake_FileList *folders, ListFileFilter filter);
+void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter);
 
 
 cake_bool cake_file_mem_copy(
@@ -64,5 +56,20 @@ cake_bool cake_file_mem_copy(
     Cake_String_UTF8 *dest,
     ushort buffSize
 );
+
+/**
+ * @brief Crée tous les dossiers du chemin passé.
+ * 
+ * @param filepath Chemin final voulu.
+ * @return `cake_true` si tous les dossiers ont été créés.
+ */
+cake_bool cake_mkdirs(const uchar *filepath);
+
+
+#ifdef CAKE_WINDOWS
+cake_bool cake_delete_file(const uchar *filename);
+#else
+#define cake_fdio_delete_file(filename) unlink(filename)
+#endif
 
 #endif

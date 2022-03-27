@@ -2,9 +2,13 @@
 
 #include <stdio.h>
 
-cake_bool cake_start_process(cake_process_command command, cake_process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]) {
+cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]) {
     #ifdef CAKE_WINDOWS
-    *process = NULL;
+    Cake_String_UTF16 command16;
+    cake_create_strutf16(&command16);
+    cake_char_array_to_strutf16(command, &command16);
+    process->process = NULL;
+    process->thread  = NULL;
 
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFOW si = { 0 };
@@ -31,17 +35,21 @@ cake_bool cake_start_process(cake_process_command command, cake_process *process
 
     if(!CreateProcessW(
         NULL,
-        command,
+        command16.characteres,
         NULL,
         NULL,
         si.dwFlags & STARTF_USESTDHANDLES,
-        0,
+        CREATE_SUSPENDED,
         NULL,
         NULL,
         &si,
         &pi
-    ))
+    )) {
+        free(command16.characteres);
         return cake_false;
+    }
+
+    free(command16.characteres);
 
     if(si.dwFlags & STARTF_USESTDHANDLES) {
         if(pipeStdout != NULL) {
@@ -58,11 +66,13 @@ cake_bool cake_start_process(cake_process_command command, cake_process *process
         }
     }
 
-    *process = pi.hProcess;
-    CloseHandle(pi.hThread);
+    // TODO: refaire portage Linux
+    process->process = pi.hProcess;
+    process->thread  = pi.hThread;
     #else
     *process = fork();
 
+    // TODO: refaire portage Linux, const uchar *command
     // Processus enfant :
     if(*process == 0) {
         if(pipeStdout != NULL) {
@@ -94,10 +104,10 @@ cake_bool cake_start_process(cake_process_command command, cake_process *process
 }
 
 #ifdef CAKE_WINDOWS
-void __cake_process_wait(cake_process process, cake_exit_code *pExitCode) {
-    WaitForSingleObject(process, INFINITE);
-    GetExitCodeProcess(process, pExitCode);
-    CloseHandle(process);
+void __cake_process_wait(Cake_Process *process, cake_exit_code *pExitCode) {
+    WaitForSingleObject(process->process, INFINITE);
+    GetExitCodeProcess(process->process, pExitCode);
+    CloseHandle(process->process);
 }
 
 void CAKE_PROCESS_COMMAND_ADD_ARG(cake_process_command_dyn command, const wchar_t *arg) {

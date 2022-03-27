@@ -61,9 +61,6 @@ cake_fd cake_fdio_open_file(const uchar *filename, ulong desiredAccess, ulong sh
 // Ferme un FileDescriptor, peut-être utilisé sur un cake_fd.
 #define cake_fdio_close(fd) CloseHandle(fd)
 
-#define CAKE_FDIO_DELETE_FAILS FALSE
-#define cake_fdio_delete_file(filename) DeleteFileW(filename)
-
 #define CAKE_FDIO_CREATE_FAILS FALSE
 #define cake_fdio_create_dir(filename) CreateDirectoryW(filename, NULL)
 
@@ -89,7 +86,7 @@ cake_fd cake_fdio_open_file(const uchar *filename, ulong desiredAccess, ulong sh
 #define CAKE_FDIO_SHARE_WRITE  0
 #define CAKE_FDIO_SHARE_DELETE 0
 
-#define CAKE_FDIO_OPEN_CREATE_ALWAYS        O_EXCL
+#define CAKE_FDIO_OPEN_CREATE_ALWAYS        O_CREAT | O_TRUNC
 #define CAKE_FDIO_OPEN_CREATE_IF_NOT_EXISTS O_CREAT
 #define CAKE_FDIO_OPEN_ALWAYS               O_CREAT
 #define CAKE_FDIO_OPEN_IF_EXISTS            0
@@ -117,8 +114,6 @@ typedef int cake_fdio_mode;
 // Ferme un FileDescriptor, peut-être utilisé sur un cake_fd.
 #define cake_fdio_close(fd) close(fd)
 
-#define CAKE_FDIO_DELETE_FAILS -1
-#define cake_fdio_delete_file(filename) unlink(filename)
 
 #define CAKE_FDIO_CREATE_FAILS -1
 #define cake_fdio_create_dir(filename) mkdir(filename, 0777)
