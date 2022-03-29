@@ -243,24 +243,47 @@ cake_bool cake_file_exists(const uchar *filename) {
 #endif
 
 
-// TODO: portage Linux
 cake_bool cake_mkdirs(const uchar *filepath) {
+    #ifdef CAKE_WINDOWS
     Cake_String_UTF16 pathCopy;
     cake_create_strutf16(&pathCopy);
     cake_char_array_to_strutf16(filepath, &pathCopy);
 
     wchar_t *p = NULL;
     wchar_t slash;
+    #else
+    Cake_String_UTF8 *pathCopy = cake_strutf8(filepath);
+
+    uchar *p = NULL;
+    uchar slash;
+    #endif
 
     // On enlève le dernier slash si y en a un
     while(
+        #ifdef CAKE_WINDOWS
         pathCopy.characteres[pathCopy.length - 1] == FILE_SEPARATOR ||
         pathCopy.characteres[pathCopy.length - 1] == FILE_SEPARATOR_REVERSE
+        #else
+        pathCopy->bytes[pathCopy->data.length - 1] == FILE_SEPARATOR ||
+        pathCopy->bytes[pathCopy->data.length - 1] == FILE_SEPARATOR_REVERSE
+         #endif
     ) {
-        if(pathCopy.length == 1)
+        if(
+            #ifdef CAKE_WINDOWS
+            pathCopy.length == 1
+            #else
+            pathCopy->data.length
+            #endif
+        )
             return cake_false;
+        
+        #ifdef CAKE_WINDOWS
         pathCopy.length--;
         pathCopy.characteres[pathCopy.length] = L'\0';
+        #else
+        (pathCopy->data.length)--;
+        pathCopy->bytes[pathCopy->data.length] = '\0';
+        #endif
     }
 
     #ifdef CAKE_WINDOWS
@@ -271,31 +294,72 @@ cake_bool cake_mkdirs(const uchar *filepath) {
         #ifdef CAKE_WINDOWS
         (fAttribute != INVALID_FILE_ATTRIBUTES && (fAttribute & FILE_ATTRIBUTE_DIRECTORY))
         #else
-
+        !cake_file_exists(filepath)
         #endif
     ) {
+        #ifdef CAKE_WINDOWS
         free(pathCopy.characteres);
+        #else
+        cake_free_strutf8(pathCopy);
+        #endif
         return cake_false;
     }
 
-    if(pathCopy.characteres[1] == L':' && (pathCopy.characteres[2] == L'\\' || pathCopy.characteres[2] == L'/'))
+    if(
+        #ifdef CAKE_WINDOWS
+        pathCopy.characteres[1] == L':' && (pathCopy.characteres[2] == FILE_SEPARATOR || pathCopy.characteres[2] == FILE_SEPARATOR_REVERSE)
+        #else
+        pathCopy->bytes[1] == ':' && (pathCopy->bytes[2] == FILE_SEPARATOR || pathCopy->bytes[2] == FILE_SEPARATOR_REVERSE)
+        #endif
+    )
+        #ifdef CAKE_WINDOWS
         p = pathCopy.characteres + 3;
+        #else
+        p = pathCopy->bytes + 3;
+        #endif
     else
+        #ifdef CAKE_WINDOWS
         p = pathCopy.characteres + 1;
+        #else
+        p = pathCopy->bytes + 1;
+        #endif
 
     for(; *p; p++) {
-        if(*p == L'/' || *p == L'\\') {
+        if(*p == CAKE_CHAR(FILE_SEPARATOR) || *p == CAKE_CHAR(FILE_SEPARATOR_REVERSE)) {
             slash = *p;
-            *p = L'\0';
+            *p = CAKE_CHAR('\0');
+            #ifdef CAKE_WINDOWS
             CreateDirectoryW(pathCopy.characteres, NULL);
+            #else
+            if(mkdir(pathCopy->bytes, 0777) == -1) {
+                if(errno != EEXIST) {
+                    cake_free_strutf8(pathCopy);
+                    return cake_false;
+                }
+            }
+            #endif
             *p = slash;
         }
     }
+    #ifdef CAKE_WINDOWS
     if(!CreateDirectoryW(pathCopy.characteres, NULL)) {
         free(pathCopy.characteres);
         return cake_false;
     }
+    #else
+    if(mkdir(pathCopy->bytes, 0777) == -1) {
+        if(errno == EEXIST) {
+            cake_free_strutf8(pathCopy);
+            return cake_false;
+        }
+    }
+    #endif
+
+    #ifdef CAKE_WINDOWS
     free(pathCopy.characteres);
+    #else
+    cake_free_strutf8(pathCopy);
+    #endif
     return cake_true;
 }
 

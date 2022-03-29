@@ -66,13 +66,11 @@ cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_
         }
     }
 
-    // TODO: refaire portage Linux
     process->process = pi.hProcess;
     process->thread  = pi.hThread;
     #else
     *process = fork();
 
-    // TODO: refaire portage Linux, const uchar *command
     // Processus enfant :
     if(*process == 0) {
         if(pipeStdout != NULL) {
@@ -87,7 +85,17 @@ cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_
             close(pipeStdin[1]);
             dup2(pipeStdin[0], STDIN_FILENO);
         }
-        execvp(command[0], command);
+        Cake_String_UTF8 *cmd = cake_strutf8(command);
+        Cake_List_String_UTF8 *args = cake_strutf8_split(cmd, " ");
+        char **passArgs = (char **) malloc(args->data.length * sizeof(uchar *) + sizeof(char *));
+        ulonglong i;
+        for(i = 0; i < args->data.length; ++i)
+            passArgs[i] = args->list[i]->bytes;
+
+        execvp(passArgs[0], passArgs);
+        free(passArgs);
+        cake_free_list_strutf8(args);
+        cake_free_strutf8(cmd);
         exit(25);
     }else if(*process == -1)
         return cake_false;
@@ -108,40 +116,5 @@ void __cake_process_wait(Cake_Process *process, cake_exit_code *pExitCode) {
     WaitForSingleObject(process->process, INFINITE);
     GetExitCodeProcess(process->process, pExitCode);
     CloseHandle(process->process);
-}
-
-void CAKE_PROCESS_COMMAND_ADD_ARG(cake_process_command_dyn command, const wchar_t *arg) {
-    cake_strutf16_add_char(command, L' ');
-    cake_strutf16_add_wchar_array(command, arg);
-}
-#else
-cake_process_command_dyn CAKE_PROCESS_COMMAND_DYN(const char *value) {
-    cake_process_command_dyn dyn = (cake_process_command_dyn) malloc(sizeof(__cake_process_command_dyn));
-    dyn->args = NULL;
-    cake_array_resize((Cake_ArrayList *) dyn, sizeof(char *), 2);
-    ulonglong length = cake_str_count(value);
-    dyn->args[0] = (char *) malloc(length * sizeof(char) + sizeof(char));
-    memcpy(dyn->args[0], value, length * sizeof(char));
-    dyn->args[0][length] = '\0';
-    dyn->args[1] = NULL;
-    return dyn;
-}
-
-void CAKE_PROCESS_COMMAND_ADD_ARG(cake_process_command_dyn command, const char *arg) {
-    ulonglong current = command->data.length - 1;
-    cake_array_resize((Cake_ArrayList *) command, sizeof(char *), current + 2);
-    ulonglong length = cake_str_count(arg);
-    command->args[current] = (char *) malloc(length * sizeof(char) + sizeof(char));
-    memcpy(command->args[current], arg, length * sizeof(char));
-    command->args[current][length] = '\0';
-    command->args[current + 1] = NULL;
-}
-
-void CAKE_PROCESS_COMMAND_FREE(cake_process_command_dyn command) {
-    ulonglong i;
-    for(i = 0; i < command->data.length - 1; ++i)
-        free(command->args[i]);
-    free(command->args);
-    free(command);
 }
 #endif
