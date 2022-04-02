@@ -18,7 +18,7 @@ void __cake_process_wait(Cake_Process *process, cake_exit_code *pExitCode);
 
 #define cake_process_start(process) ResumeThread(process.thread)
 
-#define cake_process_wait(pProcess, exitCode) __cake_process_wait(pProcess, CAKE_PTR(exitCode))
+#define cake_process_wait(process, exitCode) __cake_process_wait(CAKE_PTR(process), CAKE_PTR(exitCode))
 
 #else
 
@@ -28,6 +28,8 @@ typedef pid_t Cake_Process;
 
 #define cake_process_wait(process, exitCode) waitpid(process, CAKE_PTR(exitCode), 0); \
                                          exitCode = ((exitCode & 0xff00) >> 8)
+
+#define cake_process_start(process) 
 
 #endif
 

@@ -86,15 +86,33 @@ cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_
             dup2(pipeStdin[0], STDIN_FILENO);
         }
         Cake_String_UTF8 *cmd = cake_strutf8(command);
-        Cake_List_String_UTF8 *args = cake_strutf8_split(cmd, " ");
-        char **passArgs = (char **) malloc(args->data.length * sizeof(uchar *) + sizeof(char *));
+        char **passArgs = NULL;
+        char *lastPtr = (char *) cmd->bytes;
         ulonglong i;
-        for(i = 0; i < args->data.length; ++i)
-            passArgs[i] = args->list[i]->bytes;
+        cake_bool quotes = cake_false;
+        ulonglong length = 0;
+        for(i = 0; i <= cmd->data.length; ++i) {
+            if(i == cmd->data.length) {
+                goto skip_null;
+            }else if(cmd->bytes[i] == '"' || cmd->bytes[i] == '\'') {
+                if(!quotes)
+                    lastPtr = (char *) &cmd->bytes[i + 1];
+                else
+                    cmd->bytes[i] = '\0';
+                quotes = !quotes;
+            }else if(!quotes && cmd->bytes[i] == ' ') {
+                cmd->bytes[i] = '\0';
+            skip_null:
+                passArgs = (char **) realloc(passArgs, ((length + 1) * sizeof(char *)) + sizeof(char *));
+                passArgs[length] = lastPtr;
+                length++;
+                passArgs[length] = NULL;
+                lastPtr = (char *) &cmd->bytes[i + 1];
+            }
+        }
 
         execvp(passArgs[0], passArgs);
         free(passArgs);
-        cake_free_list_strutf8(args);
         cake_free_strutf8(cmd);
         exit(25);
     }else if(*process == -1)

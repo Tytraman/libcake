@@ -278,7 +278,7 @@ void *__cake_fileobject_get(
 
     cake_bool loop = cake_true;
     while(loop) {
-        if(containers->list == NULL)
+        if(containers->list == NULL && element_callback == NULL)
             break;
         ptr = cake_strutf8_search_from_start(copy, ".", &internalIndex);
         if(ptr != NULL)
@@ -331,8 +331,9 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
 }
 
 void *__cake_fileobject_get_element_callback(Cake_FileObjectElement *element, const uchar *value, void *args) {
-    if(cake_strutf8_equals(element->key, value))
+    if(cake_strutf8_equals(element->key, value)) {
         return element;
+    }
     return NULL;
 }
 

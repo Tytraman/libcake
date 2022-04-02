@@ -12,6 +12,7 @@ typedef HANDLE cake_dir;
 #define cake_close_dir(x) FindClose(x)
 
 cake_bool cake_file_exists(const uchar *filename);
+cake_bool cake_delete_file(const uchar *filename);
 
 #else
 #include <sys/types.h>
@@ -22,6 +23,7 @@ typedef DIR *cake_dir;
 
 #define cake_close_dir(x) closedir(x)
 #define cake_file_exists(filename) (access(filename, F_OK) == 0)
+#define cake_delete_file(filename) unlink(filename)
 #endif
 
 typedef struct cake_filesnapshot {
@@ -64,12 +66,5 @@ cake_bool cake_file_mem_copy(
  * @return `cake_true` si tous les dossiers ont été créés.
  */
 cake_bool cake_mkdirs(const uchar *filepath);
-
-
-#ifdef CAKE_WINDOWS
-cake_bool cake_delete_file(const uchar *filename);
-#else
-#define cake_fdio_delete_file(filename) unlink(filename)
-#endif
 
 #endif

@@ -272,7 +272,7 @@ cake_bool cake_mkdirs(const uchar *filepath) {
             #ifdef CAKE_WINDOWS
             pathCopy.length == 1
             #else
-            pathCopy->data.length
+            pathCopy->data.length == 1
             #endif
         )
             return cake_false;
@@ -294,7 +294,7 @@ cake_bool cake_mkdirs(const uchar *filepath) {
         #ifdef CAKE_WINDOWS
         (fAttribute != INVALID_FILE_ATTRIBUTES && (fAttribute & FILE_ATTRIBUTE_DIRECTORY))
         #else
-        !cake_file_exists(filepath)
+        cake_file_exists(filepath)
         #endif
     ) {
         #ifdef CAKE_WINDOWS
@@ -325,7 +325,7 @@ cake_bool cake_mkdirs(const uchar *filepath) {
         #endif
 
     for(; *p; p++) {
-        if(*p == CAKE_CHAR(FILE_SEPARATOR) || *p == CAKE_CHAR(FILE_SEPARATOR_REVERSE)) {
+        if(*p == FILE_SEPARATOR || *p == FILE_SEPARATOR_REVERSE) {
             slash = *p;
             *p = CAKE_CHAR('\0');
             #ifdef CAKE_WINDOWS
