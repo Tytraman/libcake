@@ -99,8 +99,16 @@ Cake_FileObject *cake_fileobject_load(const uchar *filename) {
     uchar *keyPtr;
     uchar *valuePtr;
 
-    // On ignore les espaces du début du fichier
-    while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t'))
+    // On ignore les espaces et les sauts de lignes du début du fichier
+    while(
+        i != copy->data.length &&
+        (
+            copy->bytes[i] == '\r' ||
+            copy->bytes[i] == '\n' ||
+            copy->bytes[i] == ' '  ||
+            copy->bytes[i] == '\t' 
+        )
+    )
         i++;
 
     keyPtr = &copy->bytes[i];
@@ -219,12 +227,13 @@ Cake_FileObject *cake_fileobject_load(const uchar *filename) {
     return obj;
 }
 
-void cake_list_fileobject_element_add(Cake_List_FileObjectElement *elements, const uchar *key, const uchar *value) {
+Cake_FileObjectElement *cake_list_fileobject_element_add(Cake_List_FileObjectElement *elements, const uchar *key, const uchar *value) {
     elements->list = (Cake_FileObjectElement **) realloc(elements->list, (elements->length + 1) * sizeof(Cake_FileObjectElement *));
-    elements->list[elements->length] = (Cake_FileObjectElement *) malloc(sizeof(Cake_FileObjectElement));
+    Cake_FileObjectElement *element = elements->list[elements->length] = (Cake_FileObjectElement *) malloc(sizeof(Cake_FileObjectElement));
     elements->list[elements->length]->key = cake_strutf8(key);
     elements->list[elements->length]->value = cake_strutf8(value);
     (elements->length)++;
+    return element;
 }
 
 Cake_FileObjectSnapshot *cake_list_fileobject_container_add(Cake_List_FileObjectContainer *containers, const uchar *key) {
@@ -297,9 +306,14 @@ void *__cake_fileobject_get(
         for(i = 0; i < containers->length; ++i) {
             tempContainer = containers->list[i];
             ret = container_callback(containers->list[i], &containers, lastPtr, containerArgs);
-            if(ret != NULL)
+            if(ret != NULL) {
+                if(element_callback == NULL && ptr != NULL && containers->length == 0)
+                    goto nothing;
                 goto ok;
+            }
         }
+    nothing:
+        ret = NULL;
         goto cancel;
     ok:
         elements = &tempContainer->elements;

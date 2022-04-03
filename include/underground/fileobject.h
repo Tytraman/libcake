@@ -82,7 +82,7 @@ Cake_FileObjectElement *cake_fileobject_get_element(Cake_FileObject *obj, const 
  * @param key Clé de l'élément à ajouter.
  * @param value Valeur de l'élément à ajouter.
  */
-void cake_list_fileobject_element_add(Cake_List_FileObjectElement *elements, const uchar *key, const uchar *value);
+Cake_FileObjectElement *cake_list_fileobject_element_add(Cake_List_FileObjectElement *elements, const uchar *key, const uchar *value);
 
 /**
  * @brief Libère la mémoire d'une liste d'éléments. Surtout utilisée en interne par la libcake.
