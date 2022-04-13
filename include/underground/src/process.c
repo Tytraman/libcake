@@ -2,11 +2,20 @@
 
 #include <stdio.h>
 
-cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]) {
+cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]) {
     #ifdef CAKE_WINDOWS
+    if(command->data.length == 0)
+        return cake_false;
+    Cake_String_UTF8 *command8 = cake_strutf8(command->list[0]->bytes);
+    ulonglong i;
+    for(i = 0; i < command->data.length; ++i) {
+        cake_strutf8_add_char_array(command8, " ");
+        cake_strutf8_add_char_array(command8, command->list[i]->bytes);
+    }
     Cake_String_UTF16 command16;
     cake_create_strutf16(&command16);
-    cake_char_array_to_strutf16(command, &command16);
+    cake_strutf8_to_utf16(command8, &command16);
+    cake_free_strutf8(command8);
     process->process = NULL;
     process->thread  = NULL;
 
@@ -85,35 +94,16 @@ cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_
             close(pipeStdin[1]);
             dup2(pipeStdin[0], STDIN_FILENO);
         }
-        Cake_String_UTF8 *cmd = cake_strutf8(command);
-        char **passArgs = NULL;
-        char *lastPtr = (char *) cmd->bytes;
+
+        char **passArgs = (char **) malloc(command->data.length * sizeof(char *) + sizeof(char *));
         ulonglong i;
-        cake_bool quotes = cake_false;
-        ulonglong length = 0;
-        for(i = 0; i <= cmd->data.length; ++i) {
-            if(i == cmd->data.length) {
-                goto skip_null;
-            }else if(cmd->bytes[i] == '"' || cmd->bytes[i] == '\'') {
-                if(!quotes)
-                    lastPtr = (char *) &cmd->bytes[i + 1];
-                else
-                    cmd->bytes[i] = '\0';
-                quotes = !quotes;
-            }else if(!quotes && cmd->bytes[i] == ' ') {
-                cmd->bytes[i] = '\0';
-            skip_null:
-                passArgs = (char **) realloc(passArgs, ((length + 1) * sizeof(char *)) + sizeof(char *));
-                passArgs[length] = lastPtr;
-                length++;
-                passArgs[length] = NULL;
-                lastPtr = (char *) &cmd->bytes[i + 1];
-            }
-        }
+        for(i = 0; i < command->data.length; ++i)
+            passArgs[i] = command->list[i]->bytes;
+        passArgs[i] = NULL;
 
         execvp(passArgs[0], passArgs);
         free(passArgs);
-        cake_free_strutf8(cmd);
+        cake_free_list_strutf8(command);
         exit(25);
     }else if(*process == -1)
         return cake_false;

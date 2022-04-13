@@ -35,7 +35,7 @@ typedef pid_t Cake_Process;
 
 #define CAKE_COMMAND_NOT_FOUND 1
 
-cake_bool cake_create_process(const uchar *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]);
+cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]);
 
 
 

@@ -77,7 +77,7 @@ void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list) {
     #endif
 }
 
-void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter) {
+void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter, void *args) {
     Cake_List_FileSnapshot snapshots;
     cake_create_list_filesnapshot(&snapshots);
 
@@ -136,7 +136,7 @@ void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, 
                     cake_list_filesnapshot_add(utf8Path, &snapshots);
                 }
             }else {
-                if(filter != NULL && !filter(utf8Path)) goto list_files_ignore;
+                if(filter != NULL && !filter(utf8Path, args)) goto list_files_ignore;
                 if(files != NULL)
                     cake_list_strutf8_add_char_array(files, utf8Path->bytes);
                 else
@@ -369,6 +369,15 @@ cake_bool cake_delete_file(const uchar *filename) {
     cake_create_strutf16(&name16);
     cake_char_array_to_strutf16(filename, &name16);
     cake_bool ret = DeleteFileW(name16.characteres);
+    free(name16.characteres);
+    return ret;
+}
+
+cake_bool cake_delete_folder(const uchar *pathname) {
+    Cake_String_UTF16 name16;
+    cake_create_strutf16(&name16);
+    cake_char_array_to_strutf16(pathname, &name16);
+    cake_bool ret = RemoveDirectoryW(name16.characteres);
     free(name16.characteres);
     return ret;
 }

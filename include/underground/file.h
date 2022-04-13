@@ -13,6 +13,7 @@ typedef HANDLE cake_dir;
 
 cake_bool cake_file_exists(const uchar *filename);
 cake_bool cake_delete_file(const uchar *filename);
+cake_bool cake_delete_folder(const uchar *pathname);
 
 #else
 #include <sys/types.h>
@@ -24,6 +25,7 @@ typedef DIR *cake_dir;
 #define cake_close_dir(x) closedir(x)
 #define cake_file_exists(filename) (access(filename, F_OK) == 0)
 #define cake_delete_file(filename) unlink(filename)
+#define cake_delete_folder(pathname) rmdir(pathname)
 #endif
 
 typedef struct cake_filesnapshot {
@@ -40,13 +42,13 @@ typedef struct cake_list_filesnapshot {
     ulonglong length;
 } Cake_List_FileSnapshot;
 
-typedef cake_bool (*ListFileFilter)(Cake_String_UTF8 *filename);
+typedef cake_bool (*ListFileFilter)(Cake_String_UTF8 *filename, void *args);
 
 void cake_create_list_filesnapshot(Cake_List_FileSnapshot *list);
 cake_bool cake_list_filesnapshot_add(Cake_String_UTF8 *newPath, Cake_List_FileSnapshot *list);
 void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list);
 
-void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter);
+void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter, void *args);
 
 
 cake_bool cake_file_mem_copy(
