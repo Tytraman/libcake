@@ -81,6 +81,8 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
  */
 Cake_FileObjectElement *cake_fileobject_get_element(Cake_FileObject *obj, const char *key);
 
+Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContainer *container, const char *key);
+
 /**
  * @brief Ajoute un élément dans une liste d'éléments.
  * 
@@ -168,6 +170,8 @@ Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const 
  * @return cake_bool 
  */
 cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key);
+
+Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectContainer *container, const char *key);
 
 #ifdef __cplusplus
 }

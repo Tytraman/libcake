@@ -342,6 +342,9 @@ void *__cake_fileobject_get(
         }
         for(i = 0; i < containers->length; ++i) {
             tempContainer = containers->list[i];
+            // Lorsqu'un container est trouvé, le callback est appelé,
+            // si celui-ci retourne autre chose que NULL, la fonction se termine
+            // et retourne ce qu'a retourné le callback.
             ret = container_callback(containers->list[i], &containers, lastPtr, containerArgs);
             if(ret != NULL) {
                 if(element_callback == NULL && ptr != NULL && containers->length == 0)
@@ -601,4 +604,29 @@ cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key) 
 
     cake_free_strutf8(copy);
     return cake_false;
+}
+
+Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectContainer *container, const char *key) {
+    Cake_FileObject obj;
+    obj.containers.length = container->containers.length;
+    obj.containers.list   = container->containers.list;
+    obj.elements.length   = container->elements.length;
+    obj.elements.list     = container->elements.list;
+    obj.strList           = container->strList;
+
+    return (Cake_FileObjectContainer *) __cake_fileobject_get(
+        &obj, key,
+        __cake_fileobject_get_container_callback,
+        NULL, NULL, NULL
+    );
+}
+
+Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContainer *container, const char *key) {
+    Cake_FileObject obj;
+    obj.containers.length = container->containers.length;
+    obj.containers.list   = container->containers.list;
+    obj.elements.length   = container->elements.length;
+    obj.elements.list     = container->elements.list;
+
+    return cake_fileobject_get_element(&obj, key);
 }
