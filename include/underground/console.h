@@ -80,6 +80,10 @@ typedef struct cake_consolesize {
     short ws_row;
 } Cake_ConsoleSize;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void cake_get_console_size(Cake_ConsoleSize *pConsoleSize);
 
 void cake_console_enable_ansi_sequence();
@@ -127,5 +131,9 @@ void get_console_line(Cake_String_UTF8 *utf);
 
 void cake_console_hide_cursor(cake_bool value);
 void cake_console_scroll(cake_bool up, short value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

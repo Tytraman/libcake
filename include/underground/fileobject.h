@@ -54,6 +54,11 @@ extern "C" {
  */
 Cake_FileObject *cake_fileobject_load(const char *filename);
 
+/**
+ * @brief Crée un Cake_FileObject vide.
+ * 
+ * @return Cake_FileObject* 
+ */
 Cake_FileObject *cake_fileobject();
 
 /**
@@ -81,6 +86,13 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
  */
 Cake_FileObjectElement *cake_fileobject_get_element(Cake_FileObject *obj, const char *key);
 
+/**
+ * @brief Récupère un élément depuis un container.
+ * 
+ * @param container 
+ * @param key 
+ * @return Cake_FileObjectElement* 
+ */
 Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContainer *container, const char *key);
 
 /**
@@ -163,6 +175,16 @@ void cake_fileobject_enum(
 Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const char *key, const char *value);
 
 /**
+ * @brief Ajoute un élément dans un Cake_FileObject depuis un container.
+ * 
+ * @param container 
+ * @param key 
+ * @param value 
+ * @return Cake_FileObjectElement* 
+ */
+Cake_FileObjectElement *cake_fileobject_add_element_from(Cake_FileObjectContainer *container, const char *key, const char *value);
+
+/**
  * @brief Supprime un élément dans un Cake_FileObject.
  * 
  * @param obj 
@@ -171,6 +193,22 @@ Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const 
  */
 cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key);
 
+/**
+ * @brief Supprime un élément dans Cake_FileObject depuis un container.
+ * 
+ * @param container 
+ * @param key 
+ * @return cake_bool 
+ */
+cake_bool cake_fileobject_remove_element_from(Cake_FileObjectContainer *container, const char *key);
+
+/**
+ * @brief Récupère un container depuis un autre container.
+ * 
+ * @param container 
+ * @param key 
+ * @return Cake_FileObjectContainer* 
+ */
 Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectContainer *container, const char *key);
 
 #ifdef __cplusplus

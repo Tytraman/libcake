@@ -569,6 +569,20 @@ Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const 
     return element;
 }
 
+Cake_FileObjectElement *cake_fileobject_add_element_from(Cake_FileObjectContainer *container, const char *key, const char *value) {
+    Cake_FileObject obj;
+    obj.containers.length = container->containers.length;
+    obj.containers.list   = container->containers.list;
+    obj.elements.length   = container->elements.length;
+    obj.elements.list     = container->elements.list;
+    Cake_FileObjectElement *ele = cake_fileobject_add_element(&obj, key, value);
+    container->containers.length = obj.containers.length;
+    container->containers.list   = obj.containers.list;
+    container->elements.length   = obj.elements.length;
+    container->elements.list     = obj.elements.list;
+    return ele;
+}
+
 cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key) {
     Cake_String_UTF8 *copy = cake_strutf8(key);
 
@@ -606,6 +620,22 @@ cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key) 
     return cake_false;
 }
 
+cake_bool cake_fileobject_remove_element_from(Cake_FileObjectContainer *container, const char *key) {
+    Cake_FileObject obj;
+    obj.containers.length = container->containers.length;
+    obj.containers.list   = container->containers.list;
+    obj.elements.length   = container->elements.length;
+    obj.elements.list     = container->elements.list;
+    if(cake_fileobject_remove_element(&obj, key)) {
+        container->containers.length = obj.containers.length;
+        container->containers.list   = obj.containers.list;
+        container->elements.length   = obj.elements.length;
+        container->elements.list     = obj.elements.list;
+        return cake_true;
+    }
+    return cake_false;
+}
+
 Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectContainer *container, const char *key) {
     Cake_FileObject obj;
     obj.containers.length = container->containers.length;
@@ -627,6 +657,7 @@ Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContaine
     obj.containers.list   = container->containers.list;
     obj.elements.length   = container->elements.length;
     obj.elements.list     = container->elements.list;
+    obj.strList = container->strList;
 
     return cake_fileobject_get_element(&obj, key);
 }
