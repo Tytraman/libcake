@@ -9,7 +9,7 @@ Cake_CSV *csv() {
     return v;
 }
 
-void cake_csv_add_line(Cake_CSV *csv, const uchar *line, uchar delim) {
+void cake_csv_add_line(Cake_CSV *csv, const char *line, char delim) {
     Cake_String_UTF8 *copyLine = cake_strutf8(line);
 
     ulonglong current = csv->data.length;
@@ -28,7 +28,7 @@ void cake_csv_add_line(Cake_CSV *csv, const uchar *line, uchar delim) {
             *ptr = '\0';
             kurrent = csv->utfList[current]->data.length;
             cake_array_resize((Cake_ArrayList *) csv->utfList[current], sizeof(Cake_String_UTF8 *), kurrent + 1);
-            cake_csv_get(csv, current, kurrent) = cake_strutf8(lastPtr);
+            cake_csv_get(csv, current, kurrent) = cake_strutf8((char *) lastPtr);
             ptr++;
             lastPtr = ptr;
             ptr = NULL;
@@ -38,11 +38,11 @@ void cake_csv_add_line(Cake_CSV *csv, const uchar *line, uchar delim) {
 
     kurrent = csv->utfList[current]->data.length;
     cake_array_resize((Cake_ArrayList *) csv->utfList[current], sizeof(Cake_String_UTF8 *), kurrent + 1);
-    cake_csv_get(csv, current, kurrent) = cake_strutf8(lastPtr);
+    cake_csv_get(csv, current, kurrent) = cake_strutf8((char *) lastPtr);
     cake_free_strutf8(copyLine);
 }
 
-void cake_csv_parse_file(Cake_CSV *dest, cake_fd fd, uchar delim) {
+void cake_csv_parse_file(Cake_CSV *dest, cake_fd fd, char delim) {
     Cake_String_UTF8 *utf = cake_strutf8("");
     cake_fdio_mem_copy_strutf8(utf, fd, 2048);
 
@@ -54,7 +54,7 @@ void cake_csv_parse_file(Cake_CSV *dest, cake_fd fd, uchar delim) {
     for(i = 0; i <= utf->data.length; ++i) {
         if(utf->bytes[i] == ignored1 || utf->bytes[i] == ignored2 || utf->bytes[i] == ignored3) {
             utf->bytes[i] = '\0';
-            cake_csv_add_line(dest, lastPtr, delim);
+            cake_csv_add_line(dest, (char *) lastPtr, delim);
             i++;
             while(i < utf->data.length && (utf->bytes[i] == ignored1 || utf->bytes[i] == ignored2 || utf->bytes[i] == ignored3)) i++;
             lastPtr = &utf->bytes[i];
@@ -71,7 +71,7 @@ void cake_free_csv(Cake_CSV *csv) {
     free(csv);
 }
 
-cake_bool cake_csv_save(Cake_CSV *csv, const uchar *filename, uchar delim) {
+cake_bool cake_csv_save(Cake_CSV *csv, const char *filename, char delim) {
     cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_WRITE, 0, CAKE_FDIO_OPEN_CREATE_ALWAYS, CAKE_FDIO_ATTRIBUTE_NORMAL);
     if(fd == CAKE_FDIO_ERROR_OPEN)
         return cake_false;

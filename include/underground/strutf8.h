@@ -41,7 +41,7 @@ typedef struct cake_linkedlist_string_utf8_pair {
  * @param value Chaîne 2 à copier.
  * @return La paire de chaînes créée.
  */
-Cake_String_UTF8_Pair *cake_strutf8_pair(const uchar *key, const uchar *value);
+Cake_String_UTF8_Pair *cake_strutf8_pair(const char *key, const char *value);
 
 /**
  * @brief Libère la mémoire d'un `Cake_String_UTF8_Pair`.
@@ -73,7 +73,7 @@ void cake_create_strutf8(Cake_String_UTF8 *utf);
  * @param value Chaîne à copier.
  * @return La chaîne créée.
  */
-Cake_String_UTF8 *cake_strutf8(const uchar *value);
+Cake_String_UTF8 *cake_strutf8(const char *value);
 
 /**
  * @brief Crée dynamiquement une `Cake_List_String_UTF8`, ne pas oublier de free.
@@ -116,13 +116,8 @@ void cake_strutf8_add_wchar_array(Cake_String_UTF8 *dest, const wchar_t *str);
  * @param dest 
  * @param str 
  */
-void cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const uchar *str);
+void cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const char *str);
 
-/*
-        
-
-        
-*/
 
 /**
  * @brief Insère un caractère unicode dans la chaîne UTF-8.
@@ -142,7 +137,7 @@ uchar cake_strutf8_insert_wchar(Cake_String_UTF8 *utf, ulonglong index, wchar_t 
  * @param str La chaîne de caractères à insérer.
  * @return `cake_true` si la chaîne à bien été insérée.
  */
-cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index, const uchar *str);
+cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index, const char *str);
 
 /**
  * @brief Ajoute une chaîne de caractères dans une `Cake_List_String_UTF8`.
@@ -150,7 +145,7 @@ cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index,
  * @param list La liste destination.
  * @param str La chaîne de caractères à ajouter.
  */
-void cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const uchar *str);
+void cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const char *str);
 
 
 /* ===== Modification ===== */
@@ -180,7 +175,7 @@ cake_bool cake_strutf8_remove_index(Cake_String_UTF8 *utf, ulonglong index);
  * @param value La sous-chaîne à supprimer.
  * @return Le nombre d'occurences supprimées.
  */
-ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const uchar *value);
+ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const char *value);
 
 /**
  * @brief Supprime le début d'une chaîne UTF-8 si celle-ci commence par la sous-chaîne passée.
@@ -189,7 +184,7 @@ ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const uchar *value);
  * @param value Sous-chaîne à enlever.
  * @return `cake_true` si la sous-chaîne a été supprimée.
  */
-cake_bool cake_strutf8_remove_start(Cake_String_UTF8 *utf, const uchar *value);
+cake_bool cake_strutf8_remove_start(Cake_String_UTF8 *utf, const char *value);
 
 /**
  * @brief Supprime tous les caractères entre 2 positions.
@@ -236,7 +231,7 @@ void cake_strutf8_to_utf16(Cake_String_UTF8 *src, Cake_String_UTF16 *dest);
  * @param src Chaîne de caractères à copier.
  * @param dest Chaîne destination.
  */
-void cake_char_array_to_strutf8(const uchar *src, Cake_String_UTF8 *dest);
+void cake_char_array_to_strutf8(const char *src, Cake_String_UTF8 *dest);
 
 /**
  * @brief Convertit une suite d'octets en une valeur numérique unicode.
@@ -317,7 +312,7 @@ ulonglong cake_strutf8_index_by_index_reverse(Cake_String_UTF8 *utf, ulonglong u
  * @param internalIndex Pointeur vers la valeur du début de la recherche, après traitement, sera égale à sa valeur - la longueur de la recherche - 1.
  * @return L'adresse de la première occurence trouvée ou NULL en cas de non trouvaille.
  */
-uchar *cake_strutf8_search_from_end(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
+uchar *cake_strutf8_search_from_end(Cake_String_UTF8 *utf, const char *research, ulonglong *internalIndex);
 
 /**
  * @brief Recherche la sous-chaîne dans la chaîne UTF-8 à partir de `internalIndex` en allant vers la fin de la chaîne.
@@ -327,24 +322,24 @@ uchar *cake_strutf8_search_from_end(Cake_String_UTF8 *utf, const uchar *research
  * @param internalIndex Pointeur vers la valeur du début de la recherche, après traitement, sera égale à sa valeur + la longueur de la recherche + 1.
  * @return L'adresse de la première occurence trouvée ou NULL en cas de non trouvaille.
  */
-uchar *cake_strutf8_search_from_start(Cake_String_UTF8 *utf, const uchar *research, ulonglong *internalIndex);
+uchar *cake_strutf8_search_from_start(Cake_String_UTF8 *utf, const char *research, ulonglong *internalIndex);
 
 ulonglong cake_str_search(const uchar *str, uchar value, uchar **ptr);
 
-uchar *cake_str_search_array(const uchar *str, const uchar *value);
+uchar *cake_str_search_array(const char *str, const char *value);
 
 /* ===== Vérificateurs ===== */
 
 // Vérifie que la chaîne UTF-8 termine avec la sous-chaîne passée.
-cake_bool cake_strutf8_end_with(Cake_String_UTF8 *utf, const uchar *str);
+cake_bool cake_strutf8_end_with(Cake_String_UTF8 *utf, const char *str);
 // Vérifie que la chaîne UTF-8 commence avec la sous-chaîne passée.
-cake_bool cake_strutf8_start_with(Cake_String_UTF8 *utf, const uchar *research);
+cake_bool cake_strutf8_start_with(Cake_String_UTF8 *utf, const char *research);
 
 // Vérifie que la chaîne de caractères commence avec la sous-chaîne passée.
-cake_bool cake_str_starts_with(const uchar *src, const uchar *str);
+cake_bool cake_str_starts_with(const char *src, const char *str);
 
 // Vérifie que la chaîne UTF-8 soit exactement égale à la chaîne de caractères passée.
-cake_bool cake_strutf8_equals(const Cake_String_UTF8 *utf, const uchar *compare);
+cake_bool cake_strutf8_equals(const Cake_String_UTF8 *utf, const char *compare);
 
 
 /* ===== Création ===== */
@@ -357,7 +352,7 @@ cake_bool cake_strutf8_equals(const Cake_String_UTF8 *utf, const uchar *compare)
  * @param delim Délimiteur des éléments.
  * @return La liste des éléments séparés.
  */
-Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const uchar *delim);
+Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const char *delim);
 
 /* ===== Remplacement ===== */
 
@@ -370,7 +365,7 @@ Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const uchar *de
  * @param replacement Nouvelle sous-chaîne.
  * @return Le nombre de sous-chaînes remplacées.
  */
-ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
+ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const char *old, const char *replacement);
 
 /**
  * @brief Remplace le début de la chaîne par `replacement` si elle commence par `old`.
@@ -380,7 +375,7 @@ ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const uchar *old, cons
  * @param replacement Nouvelle sous-chaîne.
  * @return cake_true si la sous-chaîne a été modifiée.
  */
-cake_bool cake_strutf8_replace_start(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
+cake_bool cake_strutf8_replace_start(Cake_String_UTF8 *utf, const char *old, const char *replacement);
 
 /**
  * @brief Remplace la fin de la chaîne par `replacement` si elle fini par `old`.
@@ -390,7 +385,7 @@ cake_bool cake_strutf8_replace_start(Cake_String_UTF8 *utf, const uchar *old, co
  * @param replacement Nouvelle sous-chaîne.
  * @return cake_true si la sous-chaîne a été modifiée.
  */
-cake_bool cake_strutf8_replace_end(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
+cake_bool cake_strutf8_replace_end(Cake_String_UTF8 *utf, const char *old, const char *replacement);
 
 /**
  * @brief Remplace la première occurence de la chaîne de caractères passée.
@@ -400,10 +395,10 @@ cake_bool cake_strutf8_replace_end(Cake_String_UTF8 *utf, const uchar *old, cons
  * @param replacement Nouvelle sous-chaîne.
  * @return `cake_true` si la sous-chaîne a été remplacée.
  */
-cake_bool cake_strutf8_replace_from_start(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
+cake_bool cake_strutf8_replace_from_start(Cake_String_UTF8 *utf, const char *old, const char *replacement);
 
 
-cake_bool cake_strutf8_replace_from_end(Cake_String_UTF8 *utf, const uchar *old, const uchar *replacement);
+cake_bool cake_strutf8_replace_from_end(Cake_String_UTF8 *utf, const char *old, const char *replacement);
 
 /**
  * @brief Tous les caractères de la chaîne deviennent des minuscules.
@@ -426,7 +421,7 @@ ulonglong cake_strutf8_wchar_array_calc_size(const wchar_t *str);
 ulonglong cake_strutf8_length(Cake_String_UTF8 *utf);
 
 // Equivalent de strlen.
-ulonglong cake_str_count(const uchar *str);
+ulonglong cake_str_count(const char *str);
 
 uint cake_str_hex_to_uint(const uchar *str);
 
@@ -462,7 +457,7 @@ void cake_str_dec_to_hexchar(uchar value, uchar dest[2]);
  * @param str2 Chaîne 2.
  * @return `cake_true` si les chaînes de caractères sont identiques.
  */
-cake_bool cake_str_equals(const uchar *str1, const uchar *str2);
+cake_bool cake_str_equals(const char *str1, const char *str2);
 
 /**
  * @brief Compte le nombre de fois qu'un caractère apparaît dans une chaîne de caractères.
@@ -471,7 +466,9 @@ cake_bool cake_str_equals(const uchar *str1, const uchar *str2);
  * @param value Caractère à compter.
  * @return Le nombre de fois que le caractère à été trouvé.
  */
-ulonglong cake_str_number_of(const uchar *str, uchar value);
+ulonglong cake_str_number_of(const char *str, char value);
+
+cake_bool cake_str_contains(const char *str, char value);
 
 
 void cake_strutf8_vector_delete_callback(void *args);

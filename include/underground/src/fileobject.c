@@ -68,7 +68,7 @@ void cake_fileobject_enum(
     }
 }
 
-Cake_FileObject *cake_fileobject_load(const uchar *filename) {
+Cake_FileObject *cake_fileobject_load(const char *filename) {
     cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_READ, CAKE_FDIO_SHARE_READ, CAKE_FDIO_OPEN_IF_EXISTS, CAKE_FDIO_ATTRIBUTE_NORMAL);
     if(fd == CAKE_FDIO_ERROR_OPEN)
         return NULL;
@@ -227,7 +227,11 @@ Cake_FileObject *cake_fileobject_load(const uchar *filename) {
     return obj;
 }
 
-Cake_FileObjectElement *cake_list_fileobject_element_add(Cake_List_FileObjectElement *elements, const uchar *key, const uchar *value) {
+Cake_FileObjectElement *cake_list_fileobject_element_add(Cake_List_FileObjectElement *elements, const char *key, const char *value) {
+    ulonglong i;
+    for(i = 0; i < elements->length; ++i)
+        if(cake_strutf8_equals(elements->list[i]->key, key))
+            return NULL;
     elements->list = (Cake_FileObjectElement **) realloc(elements->list, (elements->length + 1) * sizeof(Cake_FileObjectElement *));
     Cake_FileObjectElement *element = elements->list[elements->length] = (Cake_FileObjectElement *) malloc(sizeof(Cake_FileObjectElement));
     elements->list[elements->length]->key = cake_strutf8(key);
@@ -236,7 +240,37 @@ Cake_FileObjectElement *cake_list_fileobject_element_add(Cake_List_FileObjectEle
     return element;
 }
 
-Cake_FileObjectSnapshot *cake_list_fileobject_container_add(Cake_List_FileObjectContainer *containers, const uchar *key) {
+cake_bool cake_list_fileobject_element_remove(Cake_List_FileObjectElement *elements, const char *key) {
+    if(elements->length == 0)
+        return cake_false;
+    ulonglong i;
+    for(i = 0; i < elements->length; ++i) {
+        if(cake_strutf8_equals(elements->list[i]->key, key)) {
+            cake_free_strutf8(elements->list[i]->key);
+            cake_free_strutf8(elements->list[i]->value);
+            free(elements->list[i]);
+            if(i < elements->length - 1)
+                memcpy(&elements->list[i], &elements->list[i + 1], (elements->length - i - 1) * sizeof(Cake_FileObjectElement *));
+            if(elements->length - 1 > 0) {
+                Cake_FileObjectElement **testPtr = (Cake_FileObjectElement **) realloc(elements->list, (elements->length - 1) * sizeof(Cake_FileObjectElement *));
+                if(testPtr != NULL) {   
+                    elements->list = testPtr;
+                    (elements->length)--;
+                    return cake_true;
+                }else
+                    return cake_false;
+            }else {
+                elements->length = 0;
+                free(elements->list);
+                elements->list = NULL;
+                return cake_true;
+            }
+        }
+    }
+    return cake_false;
+}
+
+Cake_FileObjectSnapshot *cake_list_fileobject_container_add(Cake_List_FileObjectContainer *containers, const char *key) {
     Cake_FileObjectSnapshot *snapshot = (Cake_FileObjectSnapshot *) malloc(sizeof(Cake_FileObjectSnapshot));
     containers->list = (Cake_FileObjectContainer **) realloc(containers->list, (containers->length + 1) * sizeof(Cake_FileObjectContainer *));
     snapshot->actualContainer = containers->list[containers->length] = (Cake_FileObjectContainer *) malloc(sizeof(Cake_FileObjectContainer));
@@ -266,12 +300,11 @@ void cake_free_list_fileobject_element(Cake_List_FileObjectElement *elements) {
     free(elements->list);
 }
  
-
 void *__cake_fileobject_get(
     Cake_FileObject *obj,
-    const uchar *key,
-    void *(*container_callback)(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const uchar *value, void *args),
-    void *(*element_callback)(Cake_FileObjectElement *element, const uchar *value, void *args),
+    const char *key,
+    void *(*container_callback)(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const char *value, void *args),
+    void *(*element_callback)(Cake_FileObjectElement *element, const char *value, void *args),
     void *containerArgs,
     void *elementArgs
 ) {
@@ -295,6 +328,10 @@ void *__cake_fileobject_get(
         else {
             loop = cake_false;
             if(element_callback != NULL) {
+                if(elements->length == 0) {
+                    ret = NULL;
+                    goto cancel;
+                }
                 for(i = 0; i < elements->length; ++i) {
                     ret = element_callback(elements->list[i], lastPtr, elementArgs);
                     if(ret != NULL)
@@ -325,7 +362,7 @@ cancel:
     return ret;
 }
 
-void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const uchar *value, void *args) {
+void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const char *value, void *args) {
     if(cake_strutf8_equals(container->key, value)) {
         *dest = &container->containers;
         return container;
@@ -333,7 +370,7 @@ void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *contain
     return NULL;
 }
 
-Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, const uchar *key) {
+Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, const char *key) {
     return (Cake_FileObjectContainer *) __cake_fileobject_get(
         obj,
         key,
@@ -344,14 +381,14 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
     );
 }
 
-void *__cake_fileobject_get_element_callback(Cake_FileObjectElement *element, const uchar *value, void *args) {
+void *__cake_fileobject_get_element_callback(Cake_FileObjectElement *element, const char *value, void *args) {
     if(cake_strutf8_equals(element->key, value)) {
         return element;
     }
     return NULL;
 }
 
-Cake_FileObjectElement *cake_fileobject_get_element(Cake_FileObject *obj, const uchar *key) {
+Cake_FileObjectElement *cake_fileobject_get_element(Cake_FileObject *obj, const char *key) {
     return (Cake_FileObjectElement *) __cake_fileobject_get(
         obj,
         key,
@@ -447,8 +484,9 @@ void __cake_free_fileobject_list_strutf8_callback(Cake_List_String_UTF8 *list, v
 }
 
 void __cake_free_fileobject_container_callback(Cake_FileObjectContainer *container, void *args) {
-    if(container->elements.list != NULL)
+    if(container->elements.list != NULL) {
         cake_free_list_fileobject_element(&container->elements);
+    }
     cake_free_list_strutf8(container->strList);
     cake_free_strutf8(container->key);
     free(container->containers.list);
@@ -468,4 +506,99 @@ void cake_free_fileobject(Cake_FileObject *obj) {
         NULL
     );
     free(obj);
+}
+
+Cake_FileObject *cake_fileobject() {
+    Cake_FileObject *obj = (Cake_FileObject *) malloc(sizeof(Cake_FileObject));
+    if(obj != NULL) {
+        obj->containers.length = 0;
+        obj->containers.list = NULL;
+        obj->elements.length = 0;
+        obj->elements.list = NULL;
+        obj->strList = cake_list_strutf8();
+    }
+    return obj;
+}
+
+Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const char *key, const char *value) {
+    Cake_String_UTF8 *copy = cake_strutf8(key);
+
+    uchar *lastPtr= copy->bytes;
+    uchar *ptr = copy->bytes;
+    ulonglong i;
+    Cake_List_FileObjectContainer *current = &obj->containers;
+    Cake_List_FileObjectElement *listElements = &obj->elements;
+    Cake_FileObjectElement *element = NULL;
+
+    while(1) {
+        if(ptr == &copy->bytes[copy->data.length]) {
+            element = cake_list_fileobject_element_add(listElements, lastPtr, value);
+            break;
+        }
+        if(*ptr == '.') {
+            *ptr = '\0';
+            for(i = 0; i < current->length; ++i) {
+                if(cake_strutf8_equals(current->list[i]->key, lastPtr)) {
+                    listElements = &current->list[i]->elements;
+                    current = &current->list[i]->containers;
+                    goto skip_add_cont;
+                }
+            }
+            // Si le container n'existe pas
+            current->list = (Cake_FileObjectContainer **) realloc(current->list, (current->length + 1) * sizeof(Cake_FileObjectContainer *));
+            current->list[current->length] = (Cake_FileObjectContainer *) malloc(sizeof(Cake_FileObjectContainer));
+            current->list[current->length]->key = cake_strutf8(lastPtr);
+            current->list[current->length]->strList = cake_list_strutf8();
+            listElements = &current->list[current->length]->elements;
+            current->list[current->length]->elements.length = 0;
+            current->list[current->length]->elements.list = NULL;
+            current->list[current->length]->containers.length = 0;
+            current->list[current->length]->containers.list = NULL;
+            (current->length)++;
+            current = &current->list[current->length - 1]->containers;
+        skip_add_cont:
+            lastPtr = ptr + 1;
+        }
+        ptr++;
+    }
+
+    cake_free_strutf8(copy);
+    return element;
+}
+
+cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key) {
+    Cake_String_UTF8 *copy = cake_strutf8(key);
+
+    uchar *lastPtr = copy->bytes;
+    uchar *ptr = copy->bytes;
+
+    Cake_List_FileObjectContainer *current = &obj->containers;
+    Cake_List_FileObjectElement *listElements = &obj->elements;
+    ulonglong i;
+
+    while(1) {
+        if(ptr == &copy->bytes[copy->data.length]) {
+            cake_bool retCode = cake_list_fileobject_element_remove(listElements, lastPtr);
+            cake_free_strutf8(copy);
+            return retCode;
+        }
+        if(*ptr == '.') {
+            *ptr = '\0';
+            for(i = 0; i < current->length; ++i) {
+                if(cake_strutf8_equals(current->list[i]->key, lastPtr)) {
+                    listElements = &current->list[i]->elements;
+                    current = &current->list[i]->containers;
+                    goto skip_add_cont;
+                }
+            }
+            // Si le container n'existe pas
+            break;
+        skip_add_cont:
+            lastPtr = ptr + 1;
+        }
+        ptr++;
+    }
+
+    cake_free_strutf8(copy);
+    return cake_false;
 }

@@ -36,7 +36,7 @@ cake_bool cake_vector_resize(Cake_Vector *vec, ulonglong capacity) {
     // Si realloc n'a pas fonctionné, les données au-dessus ne seront pas restaurées
     if(ptr == NULL)
         return cake_false;
-    vec->data = ptr;
+    vec->data = (uchar *) ptr;
     vec->capacity = capacity;
     return cake_true;
 }
