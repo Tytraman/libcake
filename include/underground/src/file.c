@@ -231,7 +231,7 @@ cake_bool file_mem_copy(
 }
 
 #ifdef CAKE_WINDOWS
-cake_bool cake_file_exists(const uchar *filename) {
+cake_bool cake_file_exists(const char *filename) {
     Cake_String_UTF16 name16;
     cake_create_strutf16(&name16);
     cake_char_array_to_strutf16(filename, &name16);
@@ -364,7 +364,7 @@ cake_bool cake_mkdirs(const char *filepath) {
 }
 
 #ifdef CAKE_WINDOWS
-cake_bool cake_delete_file(const uchar *filename) {
+cake_bool cake_delete_file(const char *filename) {
     Cake_String_UTF16 name16;
     cake_create_strutf16(&name16);
     cake_char_array_to_strutf16(filename, &name16);
@@ -373,7 +373,7 @@ cake_bool cake_delete_file(const uchar *filename) {
     return ret;
 }
 
-cake_bool cake_delete_folder(const uchar *pathname) {
+cake_bool cake_delete_folder(const char *pathname) {
     Cake_String_UTF16 name16;
     cake_create_strutf16(&name16);
     cake_char_array_to_strutf16(pathname, &name16);

@@ -11,9 +11,9 @@ typedef HANDLE cake_dir;
 
 #define cake_close_dir(x) FindClose(x)
 
-cake_bool cake_file_exists(const uchar *filename);
-cake_bool cake_delete_file(const uchar *filename);
-cake_bool cake_delete_folder(const uchar *pathname);
+cake_bool cake_file_exists(const char *filename);
+cake_bool cake_delete_file(const char *filename);
+cake_bool cake_delete_folder(const char *pathname);
 
 #else
 #include <sys/types.h>

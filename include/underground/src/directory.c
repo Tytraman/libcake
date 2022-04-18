@@ -2,7 +2,7 @@
 #include "../strutf16.h"
 
 #ifdef CAKE_WINDOWS
-cake_byte cake_change_directory(const uchar *directory) {
+cake_byte cake_change_directory(const char *directory) {
     Cake_String_UTF16 name;
     cake_create_strutf16(&name);
     cake_char_array_to_strutf16(directory, &name);

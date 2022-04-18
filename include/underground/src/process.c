@@ -6,11 +6,11 @@ cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *proc
     #ifdef CAKE_WINDOWS
     if(command->data.length == 0)
         return cake_false;
-    Cake_String_UTF8 *command8 = cake_strutf8(command->list[0]->bytes);
+    Cake_String_UTF8 *command8 = cake_strutf8((cchar_ptr) command->list[0]->bytes);
     ulonglong i;
     for(i = 0; i < command->data.length; ++i) {
         cake_strutf8_add_char_array(command8, " ");
-        cake_strutf8_add_char_array(command8, command->list[i]->bytes);
+        cake_strutf8_add_char_array(command8, (cchar_ptr) command->list[i]->bytes);
     }
     Cake_String_UTF16 command16;
     cake_create_strutf16(&command16);

@@ -63,16 +63,16 @@
 #define CONSOLE_BOLD    CONSOLE_ESC "[1m"
 #define CONSOLE_NO_BOLD CONSOLE_ESC "[0m"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef CAKE_UNIX
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <termios.h>
 
 typedef struct winsize Cake_ConsoleSize;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define cake_get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
 

@@ -26,7 +26,7 @@ cake_bool cake_attach_hookrelay(Cake_HookRelay *relay, void *destFunc, void *tar
     // qui lui redirigera vers la fonction destination.
     while(1) {
         lowAddr = startPage - byteOffset;
-        relay->ptr = VirtualAlloc((void *) lowAddr, pageSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+        relay->ptr = (uchar *) VirtualAlloc((void *) lowAddr, pageSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
         if(relay->ptr != NULL) {
             ulonglong destValue = (ulonglong) destFunc;
             relay->ptr[0] = 0x49; relay->ptr[1] = 0xBA;     // mov r10, ...

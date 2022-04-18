@@ -11,7 +11,7 @@ extern "C" {
 
 
 
-cake_byte cake_change_directory(const uchar *path);
+cake_byte cake_change_directory(const char *path);
 #else
 #include <unistd.h>
 
