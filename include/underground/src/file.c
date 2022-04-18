@@ -41,7 +41,7 @@ cake_bool cake_list_filesnapshot_add(Cake_String_UTF8 *newPath, Cake_List_FileSn
             #ifdef CAKE_WINDOWS
             FindFirstFileW(utf16Path.characteres, &list->list[list->current].dataw)
             #else
-            opendir(list->list[list->current].path.bytes)
+            opendir((cchar_ptr) list->list[list->current].path.bytes)
             #endif
         )
         ==
@@ -77,7 +77,7 @@ void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list) {
     #endif
 }
 
-void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter, void *args) {
+void cake_list_files_recursive(const char *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter, void *args) {
     Cake_List_FileSnapshot snapshots;
     cake_create_list_filesnapshot(&snapshots);
 
@@ -113,7 +113,7 @@ void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, 
             #endif
 
             #ifdef CAKE_UNIX
-            stat(utf8Path->bytes, &epStat);
+            stat((cchar_ptr) utf8Path->bytes, &epStat);
             #endif
 
             // Si c'est un dossier
@@ -132,13 +132,13 @@ void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, 
                     #endif
                 ) {
                     if(folders != NULL)
-                        cake_list_strutf8_add_char_array(folders, utf8Path->bytes);
+                        cake_list_strutf8_add_char_array(folders, (cchar_ptr) utf8Path->bytes);
                     cake_list_filesnapshot_add(utf8Path, &snapshots);
                 }
             }else {
                 if(filter != NULL && !filter(utf8Path, args)) goto list_files_ignore;
                 if(files != NULL)
-                    cake_list_strutf8_add_char_array(files, utf8Path->bytes);
+                    cake_list_strutf8_add_char_array(files, (cchar_ptr) utf8Path->bytes);
                 else
                     printf("%s\n", utf8Path->bytes);
 list_files_ignore: ;
@@ -243,7 +243,7 @@ cake_bool cake_file_exists(const uchar *filename) {
 #endif
 
 
-cake_bool cake_mkdirs(const uchar *filepath) {
+cake_bool cake_mkdirs(const char *filepath) {
     #ifdef CAKE_WINDOWS
     Cake_String_UTF16 pathCopy;
     cake_create_strutf16(&pathCopy);
@@ -331,7 +331,7 @@ cake_bool cake_mkdirs(const uchar *filepath) {
             #ifdef CAKE_WINDOWS
             CreateDirectoryW(pathCopy.characteres, NULL);
             #else
-            if(mkdir(pathCopy->bytes, 0777) == -1) {
+            if(mkdir((cchar_ptr) pathCopy->bytes, 0777) == -1) {
                 if(errno != EEXIST) {
                     cake_free_strutf8(pathCopy);
                     return cake_false;
@@ -347,7 +347,7 @@ cake_bool cake_mkdirs(const uchar *filepath) {
         return cake_false;
     }
     #else
-    if(mkdir(pathCopy->bytes, 0777) == -1) {
+    if(mkdir((cchar_ptr) pathCopy->bytes, 0777) == -1) {
         if(errno == EEXIST) {
             cake_free_strutf8(pathCopy);
             return cake_false;

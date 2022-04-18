@@ -48,7 +48,7 @@ void cake_create_list_filesnapshot(Cake_List_FileSnapshot *list);
 cake_bool cake_list_filesnapshot_add(Cake_String_UTF8 *newPath, Cake_List_FileSnapshot *list);
 void cake_list_filesnapshot_remove_last(Cake_List_FileSnapshot *list);
 
-void cake_list_files_recursive(const uchar *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter, void *args);
+void cake_list_files_recursive(const char *path, Cake_List_String_UTF8 *files, Cake_List_String_UTF8 *folders, ListFileFilter filter, void *args);
 
 
 cake_bool cake_file_mem_copy(
@@ -67,6 +67,6 @@ cake_bool cake_file_mem_copy(
  * @param filepath Chemin final voulu.
  * @return `cake_true` si tous les dossiers ont été créés.
  */
-cake_bool cake_mkdirs(const uchar *filepath);
+cake_bool cake_mkdirs(const char *filepath);
 
 #endif

@@ -15,6 +15,10 @@ typedef struct cake_csv {
     Cake_List_String_UTF8 **utfList;
 } Cake_CSV;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialise la structure.
 Cake_CSV *cake_csv();
 
@@ -27,5 +31,9 @@ void cake_free_csv(Cake_CSV *csv);
 cake_bool cake_csv_save(Cake_CSV *csv, const char *filename, char delim);
 
 #define cake_csv_get(csv, row, column) csv->utfList[row]->list[column]
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

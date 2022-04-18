@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Cake_CSS *cake_css_load(const uchar *filename) {
+Cake_CSS *cake_css_load(const char *filename) {
     cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_READ, CAKE_FDIO_SHARE_READ, CAKE_FDIO_OPEN_IF_EXISTS, CAKE_FDIO_ATTRIBUTE_NORMAL);
     if(fd == CAKE_FDIO_ERROR_OPEN)
         return NULL;

@@ -70,6 +70,10 @@
 
 typedef struct winsize Cake_ConsoleSize;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define cake_get_console_size(pConsoleSize) ioctl(STDOUT_FILENO, TIOCGWINSZ, pConsoleSize)
 
 // Il faut free le buffer retourné.
@@ -80,9 +84,7 @@ typedef struct cake_consolesize {
     short ws_row;
 } Cake_ConsoleSize;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 void cake_get_console_size(Cake_ConsoleSize *pConsoleSize);
 

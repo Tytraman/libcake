@@ -324,7 +324,7 @@ uchar *cake_strutf8_search_from_end(Cake_String_UTF8 *utf, const char *research,
  */
 uchar *cake_strutf8_search_from_start(Cake_String_UTF8 *utf, const char *research, ulonglong *internalIndex);
 
-ulonglong cake_str_search(const uchar *str, uchar value, uchar **ptr);
+ulonglong cake_str_search(const char *str, char value, uchar **ptr);
 
 uchar *cake_str_search_array(const char *str, const char *value);
 

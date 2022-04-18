@@ -358,7 +358,7 @@ ulonglong cake_wstr_count(const wchar_t *str) {
     return number;
 }
 
-void cake_char_array_to_strutf16(const uchar *source, Cake_String_UTF16 *dest) {
+void cake_char_array_to_strutf16(const char *source, Cake_String_UTF16 *dest) {
     ulonglong length = cake_str_count(source);
     uchar *end = (uchar *) &source[length - 1];
     dest->length = 0;
@@ -366,10 +366,10 @@ void cake_char_array_to_strutf16(const uchar *source, Cake_String_UTF16 *dest) {
 
     int bytes;
     ushort value;
-    while(source <= end) {
-        cake_strutf8_index_by_index(source, end, 0L, &pStart, &pEnd, &bytes);
+    while((uchar *) source <= end) {
+        cake_strutf8_index_by_index((const uchar *) source, end, 0L, &pStart, &pEnd, &bytes);
         value = cake_strutf8_decode(pStart, bytes);
         cake_strutf16_add_char(dest, value);
-        source = pEnd;
+        source = (const char *) pEnd;
     }
 }

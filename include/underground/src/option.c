@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex) {
+Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const char *key, char delim, ulonglong *keyIndex, ulonglong *valueIndex) {
     if(source == NULL || source->bytes == NULL)
         return NULL;
     if(keyIndex != NULL)
@@ -58,7 +58,7 @@ Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const uchar *key, ucha
                 space = &source->bytes[internalIndex];
             uchar temp = *space;
             *space = '\0';
-            int res = strcmp(testKey, key);
+            int res = strcmp((const char *) testKey, key);
             *space = temp;
             if(res == 0) {
                 if(keyIndex != NULL)
@@ -110,7 +110,7 @@ void cake_free_option(Cake_Option *opt) {
     free(opt);
 }
 
-void set_option(Cake_Option **opt, const uchar *key, const uchar *value) {
+void set_option(Cake_Option **opt, const char *key, const char *value) {
     if(*opt == NULL)
         *opt = (Cake_Option *) malloc(sizeof(Cake_Option));
 
@@ -118,7 +118,7 @@ void set_option(Cake_Option **opt, const uchar *key, const uchar *value) {
     (*opt)->value = cake_strutf8(value);
 }
 
-Cake_FileOption *cake_file_option_load(const uchar *filename, uchar delim) {
+Cake_FileOption *cake_file_option_load(const char *filename, char delim) {
     cake_fd fd = cake_fdio_open_file(filename, CAKE_FDIO_ACCESS_READ, CAKE_FDIO_SHARE_READ, CAKE_FDIO_OPEN_IF_EXISTS, CAKE_FDIO_ATTRIBUTE_NORMAL);
     if(fd == CAKE_FDIO_ERROR_OPEN)
         return NULL;
@@ -130,7 +130,7 @@ Cake_FileOption *cake_file_option_load(const uchar *filename, uchar delim) {
     return fileOpt;
 }
 
-Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const uchar *key) {
+Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const char *key) {
     ulonglong keyIndex, valueIndex;
     Cake_Option *opt = __cake_load_option(fileOpt->fileCopy, key, fileOpt->delim, &keyIndex, &valueIndex);
     if(opt == NULL)

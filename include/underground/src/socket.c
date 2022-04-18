@@ -86,7 +86,7 @@ cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, c
 
 Cake_AcceptedClientSocket *cake_server_socket_accept(Cake_ServerSocket *sock) {
     Cake_AcceptedClientSocket *client = (Cake_AcceptedClientSocket *) malloc(sizeof(Cake_AcceptedClientSocket));
-    int length = sizeof(client->addr);
+    cake_socklen length = sizeof(client->addr);
 
     client->socket = accept(sock->socket, (struct sockaddr *) &client->addr, &length);
     if(client->socket == CAKE_SOCKET_BAD_SOCKET) {

@@ -49,15 +49,15 @@ typedef struct cake_fileoption {
 
         Ne pas oublier de cake_free_option lorsque la structure ne sert plus.
 */
-Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const uchar *key, uchar delim, ulonglong *keyIndex, ulonglong *valueIndex);
+Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const char *key, char delim, ulonglong *keyIndex, ulonglong *valueIndex);
 
 #define cake_load_option(source, key, delim) __cake_load_option(source, key, delim, NULL, NULL)
 void cake_free_option(Cake_Option *opt);
 
 /* ===== Cake_FileOption ===== */
 
-Cake_FileOption *cake_file_option_load(const uchar *filename, uchar delim);
-Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const uchar *key);
+Cake_FileOption *cake_file_option_load(const char *filename, char delim);
+Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const char *key);
 void cake_free_file_option(Cake_FileOption *fileOpt);
 
 #define cake_free_file_option_element(e) cake_free_option(e->opt)

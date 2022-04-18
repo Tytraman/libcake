@@ -9,7 +9,7 @@ typedef Cake_String_UTF8 Cake_CSS;
 extern "C" {
 #endif
 
-Cake_CSS *cake_css_load(const uchar *filename);
+Cake_CSS *cake_css_load(const char *filename);
 #define cake_free_css(css) cake_free_strutf8(css)
 
 void cake_css_optimize(Cake_CSS *css);

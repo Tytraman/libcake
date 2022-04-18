@@ -23,7 +23,7 @@ void cake_csv_add_line(Cake_CSV *csv, const char *line, char delim) {
     ulonglong kurrent;
 
     while(1) {
-        cake_str_search(lastPtr, delim, &ptr);
+        cake_str_search((cchar_ptr) lastPtr, delim, &ptr);
         if(ptr != NULL) {
             *ptr = '\0';
             kurrent = csv->utfList[current]->data.length;
@@ -96,4 +96,5 @@ cake_bool cake_csv_save(Cake_CSV *csv, const char *filename, char delim) {
         cake_fdio_write(fd, 1, bytesWritten, &lf);
     }
     cake_fdio_close(fd);
+    return cake_true;
 }

@@ -13,6 +13,8 @@
 #include <ws2tcpip.h>
 #endif
 
+typedef int cake_socklen;
+
 #define cake_init_winsock() WSADATA __winsock_data;\
                        WSAStartup(MAKEWORD(2, 2), &__winsock_data)
 
@@ -34,6 +36,8 @@ typedef SOCKET cake_socket;
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+
+typedef socklen_t cake_socklen;
 
 #define cake_init_winsock() 
 #define cake_clean_winsock() 

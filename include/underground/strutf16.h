@@ -18,7 +18,7 @@ void cake_create_strutf16(Cake_String_UTF16 *utf);
 Cake_String_UTF16 *cake_strutf16(const wchar_t *value);
 
 void cake_strutf16_copy(Cake_String_UTF16 *from, Cake_String_UTF16 *to);
-char cake_strutf16_copy_between(Cake_String_UTF16 *from, Cake_String_UTF16 *to, ulonglong begin, ulonglong end);
+cake_bool cake_strutf16_copy_between(Cake_String_UTF16 *from, Cake_String_UTF16 *to, ulonglong begin, ulonglong end);
 
 
 /* ===== Setter ===== */
@@ -71,6 +71,6 @@ cake_bool cake_strutf16_start_with(Cake_String_UTF16 *utf, wchar_t *str);
 
 ulonglong cake_wstr_count(const wchar_t *str);
 
-void cake_char_array_to_strutf16(const uchar *source, Cake_String_UTF16 *dest);
+void cake_char_array_to_strutf16(const char *source, Cake_String_UTF16 *dest);
 
 #endif

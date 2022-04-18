@@ -91,7 +91,7 @@ void cake_fdio_mem_copy(uchar **dest, ulonglong *destLength, cake_fd fd, ushort 
 }
 
 #ifdef CAKE_WINDOWS
-cake_fd cake_fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes) {
+cake_fd cake_fdio_open_file(const char *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes) {
     Cake_String_UTF16 name;
     cake_create_strutf16(&name);
     cake_char_array_to_strutf16(filename, &name);

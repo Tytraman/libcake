@@ -89,7 +89,7 @@ typedef ssize_t cake_size;
 
 /* ===== Types ===== */
 
-typedef char cake_bool;
+typedef char        cake_bool;
 typedef unsigned char      uchar;
 typedef unsigned short     ushort;
 typedef unsigned int       uint;
@@ -97,6 +97,18 @@ typedef unsigned long      ulong;
 typedef unsigned long long ulonglong;
 typedef uchar cake_byte;
 typedef uchar cake_undefined_type;
+
+typedef const char      *cchar_ptr;
+typedef const short     *cshort_ptr;
+typedef const int       *cint_ptr;
+typedef const long      *clong_ptr;
+typedef const long long *clonglong_ptr;
+
+typedef const unsigned char      *cuchar_ptr;
+typedef const unsigned short     *cushort_ptr;
+typedef const unsigned int       *cuint_ptr;
+typedef const unsigned long      *culong_ptr;
+typedef const unsigned long long *culonglong_ptr;
 
 
 /* ===== Defines ===== */

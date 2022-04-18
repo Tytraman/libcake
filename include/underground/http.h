@@ -144,7 +144,7 @@ Cake_AcceptedHttpClient *cake_http_server_accept(Cake_HttpServer *server, ulongl
 
 /* ===== Cake_HttpHeader ===== */
 
-void cake_http_add_header_element(Cake_HttpHeader **header, const uchar *key, const uchar *value);
+void cake_http_add_header_element(Cake_HttpHeader **header, const char *key, const char *value);
 void cake_free_http_header(Cake_HttpHeader *header);
 Cake_HttpHeader *cake_http_header_parse(Cake_BytesBuffer *data, Cake_HttpHeader **start, cake_byte *getOrPost, Cake_String_UTF8 *url);
 
@@ -161,6 +161,6 @@ cake_bool cake_accepted_https_client_send(Cake_AcceptedHttpsClient *client, cake
 void cake_free_accepted_https_client(Cake_AcceptedHttpsClient *client);
 void cake_init_openssl();
 
-Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const uchar *key);
+Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const char *key);
 
 #endif

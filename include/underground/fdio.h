@@ -56,7 +56,7 @@ typedef HANDLE cake_fd;
 
         En cas d'erreur, CAKE_FDIO_ERROR_OPEN est retourné.
 */
-cake_fd cake_fdio_open_file(const uchar *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes);
+cake_fd cake_fdio_open_file(const char *filename, ulong desiredAccess, ulong shareMode, ulong openMode, ulong attributes);
 
 // Ferme un FileDescriptor, peut-être utilisé sur un cake_fd.
 #define cake_fdio_close(fd) CloseHandle(fd)

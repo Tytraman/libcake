@@ -40,6 +40,7 @@ int ctrl_c_callback(void *pArgs) {
             break;
     }
     free(pArgs);
+    return 1;
 }
 
 

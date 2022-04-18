@@ -97,7 +97,7 @@ void cake_free_http_client(Cake_HttpClient *client) {
     cake_close_socket(client->sock.socket);
 }
 
-void cake_http_add_header_element(Cake_HttpHeader **header, const uchar *key, const uchar *value) {
+void cake_http_add_header_element(Cake_HttpHeader **header, const char *key, const char *value) {
     *header = (Cake_HttpHeader *) malloc(sizeof(Cake_HttpHeader));
     (*header)->key = cake_strutf8(key);
     (*header)->value = cake_strutf8(value);
@@ -120,9 +120,9 @@ void cake_free_http_header(Cake_HttpHeader *header) {
 
 void __http_format_header(Cake_String_UTF8 *dest, Cake_BytesBuffer *message, Cake_HttpHeader *header) {
     while(header != NULL) {
-        cake_strutf8_add_char_array(dest, header->key->bytes);
+        cake_strutf8_add_char_array(dest, (cchar_ptr) header->key->bytes);
         cake_strutf8_add_char_array(dest, ":");
-        cake_strutf8_add_char_array(dest, header->value->bytes);
+        cake_strutf8_add_char_array(dest, (cchar_ptr) header->value->bytes);
         cake_strutf8_add_char_array(dest, "\r\n");
         header = header->next;
     }
@@ -131,7 +131,7 @@ void __http_format_header(Cake_String_UTF8 *dest, Cake_BytesBuffer *message, Cak
         cake_ulonglong_to_char_array(message->size, lengthBuff);
         cake_strutf8_add_char_array(dest, "content-length");
         cake_strutf8_add_char_array(dest, ":");
-        cake_strutf8_add_char_array(dest, lengthBuff);
+        cake_strutf8_add_char_array(dest, (const char *) lengthBuff);
         cake_strutf8_add_char_array(dest, "\r\n");
     }
     cake_strutf8_add_char_array(dest, "\r\n");
@@ -139,7 +139,7 @@ void __http_format_header(Cake_String_UTF8 *dest, Cake_BytesBuffer *message, Cak
 
 void cake_http_response_format(Cake_HttpResponse *response) {
     cake_char_array_to_strutf8("HTTP/1.1 ", response->formattedHeader);
-    cake_strutf8_add_char_array(response->formattedHeader, response->status);
+    cake_strutf8_add_char_array(response->formattedHeader, (const char *) response->status);
     cake_strutf8_add_char_array(response->formattedHeader, "\r\n");
     __http_format_header(response->formattedHeader, &response->message, response->header);
 }
@@ -149,7 +149,7 @@ void cake_http_request_format(Cake_HttpRequest *request) {
         cake_char_array_to_strutf8("GET ", request->formattedHeader);
     else
         cake_char_array_to_strutf8("POST ", request->formattedHeader);
-    cake_strutf8_add_char_array(request->formattedHeader, request->url->bytes);
+    cake_strutf8_add_char_array(request->formattedHeader, (const char *) request->url->bytes);
     cake_strutf8_add_char_array(request->formattedHeader, " HTTP/1.1\r\n");
     __http_format_header(request->formattedHeader, &request->message, request->header);
 }
@@ -303,7 +303,7 @@ Cake_HttpHeader *cake_http_header_parse(Cake_BytesBuffer *data, Cake_HttpHeader 
                 goto accepted_http_client_parse_header_ignore;
             ptr++;
         }
-        cake_http_add_header_element(lastElement, ptrKey, ptrValue);
+        cake_http_add_header_element(lastElement, (const char *) ptrKey, (const char *) ptrValue);
         b = cake_false;
         if(cake_strutf8_start_with((*lastElement)->key, "GET")) {
             b = cake_true;
@@ -325,7 +325,7 @@ Cake_HttpHeader *cake_http_header_parse(Cake_BytesBuffer *data, Cake_HttpHeader 
                 waw++;
             uchar tempWaw = *waw;
             *waw = '\0';
-            cake_char_array_to_strutf8(www, url);
+            cake_char_array_to_strutf8((const char *) www, url);
             *waw = tempWaw;
         }
         if(found) {
@@ -385,7 +385,7 @@ cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMess
         dest->buffer[dest->size] = '\0';
         tempLength = dest->size;
         
-        if((search = cake_str_search_array(search, "\r\n\r\n")) != NULL) {
+        if((search = cake_str_search_array((const char *) search, "\r\n\r\n")) != NULL) {
             index = search - dest->buffer + 4;
             dest->buffer = (uchar *) realloc(dest->buffer, dest->size * sizeof(uchar) + sizeof(uchar) * 2);
             memcpy(&dest->buffer[index + 1], &dest->buffer[index], dest->size + 1 - index);
@@ -476,7 +476,7 @@ Cake_LinkedList_String_UTF8_Pair *cake_accepted_http_client_parse_post_message(C
 
             last = current;
             current->next = NULL;
-            current->pair = cake_strutf8_pair(lastPtr, ptrValue);
+            current->pair = cake_strutf8_pair((const char *) lastPtr, (const char *) ptrValue);
             cake_strutf8_decode_url(current->pair->value);
             client->request.message.buffer[i] = '&';
             *replace = '=';
@@ -489,7 +489,7 @@ Cake_LinkedList_String_UTF8_Pair *cake_accepted_http_client_parse_post_message(C
                 else
                     list = current;
             current->next = NULL;
-            current->pair = cake_strutf8_pair(lastPtr, ptrValue);
+            current->pair = cake_strutf8_pair((const char *) lastPtr, (const char *) ptrValue);
             cake_strutf8_decode_url(current->pair->value);
             break;
         }
@@ -499,7 +499,7 @@ Cake_LinkedList_String_UTF8_Pair *cake_accepted_http_client_parse_post_message(C
     return list;
 }
 
-Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const uchar *key) {
+Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const char *key) {
     while(first != NULL) {
         if(cake_strutf8_equals(first->key, key))
             break;
@@ -591,7 +591,7 @@ void cake_create_http_response(Cake_HttpResponse *response) {
     response->message.size = 0;
     response->receivedData.buffer = NULL;
     response->receivedData.size = 0;
-    response->status = "200";
+    response->status = (uchar *) "200";
 }
 
 void cake_create_http_request(Cake_HttpRequest *request) {

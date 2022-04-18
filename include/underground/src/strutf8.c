@@ -321,7 +321,7 @@ uchar cake_strutf8_wchar_to_byte(wchar_t value, uchar **buffer) {
     else if(value <= 65535) bytes = 3;
     //else if(value <= 1114111) bytes = 4;
     else return -1;
-    *buffer = malloc(bytes * sizeof(uchar));
+    *buffer = (uchar *) malloc(bytes * sizeof(uchar));
     if(bytes == 1) {
         (*buffer)[0] = value & 0b01111111;
     }else {
@@ -492,11 +492,11 @@ Cake_List_String_UTF8 *cake_strutf8_split(Cake_String_UTF8 *utf, const char *del
     while((ptr = cake_strutf8_search_from_start(utf, delim, &internalIndex)) != NULL) {
         temp = *ptr;
         *ptr = '\0';
-        cake_list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
+        cake_list_strutf8_add_char_array(list, (const char *) &utf->bytes[lastInternalIndex]);
         *ptr = temp;
         lastInternalIndex = internalIndex;
     }
-    cake_list_strutf8_add_char_array(list, &utf->bytes[lastInternalIndex]);
+    cake_list_strutf8_add_char_array(list, (const char *) &utf->bytes[lastInternalIndex]);
     return list;
 }
 
@@ -599,7 +599,7 @@ ulonglong cake_strutf8_replace_all(Cake_String_UTF8 *utf, const char *old, const
 
     // Tant qu'on trouve une occurence
     while((ptr = cake_strutf8_search_from_start(utf, old, &internalIndex)) != NULL) {
-        __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+        __cake_strutf8_replace(utf, (const uchar *) replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
         number++;
     }
     if(number > 0)
@@ -619,7 +619,7 @@ cake_bool cake_strutf8_replace_start(Cake_String_UTF8 *utf, const char *old, con
     cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
     uchar *ptr = utf->bytes;
     ulonglong internalIndex = oldLength;
-    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    __cake_strutf8_replace(utf, (const uchar *) replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
     utf->length = cake_strutf8_length(utf);
     return cake_true;
 }
@@ -638,7 +638,7 @@ cake_bool cake_strutf8_replace_end(Cake_String_UTF8 *utf, const char *old, const
     ulonglong diff;
     cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
     
-    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    __cake_strutf8_replace(utf, (const uchar *) replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
     utf->length = cake_strutf8_length(utf);
     
     return cake_true;
@@ -656,7 +656,7 @@ cake_bool cake_strutf8_replace_from_start(Cake_String_UTF8 *utf, const char *old
     ulonglong replacementLength = cake_str_count(replacement);
     ulonglong diff;
     cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
-    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    __cake_strutf8_replace(utf, (const uchar *) replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
     utf->length = cake_strutf8_length(utf);
     return cake_true;
 }
@@ -674,7 +674,7 @@ cake_bool cake_strutf8_replace_from_end(Cake_String_UTF8 *utf, const char *old, 
     ulonglong replacementLength = cake_str_count(replacement);
     ulonglong diff;
     cake_byte appendMode = __cake_strutf8_replace_diff(&oldLength, &replacementLength, &diff);
-    __cake_strutf8_replace(utf, replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
+    __cake_strutf8_replace(utf, (const uchar *) replacement, appendMode, ptr, &oldLength, &replacementLength, &diff, &internalIndex);
     utf->length = cake_strutf8_length(utf);
     return cake_true;
 }
@@ -762,7 +762,7 @@ void cake_free_list_strutf8(Cake_List_String_UTF8 *list) {
     free(list);
 }
 
-ulonglong cake_str_search(const uchar *str, uchar value, uchar **ptr) {
+ulonglong cake_str_search(const char *str, char value, uchar **ptr) {
     ulonglong i;
 
     for(i = 0; i < cake_str_count(str); ++i)
@@ -1069,7 +1069,7 @@ Cake_String_UTF8 *cake_strutf8_substring(Cake_String_UTF8 *from, ulonglong start
 
     uchar temp = *pEndStart;
     *pEndStart = '\0';
-    Cake_String_UTF8 *utf = cake_strutf8(pStartStart);
+    Cake_String_UTF8 *utf = cake_strutf8((const char *) pStartStart);
     *pEndStart = temp;
     return utf;
 }

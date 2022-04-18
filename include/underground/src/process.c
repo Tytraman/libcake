@@ -98,7 +98,7 @@ cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *proc
         char **passArgs = (char **) malloc(command->data.length * sizeof(char *) + sizeof(char *));
         ulonglong i;
         for(i = 0; i < command->data.length; ++i)
-            passArgs[i] = command->list[i]->bytes;
+            passArgs[i] = (char *) command->list[i]->bytes;
         passArgs[i] = NULL;
 
         execvp(passArgs[0], passArgs);
