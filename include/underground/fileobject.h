@@ -69,6 +69,13 @@ Cake_FileObject *cake_fileobject();
 void cake_free_fileobject(Cake_FileObject *obj);
 
 /**
+ * @brief Libère la mémoire d'un Cake_FileObject sans free(obj).
+ * 
+ * @param obj 
+ */
+void cake_free_fileobject_stack(Cake_FileObject *obj);
+
+/**
  * @brief Retourne le pointeur vers le container recherché si existant.
  * 
  * @param obj Objet dans lequel chercher.
@@ -76,6 +83,16 @@ void cake_free_fileobject(Cake_FileObject *obj);
  * @return NULL si le container n'a pas été trouvé.
  */
 Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, const char *key);
+
+/**
+ * @brief Retourne le pointeur vers le container recherché si existant et stock la liste dans laquelle il est stocké.
+ * 
+ * @param obj 
+ * @param key 
+ * @param fromList 
+ * @return Cake_FileObjectContainer* 
+ */
+Cake_FileObjectContainer *cake_fileobject_get_container_ext(Cake_FileObject *obj, const char *key, Cake_List_FileObjectContainer **fromList);
 
 /**
  * @brief Retourne le pointeur vers l'élément recherché si existant.
@@ -210,6 +227,24 @@ cake_bool cake_fileobject_remove_element_from(Cake_FileObjectContainer *containe
  * @return Cake_FileObjectContainer* 
  */
 Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectContainer *container, const char *key);
+
+/**
+ * @brief Supprime un container et son contenu (éléments, containers et liste).
+ * 
+ * @param obj 
+ * @param key 
+ * @return cake_bool 
+ */
+cake_bool cake_fileobject_remove_container(Cake_FileObject *obj, const char *key);
+
+/**
+ * @brief Supprime un container et son contenu depuis un container.
+ * 
+ * @param container 
+ * @param key 
+ * @return cake_bool 
+ */
+cake_bool cake_fileobject_remove_container_from(Cake_FileObjectContainer *container, const char *key);
 
 #ifdef __cplusplus
 }

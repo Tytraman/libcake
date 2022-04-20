@@ -373,6 +373,16 @@ void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *contain
     return NULL;
 }
 
+void *__cake_fileobject_get_container_callback_ext(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const char *value, void *args) {
+    if(cake_strutf8_equals(container->key, value)) {
+        Cake_List_FileObjectContainer **fromList = (Cake_List_FileObjectContainer **) args;
+        *fromList = *dest;
+        *dest = &container->containers;
+        return container;
+    }
+    return NULL;
+}
+
 Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, const char *key) {
     return (Cake_FileObjectContainer *) __cake_fileobject_get(
         obj,
@@ -380,6 +390,17 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
         __cake_fileobject_get_container_callback,
         NULL,
         NULL,
+        NULL
+    );
+}
+
+Cake_FileObjectContainer *cake_fileobject_get_container_ext(Cake_FileObject *obj, const char *key, Cake_List_FileObjectContainer **fromList) {
+    return (Cake_FileObjectContainer *) __cake_fileobject_get(
+        obj,
+        key,
+        __cake_fileobject_get_container_callback_ext,
+        NULL,
+        fromList,
         NULL
     );
 }
@@ -509,6 +530,20 @@ void cake_free_fileobject(Cake_FileObject *obj) {
         NULL
     );
     free(obj);
+}
+
+void cake_free_fileobject_stack(Cake_FileObject *obj) {
+    cake_fileobject_enum(
+        obj,
+        __cake_free_fileobject_list_elements_callback,
+        __cake_free_fileobject_list_strutf8_callback,
+        NULL,
+        __cake_free_fileobject_container_callback,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    );
 }
 
 Cake_FileObject *cake_fileobject() {
@@ -660,4 +695,53 @@ Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContaine
     obj.strList = container->strList;
 
     return cake_fileobject_get_element(&obj, key);
+}
+
+cake_bool cake_fileobject_remove_container(Cake_FileObject *obj, const char *key) {
+    Cake_List_FileObjectContainer *fromList;
+    Cake_FileObjectContainer *container = cake_fileobject_get_container_ext(obj, key, &fromList);
+    if(container == NULL)
+        return cake_false;
+
+    // On supprime d'abord la clé puisqu'on "converti" le container en objet et qu'il n'y a pas de clé dans les objets.
+    cake_free_strutf8(container->key);
+    Cake_FileObject object;
+    object.containers.length = container->containers.length;
+    object.containers.list   = container->containers.list;
+    object.elements.length   = container->elements.length;
+    object.elements.list     = container->elements.list;
+    object.strList           = container->strList;
+
+    // On free de manière récursive tous les éléments du container.
+    cake_free_fileobject_stack(&object);
+
+    // Réallocation de la liste dans laquelle se situait le container.
+    if(fromList->length > 1) {
+        memcpy(container, container + 1, (fromList->list[fromList->length - 1] - container) * sizeof(Cake_FileObjectContainer *));
+        void *ptr = realloc(fromList->list, (fromList->length - 1) * sizeof(Cake_FileObject *));
+        if(ptr != NULL)
+            fromList->list = (Cake_FileObjectContainer **) ptr;
+        (fromList->length)--;
+    }else {
+        free(fromList->list);
+        fromList->list = NULL;
+        fromList->length = 0;
+    }
+
+    return cake_true;
+}
+
+cake_bool cake_fileobject_remove_container_from(Cake_FileObjectContainer *container, const char *key) {
+    Cake_FileObject object;
+    object.containers.length = container->containers.length;
+    object.containers.list   = container->containers.list;
+    object.elements.length   = container->elements.length;
+    object.elements.list     = container->elements.list;
+    object.strList           = container->strList;
+    if(cake_fileobject_remove_container(&object, key)) {
+        container->containers.length = object.containers.length;
+        container->containers.list   = object.containers.list;
+        return cake_true;
+    }
+    return cake_false;
 }
