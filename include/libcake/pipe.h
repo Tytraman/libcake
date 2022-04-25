@@ -4,6 +4,10 @@
 #include "def.h"
 #include "fdio.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef CAKE_WINDOWS
 
 char __cake_create_pipe(cake_fd pipefd[2], cake_byte mode);
@@ -30,6 +34,8 @@ char __cake_create_pipe(cake_fd pipefd[2], cake_byte mode);
 
 #endif
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

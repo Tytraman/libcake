@@ -18,7 +18,6 @@ void cake_get_console_size(Cake_ConsoleSize *pConsoleSize) {
 }
 #endif
 
-static cake_bool read_mode = cake_false;
 static short lastX, lastY;
 
 void cake_console_update_last_pos() {

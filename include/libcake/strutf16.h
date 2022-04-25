@@ -11,6 +11,10 @@ typedef struct cake_string_utf16 {
     wchar_t *characteres;
 } Cake_String_UTF16;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* ===== Initialisation ===== */
 
@@ -72,5 +76,9 @@ cake_bool cake_strutf16_start_with(Cake_String_UTF16 *utf, wchar_t *str);
 ulonglong cake_wstr_count(const wchar_t *str);
 
 void cake_char_array_to_strutf16(const char *source, Cake_String_UTF16 *dest);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

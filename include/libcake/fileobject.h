@@ -92,7 +92,7 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
  * @param fromList 
  * @return Cake_FileObjectContainer* 
  */
-Cake_FileObjectContainer *cake_fileobject_get_container_ext(Cake_FileObject *obj, const char *key, Cake_List_FileObjectContainer **fromList);
+Cake_FileObjectContainer *cake_fileobject_get_container_ext(Cake_FileObject *obj, const char *key, Cake_List_FileObjectContainer **fromList, ulonglong *index);
 
 /**
  * @brief Retourne le pointeur vers l'élément recherché si existant.

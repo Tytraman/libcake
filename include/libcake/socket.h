@@ -89,6 +89,10 @@ typedef struct cake_acceptedclientsocket {
 #define CAKE_SOCKET_ERROR_FROM_LISTEN      5
 #define CAKE_SOCKET_ERROR_FROM_ACCEPT      6
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 cake_bool cake_create_client_socket(Cake_ClientSocket *sock, const char *hostname, const char *port, cake_byte ipMode);
 cake_bool cake_client_socket_connect(Cake_ClientSocket *sock);
 void cake_free_client_socket(Cake_ClientSocket *sock);
@@ -98,5 +102,9 @@ cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, c
 
 Cake_AcceptedClientSocket *cake_server_socket_accept(Cake_ServerSocket *sock);
 void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *sock);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -7,6 +7,10 @@
 #include "strutf8.h"
 
 #include <stdlib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifdef CAKE_WINDOWS
 
 typedef struct cake_process {
@@ -37,6 +41,8 @@ typedef pid_t Cake_Process;
 
 cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *process, cake_fd pipeStdout[2], cake_fd pipeStderr[2], cake_fd pipeStdin[2]);
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

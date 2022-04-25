@@ -4,6 +4,10 @@
 #include "def.h"
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
     Supprime une partie d'un tableau dynamique.
 
@@ -33,5 +37,8 @@ void cake_add_allocate(void **array, void *src, size_t elements, size_t byteSize
 // Copie la valeur d'une clé récupérée grâce à get_key_value().
 void cake_copy_value(char **buffer, uchar *src, ulonglong valueSize);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

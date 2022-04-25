@@ -11,6 +11,10 @@
 
 typedef char (*SignalEvent)(void);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void cake_signal_init();
 
 #ifdef CAKE_WINDOWS
@@ -25,5 +29,9 @@ void cake_unix_ctrl_c_routine(int sig);
 
 
 void cake_signal_set_ctrl_c_event(SignalEvent event);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

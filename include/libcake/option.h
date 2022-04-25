@@ -40,6 +40,10 @@ typedef struct cake_fileoption {
     uchar delim;
 } Cake_FileOption;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /*
         Charge l'option de la clé spécifiée (clé : valeur) délimitée par delim.
@@ -61,5 +65,9 @@ Cake_FileOptionElement *cake_file_option_get(Cake_FileOption *fileOpt, const cha
 void cake_free_file_option(Cake_FileOption *fileOpt);
 
 #define cake_free_file_option_element(e) cake_free_option(e->opt)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

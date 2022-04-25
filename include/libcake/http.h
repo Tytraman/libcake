@@ -102,6 +102,10 @@ typedef struct cake_httpsserver {
 } Cake_HttpsServer;
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ===== Global ===== */
 
 cake_byte cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, cake_socket sock);
@@ -162,5 +166,9 @@ void cake_free_accepted_https_client(Cake_AcceptedHttpsClient *client);
 void cake_init_openssl();
 
 Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const char *key);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

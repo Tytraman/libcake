@@ -8,6 +8,11 @@ typedef struct fileobject_print {
     ulonglong iContainers;
 } FileObjectPrint;
 
+typedef struct __cake_fusion_list_fileobject_container {
+    Cake_List_FileObjectContainer **fromList;
+    ulonglong *index;
+} __Cake_Fusion_List_FileObjectContainer;
+
 void cake_fileobject_enum(
     Cake_FileObject *obj,
     void (*list_elements_found_callback)(Cake_List_FileObjectElement *elements, void *args),
@@ -303,7 +308,7 @@ void cake_free_list_fileobject_element(Cake_List_FileObjectElement *elements) {
 void *__cake_fileobject_get(
     Cake_FileObject *obj,
     const char *key,
-    void *(*container_callback)(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const char *value, void *args),
+    void *(*container_callback)(Cake_FileObjectContainer *container, ulonglong index, Cake_List_FileObjectContainer **dest, const char *value, void *args),
     void *(*element_callback)(Cake_FileObjectElement *element, const char *value, void *args),
     void *containerArgs,
     void *elementArgs
@@ -345,7 +350,7 @@ void *__cake_fileobject_get(
             // Lorsqu'un container est trouvé, le callback est appelé,
             // si celui-ci retourne autre chose que NULL, la fonction se termine
             // et retourne ce qu'a retourné le callback.
-            ret = container_callback(containers->list[i], &containers, (cchar_ptr) lastPtr, containerArgs);
+            ret = container_callback(containers->list[i], i, &containers, (cchar_ptr) lastPtr, containerArgs);
             if(ret != NULL) {
                 if(element_callback == NULL && ptr != NULL && containers->length == 0)
                     goto nothing;
@@ -365,7 +370,7 @@ cancel:
     return ret;
 }
 
-void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const char *value, void *args) {
+void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *container, ulonglong index, Cake_List_FileObjectContainer **dest, const char *value, void *args) {
     if(cake_strutf8_equals(container->key, value)) {
         *dest = &container->containers;
         return container;
@@ -373,10 +378,11 @@ void *__cake_fileobject_get_container_callback(Cake_FileObjectContainer *contain
     return NULL;
 }
 
-void *__cake_fileobject_get_container_callback_ext(Cake_FileObjectContainer *container, Cake_List_FileObjectContainer **dest, const char *value, void *args) {
+void *__cake_fileobject_get_container_callback_ext(Cake_FileObjectContainer *container, ulonglong index, Cake_List_FileObjectContainer **dest, const char *value, void *args) {
     if(cake_strutf8_equals(container->key, value)) {
-        Cake_List_FileObjectContainer **fromList = (Cake_List_FileObjectContainer **) args;
-        *fromList = *dest;
+        __Cake_Fusion_List_FileObjectContainer *fusion = (__Cake_Fusion_List_FileObjectContainer *) args;
+        *fusion->fromList = *dest;
+        *fusion->index = index;
         *dest = &container->containers;
         return container;
     }
@@ -394,13 +400,18 @@ Cake_FileObjectContainer *cake_fileobject_get_container(Cake_FileObject *obj, co
     );
 }
 
-Cake_FileObjectContainer *cake_fileobject_get_container_ext(Cake_FileObject *obj, const char *key, Cake_List_FileObjectContainer **fromList) {
+
+
+Cake_FileObjectContainer *cake_fileobject_get_container_ext(Cake_FileObject *obj, const char *key, Cake_List_FileObjectContainer **fromList, ulonglong *index) {
+    __Cake_Fusion_List_FileObjectContainer fusion;
+    fusion.fromList = fromList;
+    fusion.index = index;
     return (Cake_FileObjectContainer *) __cake_fileobject_get(
         obj,
         key,
         __cake_fileobject_get_container_callback_ext,
         NULL,
-        fromList,
+        &fusion,
         NULL
     );
 }
@@ -529,6 +540,7 @@ void cake_free_fileobject(Cake_FileObject *obj) {
         NULL,
         NULL
     );
+    free(obj->containers.list);
     free(obj);
 }
 
@@ -699,7 +711,8 @@ Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContaine
 
 cake_bool cake_fileobject_remove_container(Cake_FileObject *obj, const char *key) {
     Cake_List_FileObjectContainer *fromList;
-    Cake_FileObjectContainer *container = cake_fileobject_get_container_ext(obj, key, &fromList);
+    ulonglong index;
+    Cake_FileObjectContainer *container = cake_fileobject_get_container_ext(obj, key, &fromList, &index);
     if(container == NULL)
         return cake_false;
 
@@ -714,15 +727,18 @@ cake_bool cake_fileobject_remove_container(Cake_FileObject *obj, const char *key
 
     // On free de manière récursive tous les éléments du container.
     cake_free_fileobject_stack(&object);
+    free(object.containers.list);
 
     // Réallocation de la liste dans laquelle se situait le container.
     if(fromList->length > 1) {
-        memcpy(container, container + 1, (fromList->list[fromList->length - 1] - container) * sizeof(Cake_FileObjectContainer *));
-        void *ptr = realloc(fromList->list, (fromList->length - 1) * sizeof(Cake_FileObject *));
+        free(fromList->list[index]);
+        memcpy((fromList->list + index), (fromList->list + index + 1), (fromList->length - index - 1) * sizeof(*fromList->list));
+        void *ptr = realloc(fromList->list, (fromList->length - 1) * sizeof(*fromList->list));
         if(ptr != NULL)
             fromList->list = (Cake_FileObjectContainer **) ptr;
         (fromList->length)--;
     }else {
+        free(fromList->list[0]);
         free(fromList->list);
         fromList->list = NULL;
         fromList->length = 0;

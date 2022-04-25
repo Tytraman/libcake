@@ -18,7 +18,6 @@ void cake_csv_add_line(Cake_CSV *csv, const char *line, char delim) {
 
     uchar *ptr = copyLine->bytes;
     uchar *lastPtr = ptr;
-    ulonglong length;
 
     ulonglong kurrent;
 

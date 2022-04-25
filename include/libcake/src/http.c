@@ -127,11 +127,11 @@ void __http_format_header(Cake_String_UTF8 *dest, Cake_BytesBuffer *message, Cak
         header = header->next;
     }
     if(message->size > 0) {
-        cake_byte lengthBuff[256];
+        char lengthBuff[256];
         cake_ulonglong_to_char_array(message->size, lengthBuff);
         cake_strutf8_add_char_array(dest, "content-length");
         cake_strutf8_add_char_array(dest, ":");
-        cake_strutf8_add_char_array(dest, (const char *) lengthBuff);
+        cake_strutf8_add_char_array(dest, (cchar_ptr) lengthBuff);
         cake_strutf8_add_char_array(dest, "\r\n");
     }
     cake_strutf8_add_char_array(dest, "\r\n");
@@ -139,7 +139,7 @@ void __http_format_header(Cake_String_UTF8 *dest, Cake_BytesBuffer *message, Cak
 
 void cake_http_response_format(Cake_HttpResponse *response) {
     cake_char_array_to_strutf8("HTTP/1.1 ", response->formattedHeader);
-    cake_strutf8_add_char_array(response->formattedHeader, (const char *) response->status);
+    cake_strutf8_add_char_array(response->formattedHeader, (cchar_ptr) response->status);
     cake_strutf8_add_char_array(response->formattedHeader, "\r\n");
     __http_format_header(response->formattedHeader, &response->message, response->header);
 }

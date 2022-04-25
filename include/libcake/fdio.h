@@ -104,6 +104,9 @@ typedef int cake_fdio_mode;
 #define cake_fdio_read(fd, numberOfBytesToRead, bytesRead, buffer) (bytesRead = read(fd, buffer, numberOfBytesToRead))
 #define cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) (bytesWritten = write(fd, buffer, numberOfBytesToWrite))
 
+#define cake_fdio_read_no_ret(fd, numberOfBytesToRead, buffer) read(fd, buffer, numberOfBytesToRead)
+#define cake_fdio_write_no_ret(fd, numberOfBytesToWrite, buffer) write(fd, buffer, numberOfBytesToWrite)
+
 /*
         Ouvre un fichier et retourne son FileDescriptor.
 

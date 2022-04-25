@@ -31,6 +31,10 @@ typedef struct cake_linkedlist_string_utf8_pair {
     struct cake_linkedlist_string_utf8_pair *next;
 } Cake_LinkedList_String_UTF8_Pair;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ===== Initialisation ===== */
 
 /**
@@ -144,8 +148,10 @@ cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index,
  * 
  * @param list La liste destination.
  * @param str La chaîne de caractères à ajouter.
+ * 
+ * @return cake_bool
  */
-void cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const char *str);
+cake_bool cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const char *str);
 
 
 /* ===== Modification ===== */
@@ -271,9 +277,9 @@ void cake_wchar_array_to_strutf8(const wchar_t *src, Cake_String_UTF8 *dest);
 
 ulonglong cake_strutf8_to_ulonglong(Cake_String_UTF8 *utf);
 
-void cake_ulonglong_to_char_array(ulonglong value, uchar *buffer);
+void cake_ulonglong_to_char_array(ulonglong value, char *buffer);
 
-uchar *cake_ulonglong_to_char_array_dyn(ulonglong value);
+char *cake_ulonglong_to_char_array_dyn(ulonglong value);
 
 /* ===== Cleaner ===== */
 
@@ -475,5 +481,9 @@ void cake_strutf8_vector_delete_callback(void *args);
 void cake_strutf8_vector_delete_callback_ptr(void *args);
 
 Cake_String_UTF8 *cake_strutf8_substring(Cake_String_UTF8 *from, ulonglong startIndex, ulonglong endIndex);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

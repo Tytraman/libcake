@@ -14,6 +14,10 @@ typedef struct Cake_hookrelay {
     ushort originaleBytesLength;
 } Cake_HookRelay;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CAKE_GET_PAGE_OF_ADDR(pAddr, pageSize) ((unsigned long long) pAddr) & ~(pageSize - 1)
 
 /**
@@ -40,6 +44,10 @@ void cake_free_hookrelay(Cake_HookRelay *relay);
 #ifdef CAKE_WINDOWS
 #include <windows.h>
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

@@ -3,6 +3,10 @@
 
 #include "def.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef CAKE_WINDOWS
 #include <windows.h>
 #include <process.h>
@@ -51,6 +55,10 @@ void cake_thread_wait(Cake_Thread *thread);
 #ifdef CAKE_WINDOWS
 // Libère la mémoire.
 void cake_free_thread(Cake_Thread *thread);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
