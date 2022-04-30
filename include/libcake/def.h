@@ -129,4 +129,9 @@ typedef struct cake_bytesbuffer {
     ulonglong size;
 } Cake_BytesBuffer;
 
+typedef struct cake_ulonglongarray {
+    ulonglong *array;
+    ulonglong length;
+} Cake_UlonglongArray;
+
 #endif

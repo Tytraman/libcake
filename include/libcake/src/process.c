@@ -104,7 +104,7 @@ cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *proc
         execvp(passArgs[0], passArgs);
         free(passArgs);
         cake_free_list_strutf8(command);
-        exit(25);
+        exit(127);
     }else if(*process == -1)
         return cake_false;
 

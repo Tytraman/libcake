@@ -742,7 +742,7 @@ void cake_strutf8_reverse(Cake_String_UTF8 *utf) {
 }
 
 Cake_List_String_UTF8 *cake_list_strutf8() {
-    Cake_List_String_UTF8 *list = (Cake_List_String_UTF8 *) malloc(sizeof(Cake_List_String_UTF8));
+    Cake_List_String_UTF8 *list = (Cake_List_String_UTF8 *) malloc(sizeof(*list));
     list->data.length = 0;
     list->list = NULL;
     return list;
@@ -1081,4 +1081,38 @@ cake_bool cake_str_contains(const char *str, char value) {
         if(*str++ == value)
             return cake_true;
     return cake_false;
+}
+
+cake_bool cake_list_strutf8_remove(Cake_List_String_UTF8 *list, ulonglong index) {
+    if(index >= list->data.length)
+        return cake_false;
+    if(list->data.length > 1) {
+        cake_free_strutf8(list->list[index]);
+        (list->data.length)--;
+        memcpy(list->list + index, list->list + index + 1, (list->data.length - index) * sizeof(*list->list));
+        void *ptr = realloc(list->list, list->data.length * sizeof(*list->list));
+        if(ptr != NULL)
+            list->list = (Cake_String_UTF8 **) ptr;
+    }else {
+        cake_free_strutf8(list->list[0]);
+        free(list->list);
+        list->list = NULL;
+        list->data.length = 0;
+    }
+    return cake_true;
+}
+
+cake_bool cake_list_strutf8_insert(Cake_List_String_UTF8 *list, ulonglong index, const char *str) {
+    if(index > list->data.length)
+        return cake_false;
+
+    void *ptr = realloc(list->list, (list->data.length + 1) * sizeof(*list->list));
+    if(ptr == NULL)
+        return cake_false;
+    list->list = (Cake_String_UTF8 **) ptr;
+    memmove(list->list + index + 1, list->list + index, (list->data.length - index) * sizeof(*list->list));
+    (list->data.length)++;
+    list->list[index] = cake_strutf8(str);
+
+    return cake_true;
 }

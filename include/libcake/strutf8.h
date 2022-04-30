@@ -153,6 +153,25 @@ cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index,
  */
 cake_bool cake_list_strutf8_add_char_array(Cake_List_String_UTF8 *list, const char *str);
 
+/**
+ * @brief Supprime une chaîne de caractères dans la liste à l'index spécifié.
+ * 
+ * @param list 
+ * @param index 
+ * @return cake_bool 
+ */
+cake_bool cake_list_strutf8_remove(Cake_List_String_UTF8 *list, ulonglong index);
+
+/**
+ * @brief Insert une chaîne de caractères dans une Cake_List_String_UTF8.
+ * 
+ * @param list 
+ * @param index 
+ * @param str La chaîne de caractères à insérer.
+ * @return Retourne cake_false si l'index est supérieur au nombre d'éléments.
+ */
+cake_bool cake_list_strutf8_insert(Cake_List_String_UTF8 *list, ulonglong index, const char *str);
+
 
 /* ===== Modification ===== */
 
