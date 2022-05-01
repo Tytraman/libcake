@@ -1,5 +1,4 @@
 #include "../strutf8.h"
-#include "../memory.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +15,7 @@ void __cake_strutf8_replace(Cake_String_UTF8 *utf, const uchar *replacement, cak
     ulonglong tempIndex = ptr - utf->bytes;
     if(appendMode == 1) {
         // On diminue la longueur
-        memcpy(ptr + *replacementLength, &utf->bytes[*internalIndex], (utf->data.length - *internalIndex) * sizeof(uchar));
+        memmove(ptr + *replacementLength, utf->bytes + *internalIndex, (utf->data.length - *internalIndex) * sizeof(uchar));
         utf->data.length -= *diff;
         utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
         utf->bytes[utf->data.length] = '\0';
@@ -24,10 +23,11 @@ void __cake_strutf8_replace(Cake_String_UTF8 *utf, const uchar *replacement, cak
         // On augmente la longueur
         utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + *diff) * sizeof(uchar) + sizeof(uchar));
         ptr = &utf->bytes[tempIndex];
-        memcpy(ptr + *replacementLength, ptr + *oldLength, (utf->data.length - tempIndex - *oldLength) * sizeof(uchar) + sizeof(uchar));
+        memmove(ptr + *replacementLength, ptr + *oldLength, (utf->data.length - tempIndex - *oldLength) * sizeof(uchar) + sizeof(uchar));
         utf->data.length += *diff;
         utf->bytes[utf->data.length] = '\0';
     }
+    // Copie de la chaîne de remplacement vers son emplacement dans la chaîne destination
     memcpy(&utf->bytes[tempIndex], replacement, *replacementLength * sizeof(uchar));
 }
 
@@ -258,21 +258,30 @@ ulonglong cake_str_count(const char *str) {
     return i;
 }
 
-void cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const char *str) {
+cake_bool cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const char *str) {
     ulonglong strLength = cake_str_count(str);
-    dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + strLength) * sizeof(uchar) + sizeof(uchar));
-    memcpy(&dest->bytes[dest->data.length], str, strLength * sizeof(uchar));
+    void *ptr = realloc(dest->bytes, (dest->data.length + strLength) * sizeof(uchar) + sizeof(uchar));
+    if(ptr == NULL)
+        return cake_false;
+    dest->bytes = (uchar *) ptr;
+    memcpy(dest->bytes + dest->data.length, str, strLength * sizeof(uchar));
     dest->data.length += strLength;
     dest->bytes[dest->data.length] = '\0';
     dest->length = cake_strutf8_length(dest);
+    return cake_true;
 }
 
-void cake_char_array_to_strutf8(const char *src, Cake_String_UTF8 *dest) {
-    dest->data.length = cake_str_count(src);
-    dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
+cake_bool cake_char_array_to_strutf8(const char *src, Cake_String_UTF8 *dest) {
+    ulonglong length = cake_str_count(src);
+    void *ptr = realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
+    if(ptr == NULL)
+        return cake_false;
+    dest->data.length = length;
+    dest->bytes = (uchar *) ptr;
     memcpy(dest->bytes, src, dest->data.length * sizeof(uchar));
     dest->bytes[dest->data.length] = '\0';
     dest->length = cake_strutf8_length(dest);
+    return cake_true;
 }
 
 uchar cake_strutf8_add_wchar(Cake_String_UTF8 *dest, wchar_t value) {
@@ -320,7 +329,7 @@ uchar cake_strutf8_wchar_to_byte(wchar_t value, uchar **buffer) {
     else if(value <= 2047) bytes = 2;
     else if(value <= 65535) bytes = 3;
     //else if(value <= 1114111) bytes = 4;
-    else return -1;
+    else return 0;
     *buffer = (uchar *) malloc(bytes * sizeof(uchar));
     if(bytes == 1) {
         (*buffer)[0] = value & 0b01111111;
@@ -516,9 +525,13 @@ cake_bool cake_strutf8_remove_index(Cake_String_UTF8 *utf, ulonglong index) {
     ulonglong length = &utf->bytes[utf->data.length] - pEnd;
 
     if(length > 0)
-        memcpy(pStart, pEnd, length * sizeof(uchar));
-    (utf->data.length) -= bytes;
-    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+        memmove(pStart, pEnd, length * sizeof(uchar));
+    utf->data.length -= bytes;
+
+    void *ptr = realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    if(ptr != NULL)
+        utf->bytes = (uchar *) ptr;
+
     utf->bytes[utf->data.length] = '\0';
     (utf->length)--;
     return cake_true;
@@ -526,15 +539,20 @@ cake_bool cake_strutf8_remove_index(Cake_String_UTF8 *utf, ulonglong index) {
 
 uchar cake_strutf8_insert_wchar(Cake_String_UTF8 *utf, ulonglong index, wchar_t value) {
     if(index >= utf->length)
-        return -1;
+        return 0;
     
     uchar *valueUtf;
-    char bytesNeeded = cake_strutf8_wchar_to_byte(value, &valueUtf);
-    if(bytesNeeded == -1)
-        return -1;
+    uchar bytesNeeded = cake_strutf8_wchar_to_byte(value, &valueUtf);
+    if(bytesNeeded == 0)
+        return 0;
 
     // On augmente la taille du buffer
-    utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + bytesNeeded) * sizeof(uchar) + sizeof(uchar));
+    void *ptr = realloc(utf->bytes, (utf->data.length + bytesNeeded) * sizeof(uchar) + sizeof(uchar));
+    if(ptr == NULL) {
+        free(valueUtf);
+        return 0;
+    }
+    utf->bytes = (uchar *) ptr;
 
     uchar *pStart = NULL;
     uchar *pEnd   = NULL;
@@ -543,7 +561,7 @@ uchar cake_strutf8_insert_wchar(Cake_String_UTF8 *utf, ulonglong index, wchar_t 
 
     // On déplace vers la droite les données
     ulonglong length = utf->data.length - internalIndex;
-    memcpy(pStart + bytesNeeded, pStart, length * sizeof(uchar));
+    memmove(pStart + bytesNeeded, pStart, length * sizeof(uchar));
 
     // On copie les octets convertis
     memcpy(pStart, valueUtf, bytesNeeded * sizeof(uchar));
@@ -561,15 +579,20 @@ cake_bool cake_strutf8_insert_char_array(Cake_String_UTF8 *utf, ulonglong index,
         return cake_false;
     
     ulonglong insertLength = cake_str_count(str);
+    void *ptr = realloc(utf->bytes, (utf->data.length + insertLength) * sizeof(uchar) + sizeof(uchar));
+    if(ptr == NULL)
+        return cake_false;
+    utf->bytes = (uchar *) ptr;
+
     uchar *pStart, *pEnd;
     int bytes;
     // Index interne auquel insérer la chaîne.
     ulonglong internalIndex = cake_strutf8_index_by_index(utf->bytes, &utf->bytes[utf->data.length - 1], index, &pStart, &pEnd, &bytes);
-    utf->bytes = (uchar *) realloc(utf->bytes, (utf->data.length + insertLength) * sizeof(uchar) + sizeof(uchar));
+    
     // On déplace les octets vers la droite.
-    memcpy(&utf->bytes[internalIndex + insertLength], &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
+    memmove(utf->bytes + internalIndex + insertLength, utf->bytes + internalIndex, (utf->data.length - internalIndex) * sizeof(uchar));
     // On copie la chaîne à insérer.
-    memcpy(&utf->bytes[internalIndex], str, insertLength * sizeof(uchar));
+    memcpy(utf->bytes + internalIndex, str, insertLength * sizeof(uchar));
     utf->data.length += insertLength;
     utf->bytes[utf->data.length] = '\0';
 
@@ -683,16 +706,20 @@ ulonglong cake_strutf8_remove_all(Cake_String_UTF8 *utf, const char *value) {
     ulonglong length = cake_str_count(value);
 
     ulonglong internalIndex = 0;
+    void *p;
     uchar *ptr;
     while((ptr = cake_strutf8_search_from_start(utf, value, &internalIndex)) != NULL) {
-        memcpy(ptr, &utf->bytes[internalIndex], (utf->data.length - internalIndex) * sizeof(uchar));
+        memmove(ptr, utf->bytes + internalIndex, (utf->data.length - internalIndex) * sizeof(uchar));
         internalIndex -= length;
-        utf->data.length -= length;
-        utf->bytes[utf->data.length] = '\0';
         number++;
     }
+    // Si des choses ont été supprimées de la chaîne, on redimenssionne le buffer
     if(number > 0) {
-        utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+        utf->data.length -= length * number;
+        utf->bytes[utf->data.length] = '\0';
+        p = realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+        if(p != NULL)
+            utf->bytes = (uchar *) p;
         utf->length = cake_strutf8_length(utf);
     }
 
@@ -705,8 +732,10 @@ cake_bool cake_strutf8_remove_start(Cake_String_UTF8 *utf, const char *value) {
     ulonglong length = cake_str_count(value);
 
     utf->data.length -= length;
-    memcpy(utf->bytes, &utf->bytes[length], utf->data.length * sizeof(uchar));
-    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    memmove(utf->bytes, utf->bytes + length, utf->data.length * sizeof(uchar));
+    void *ptr = realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    if(ptr != NULL)
+        utf->bytes = (uchar *) ptr;
     utf->bytes[utf->data.length] = '\0';
 
     utf->length = cake_strutf8_length(utf);
@@ -924,6 +953,7 @@ uint cake_str_hex_to_uint(const uchar *str) {
     return value;
 }
 
+// TODO: refaire cake_strutf8_decode_url
 void cake_strutf8_decode_url(Cake_String_UTF8 *utf) {
     cake_strutf8_replace_all(utf, "+", " ");
     uchar *begin   = utf->bytes;
@@ -1001,9 +1031,11 @@ void cake_str_dec_to_hexchar(uchar value, uchar dest[2]) {
 
 void __strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong fromIndex, ulonglong toIndex) {
     ulonglong diff = toIndex - fromIndex;
-    memcpy(&utf->bytes[fromIndex], &utf->bytes[toIndex], (&utf->bytes[utf->data.length] - &utf->bytes[toIndex]) * sizeof(uchar));
+    memmove(utf->bytes + fromIndex, utf->bytes + toIndex, ((utf->bytes + utf->data.length) - (utf->bytes + toIndex)) * sizeof(uchar));
     (utf->data.length) -= diff;
-    utf->bytes = (uchar *) realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    void *ptr = realloc(utf->bytes, utf->data.length * sizeof(uchar) + sizeof(uchar));
+    if(ptr != NULL)
+        utf->bytes = (uchar *) ptr;
     utf->bytes[utf->data.length] = '\0';
 
     utf->length = cake_strutf8_length(utf);
@@ -1089,7 +1121,7 @@ cake_bool cake_list_strutf8_remove(Cake_List_String_UTF8 *list, ulonglong index)
     if(list->data.length > 1) {
         cake_free_strutf8(list->list[index]);
         (list->data.length)--;
-        memcpy(list->list + index, list->list + index + 1, (list->data.length - index) * sizeof(*list->list));
+        memmove(list->list + index, list->list + index + 1, (list->data.length - index) * sizeof(*list->list));
         void *ptr = realloc(list->list, list->data.length * sizeof(*list->list));
         if(ptr != NULL)
             list->list = (Cake_String_UTF8 **) ptr;

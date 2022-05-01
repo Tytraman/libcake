@@ -49,7 +49,7 @@ void *cake_vector_push_back(Cake_Vector *vec, void *data) {
             return NULL;
         }
     }
-    void *ptr = memcpy(&vec->data[vec->length * vec->elementSize], data, vec->elementSize);
+    void *ptr = memcpy(vec->data + vec->length * vec->elementSize, data, vec->elementSize);
     (vec->length)++;
     return ptr;
 }

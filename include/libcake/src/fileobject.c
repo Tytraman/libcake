@@ -255,7 +255,7 @@ cake_bool cake_list_fileobject_element_remove(Cake_List_FileObjectElement *eleme
             cake_free_strutf8(elements->list[i]->value);
             free(elements->list[i]);
             if(i < elements->length - 1)
-                memcpy(&elements->list[i], &elements->list[i + 1], (elements->length - i - 1) * sizeof(Cake_FileObjectElement *));
+                memmove(elements->list + i, elements->list + i + 1, (elements->length - i - 1) * sizeof(Cake_FileObjectElement *));
             if(elements->length - 1 > 0) {
                 Cake_FileObjectElement **testPtr = (Cake_FileObjectElement **) realloc(elements->list, (elements->length - 1) * sizeof(Cake_FileObjectElement *));
                 if(testPtr != NULL) {   
@@ -732,7 +732,7 @@ cake_bool cake_fileobject_remove_container(Cake_FileObject *obj, const char *key
     // Réallocation de la liste dans laquelle se situait le container.
     if(fromList->length > 1) {
         free(fromList->list[index]);
-        memcpy((fromList->list + index), (fromList->list + index + 1), (fromList->length - index - 1) * sizeof(*fromList->list));
+        memmove((fromList->list + index), (fromList->list + index + 1), (fromList->length - index - 1) * sizeof(*fromList->list));
         void *ptr = realloc(fromList->list, (fromList->length - 1) * sizeof(*fromList->list));
         if(ptr != NULL)
             fromList->list = (Cake_FileObjectContainer **) ptr;

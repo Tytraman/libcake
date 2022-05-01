@@ -120,7 +120,7 @@ void cake_strutf8_add_wchar_array(Cake_String_UTF8 *dest, const wchar_t *str);
  * @param dest 
  * @param str 
  */
-void cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const char *str);
+cake_bool cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const char *str);
 
 
 /**
@@ -256,7 +256,7 @@ void cake_strutf8_to_utf16(Cake_String_UTF8 *src, Cake_String_UTF16 *dest);
  * @param src Chaîne de caractères à copier.
  * @param dest Chaîne destination.
  */
-void cake_char_array_to_strutf8(const char *src, Cake_String_UTF8 *dest);
+cake_bool cake_char_array_to_strutf8(const char *src, Cake_String_UTF8 *dest);
 
 /**
  * @brief Convertit une suite d'octets en une valeur numérique unicode.

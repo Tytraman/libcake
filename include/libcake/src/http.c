@@ -388,7 +388,7 @@ cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMess
         if((search = cake_str_search_array((const char *) search, "\r\n\r\n")) != NULL) {
             index = search - dest->buffer + 4;
             dest->buffer = (uchar *) realloc(dest->buffer, dest->size * sizeof(uchar) + sizeof(uchar) * 2);
-            memcpy(&dest->buffer[index + 1], &dest->buffer[index], dest->size + 1 - index);
+            memmove(dest->buffer + index + 1, dest->buffer + index, dest->size + 1 - index);
             dest->buffer[index] = '\0';
             break;
         }
@@ -411,7 +411,7 @@ cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMess
             ulonglong remain;
             if(dest->size > index) {
                 remain = destMessage->size - (dest->size - index);
-                memcpy(destMessage->buffer, &dest->buffer[index + 1], destMessage->size * sizeof(uchar));
+                memmove(destMessage->buffer, dest->buffer + index + 1, destMessage->size * sizeof(uchar));
             }else
                 remain = destMessage->size;
             if(remain > 0) {

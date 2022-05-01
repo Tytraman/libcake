@@ -13,12 +13,17 @@ void cake_create_strutf16(Cake_String_UTF16 *utf) {
 }
 
 Cake_String_UTF16 *cake_strutf16(const wchar_t *value) {
-    Cake_String_UTF16 *utf = (Cake_String_UTF16 *) malloc(sizeof(Cake_String_UTF16));
+    Cake_String_UTF16 *utf = (Cake_String_UTF16 *) malloc(sizeof(Cake_String_UTF16));;
+    if(utf == NULL)
+        return NULL;
 
     utf->length = cake_wstr_count(value);
     utf->characteres = (wchar_t *) malloc(utf->length * sizeof(wchar_t) + sizeof(wchar_t));
-    memcpy(utf->characteres, value, utf->length * sizeof(wchar_t));
-    utf->characteres[utf->length] = L'\0';
+    if(utf->characteres != NULL) {
+        memcpy(utf->characteres, value, utf->length * sizeof(wchar_t));
+        utf->characteres[utf->length] = L'\0';
+    }else
+        utf->length = 0;
 
     return utf;
 }
@@ -28,28 +33,39 @@ void cake_clear_strutf16(Cake_String_UTF16 *utf) {
     cake_create_strutf16(utf);
 }
 
-void cake_strutf16_set_value(Cake_String_UTF16 *utf, wchar_t *str) {
+cake_bool cake_strutf16_set_value(Cake_String_UTF16 *utf, wchar_t *str) {
     utf->length = wcslen(str);
     free(utf->characteres);
     utf->characteres = (wchar_t *) malloc(utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    if(utf->characteres == NULL)
+        return cake_false;
     memcpy(utf->characteres, str, utf->length * sizeof(wchar_t));
     utf->characteres[utf->length] = L'\0';
+    return cake_true;
 }
 
-void cake_strutf16_add_wchar_array(Cake_String_UTF16 *utf, const wchar_t *str) {
+cake_bool cake_strutf16_add_wchar_array(Cake_String_UTF16 *utf, const wchar_t *str) {
     ulonglong lastLength = utf->length;
     ulonglong strLength = cake_wstr_count(str);
+    void *ptr = realloc(utf->characteres, (utf->length + strLength) * sizeof(wchar_t) + sizeof(wchar_t));
+    if(ptr == NULL)
+        return cake_false;
     utf->length += strLength;
-    utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
-    memcpy(&utf->characteres[lastLength], str, strLength * sizeof(wchar_t));
+    utf->characteres = (wchar_t *) ptr;
+    memcpy(utf->characteres + lastLength, str, strLength * sizeof(wchar_t));
     utf->characteres[utf->length] = L'\0';
+    return cake_true;
 }
 
-void cake_strutf16_add_char(Cake_String_UTF16 *utf, wchar_t c) {
+cake_bool cake_strutf16_add_char(Cake_String_UTF16 *utf, wchar_t c) {
+    void *ptr = realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    if(ptr == NULL)
+        return cake_false;
     (utf->length)++;
-    utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
-    memcpy(&utf->characteres[utf->length - 1], &c, sizeof(wchar_t));
+    utf->characteres = (wchar_t *) ptr;
+    utf->characteres[utf->length - 1] = c;
     utf->characteres[utf->length] = L'\0';
+    return cake_true;
 }
 
 void cake_strutf16_empty(Cake_String_UTF16 *utf) {
@@ -59,11 +75,15 @@ void cake_strutf16_empty(Cake_String_UTF16 *utf) {
     utf->characteres[0] = L'\0';
 }
 
-void cake_strutf16_add_bytes(Cake_String_UTF16 *utf, unsigned char *bytes, unsigned long long size) {
+cake_bool cake_strutf16_add_bytes(Cake_String_UTF16 *utf, unsigned char *bytes, unsigned long long size) {
+    void *ptr = realloc(utf->characteres, (utf->length + size) * sizeof(wchar_t));
+    if(ptr == NULL)
+        return cake_false;
+    utf->characteres = (wchar_t *) ptr;
     unsigned long long lastLength = utf->length;
     utf->length += size;
-    utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t));
-    memcpy(&utf->characteres[lastLength], bytes, size * sizeof(wchar_t));
+    memcpy(utf->characteres + lastLength, bytes, size * sizeof(wchar_t));
+    return cake_true;
 }
 
 unsigned long long cake_strutf16_replace_all_char(Cake_String_UTF16 *utf, wchar_t old, wchar_t replacement) {
@@ -76,11 +96,14 @@ unsigned long long cake_strutf16_replace_all_char(Cake_String_UTF16 *utf, wchar_
 
 cake_bool cake_strutf16_remove(Cake_String_UTF16 *utf, wchar_t *str) {
     wchar_t *start = cake_strutf16_search(utf, str);
-    if(start == NULL) return cake_false;
+    if(start == NULL)
+        return cake_false;
     size_t length = wcslen(str);
-    memcpy(start, utf->characteres + length, (utf->length - length) * sizeof(wchar_t));
+    memmove(start, utf->characteres + length, (utf->length - length) * sizeof(wchar_t));
     utf->length -= length;
-    utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    void *ptr = realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    if(ptr != NULL)
+        utf->characteres = (wchar_t *) ptr;
     utf->characteres[utf->length] = L'\0';
     return cake_true;
 }
@@ -156,21 +179,29 @@ wchar_t *cake_strutf16_search_from(Cake_String_UTF16 *utf, wchar_t *research, un
 }
 
 cake_bool __strutf16_replace(Cake_String_UTF16 *utf, wchar_t *ptr, wchar_t *old, wchar_t *replacement) {
-    if(ptr == NULL) return cake_false;
+    if(ptr == NULL)
+        return cake_false;
 
     size_t oldLength = wcslen(old);
     size_t replacementLength = wcslen(replacement);
+    void *p;
 
     if(oldLength > replacementLength) {
-        memcpy(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->characteres) + oldLength)) * sizeof(wchar_t));
+        memmove(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->characteres) + oldLength)) * sizeof(wchar_t));
         memcpy(ptr, replacement, replacementLength * sizeof(wchar_t));
         (utf->length) -= (oldLength - replacementLength);
-        utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+        p = realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+        if(p != NULL)
+            utf->characteres = (wchar_t *) p;
         utf->characteres[utf->length] = L'\0';
     }else if(oldLength < replacementLength) {
-        (utf->length) += (replacementLength - oldLength);
-        utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
-        memcpy(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->characteres) + oldLength)) * sizeof(wchar_t));
+        ulonglong tempLength = utf->length + replacementLength - oldLength;
+        p = realloc(utf->characteres, tempLength * sizeof(wchar_t) + sizeof(wchar_t));
+        if(p == NULL)
+            return cake_false;
+        utf->characteres = (wchar_t *) p;
+        utf->length = tempLength;
+        memmove(ptr + replacementLength, ptr + oldLength, (utf->length - ((ptr - utf->characteres) + oldLength)) * sizeof(wchar_t));
         memcpy(ptr, replacement, replacementLength * sizeof(wchar_t));
         utf->characteres[utf->length] = L'\0';
     }else
@@ -187,12 +218,15 @@ cake_bool cake_strutf16_replace_from_end(Cake_String_UTF16 *utf, wchar_t *old, w
     return __strutf16_replace(utf, cake_strutf16_search_from_end(utf, old), old, replacement);
 }
 
-void cake_strutf16_insert(Cake_String_UTF16 *utf, wchar_t *str) {
+cake_bool cake_strutf16_insert(Cake_String_UTF16 *utf, wchar_t *str) {
     size_t length = wcslen(str);
-    utf->characteres = (wchar_t *) realloc(utf->characteres, (utf->length + length) * sizeof(wchar_t) + sizeof(wchar_t));
+    void *ptr = realloc(utf->characteres, (utf->length + length) * sizeof(wchar_t) + sizeof(wchar_t));
+    if(ptr == NULL)
+        return cake_false;
+    utf->characteres = (wchar_t *) ptr;
 
     // Déplacement vers la droite de la chaîne déjà existante :
-    memcpy(utf->characteres + length, utf->characteres, utf->length * sizeof(wchar_t));
+    memmove(utf->characteres + length, utf->characteres, utf->length * sizeof(wchar_t));
 
     utf->length += length;
 
@@ -200,6 +234,7 @@ void cake_strutf16_insert(Cake_String_UTF16 *utf, wchar_t *str) {
     memcpy(utf->characteres, str, length * sizeof(wchar_t));
 
     utf->characteres[utf->length] = L'\0';
+    return cake_true;
 }
 
 void cake_strutf16_copy(Cake_String_UTF16 *from, Cake_String_UTF16 *to) {
@@ -225,8 +260,10 @@ cake_bool cake_strutf16_remove_from_index(Cake_String_UTF16 *utf, unsigned long 
 cake_bool cake_strutf16_remove_before_index(Cake_String_UTF16 *utf, unsigned long long index) {
     if(index < utf->length) {
         utf->length -= index;
-        memcpy(utf->characteres, &utf->characteres[index], utf->length * sizeof(wchar_t));
-        utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+        memcpy(utf->characteres, utf->characteres + index, utf->length * sizeof(wchar_t));
+        void *ptr = realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+        if(ptr != NULL)
+            utf->characteres = (wchar_t *) ptr;
         utf->characteres[utf->length] = L'\0';
         return cake_true;
     }
@@ -243,21 +280,6 @@ cake_bool cake_strutf16_remove_part_from_end(Cake_String_UTF16 *utf, wchar_t del
         ptr--;
     }
     return cake_false;
-}
-
-cake_bool cake_strutf16_copy_between(Cake_String_UTF16 *from, Cake_String_UTF16 *to, unsigned long long begin, unsigned long long end) {
-    if(end <= begin) {
-        cake_create_strutf16(to);
-        cake_strutf16_empty(to);
-        return cake_false;
-    }
-
-    to->length = end - begin;
-    to->characteres = (wchar_t *) malloc(to->length * sizeof(wchar_t) + sizeof(wchar_t));
-    memcpy(to->characteres, &from->characteres[begin], (end - begin) * sizeof(wchar_t));
-    to->characteres[to->length] = L'\0';
-
-    return cake_true;
 }
 
 unsigned long long cake_strutf16_number_of(Cake_String_UTF16 *utf, wchar_t charactere) {
@@ -329,14 +351,15 @@ void cake_free_strutf16(Cake_String_UTF16 *utf) {
     free(utf);
 }
 
-cake_bool cake_strutf16_remove_index(Cake_String_UTF16 *utf, unsigned long long index) {
-    if(index >= utf->length) return cake_false;
-
-    memcpy(&utf->characteres[index], &utf->characteres[index + 1], (utf->length - index) * sizeof(wchar_t));
+cake_bool cake_strutf16_remove_index(Cake_String_UTF16 *utf, ulonglong index) {
+    if(index >= utf->length)
+        return cake_false;
+    memmove(utf->characteres + index, utf->characteres + index + 1, (utf->length - index) * sizeof(wchar_t));
     (utf->length)--;
-    utf->characteres = (wchar_t *) realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    void *ptr = realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    if(ptr != NULL)
+        utf->characteres = (wchar_t *) ptr;
     utf->characteres[utf->length] = L'\0';
-
     return cake_true;
 }
 

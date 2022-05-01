@@ -22,22 +22,21 @@ void cake_create_strutf16(Cake_String_UTF16 *utf);
 Cake_String_UTF16 *cake_strutf16(const wchar_t *value);
 
 void cake_strutf16_copy(Cake_String_UTF16 *from, Cake_String_UTF16 *to);
-cake_bool cake_strutf16_copy_between(Cake_String_UTF16 *from, Cake_String_UTF16 *to, ulonglong begin, ulonglong end);
 
 
 /* ===== Setter ===== */
 
-void cake_strutf16_set_value(Cake_String_UTF16 *utf, wchar_t *str);
+cake_bool cake_strutf16_set_value(Cake_String_UTF16 *utf, wchar_t *str);
 ulonglong cake_strutf16_lower(Cake_String_UTF16 *utf);
 ulonglong cake_strutf16_upper(Cake_String_UTF16 *utf);
 
 
 /* ===== Ajout ===== */
 
-void cake_strutf16_add_wchar_array(Cake_String_UTF16 *utf, const wchar_t *str);
-void cake_strutf16_add_char(Cake_String_UTF16 *utf, wchar_t c);
-void cake_strutf16_add_bytes(Cake_String_UTF16 *utf, uchar *bytes, ulonglong size);
-void cake_strutf16_insert(Cake_String_UTF16 *utf, wchar_t *str);
+cake_bool cake_strutf16_add_wchar_array(Cake_String_UTF16 *utf, const wchar_t *str);
+cake_bool cake_strutf16_add_char(Cake_String_UTF16 *utf, wchar_t c);
+cake_bool cake_strutf16_add_bytes(Cake_String_UTF16 *utf, uchar *bytes, ulonglong size);
+cake_bool cake_strutf16_insert(Cake_String_UTF16 *utf, wchar_t *str);
 
 
 /* ===== Suppression ===== */

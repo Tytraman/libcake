@@ -94,7 +94,7 @@ Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const char *key, char 
             if(keyLength > 0) {
                 opt->value->bytes = (uchar *) realloc(opt->value->bytes, keyLength * sizeof(uchar) + sizeof(uchar));
                 opt->value->data.length = keyLength;
-                memcpy(opt->value->bytes, &source->bytes[startIndex], keyLength * sizeof(uchar));
+                memcpy(opt->value->bytes, source->bytes + startIndex, keyLength * sizeof(uchar));
                 opt->value->bytes[keyLength] = '\0';
                 opt->value->length = cake_strutf8_length(opt->value);
             }
