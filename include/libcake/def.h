@@ -13,6 +13,10 @@
         lors d'appels de fonctions de la pi.
 */
 
+#if defined(__x86_64)
+#define CAKE_X86_64 1
+#endif
+
 #define CAKE_CONCAT(a,b) a##b
 
 #if defined(_WIN32)

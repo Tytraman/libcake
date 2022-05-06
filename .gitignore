@@ -1,9 +1,0 @@
-*.cmd
-*.exe
-*.sh
-cake
-*.txt
-lib
-obj
-.vscode
-main.c

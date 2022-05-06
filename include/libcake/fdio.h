@@ -50,6 +50,7 @@ typedef HANDLE cake_fd;
 
 #define __cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) WriteFile(fd, buffer, numberOfBytesToWrite, bytesWritten, NULL)
 #define cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) __cake_fdio_write(fd, numberOfBytesToWrite, CAKE_FDIO_PTR(bytesWritten), buffer)
+#define cake_fdio_write_no_ret(fd, numberOfBytesToWrite, buffer) WriteFile(fd, buffer, numberOfBytesToWrite, NULL, NULL)
 
 /*
         Ouvre un fichier et retourne son FileDescriptor.
@@ -112,7 +113,7 @@ typedef int cake_fdio_mode;
 
         En cas d'erreur, CAKE_FDIO_ERROR_OPEN est retourné.
 */
-#define cake_fdio_open_file(filename, desiredAccess, shareMode, openMode, attributes) open(filename, desiredAccess | shareMode | openMode | attributes)
+#define cake_fdio_open_file(filename, desiredAccess, shareMode, openMode, attributes) open(filename, desiredAccess | shareMode | openMode | attributes, 0777)
 
 // Ferme un FileDescriptor, peut-être utilisé sur un cake_fd.
 #define cake_fdio_close(fd) close(fd)

@@ -617,6 +617,8 @@ Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const 
 }
 
 Cake_FileObjectElement *cake_fileobject_add_element_from(Cake_FileObjectContainer *container, const char *key, const char *value) {
+    if(container == NULL)
+        return NULL;
     Cake_FileObject obj;
     obj.containers.length = container->containers.length;
     obj.containers.list   = container->containers.list;
@@ -668,6 +670,8 @@ cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key) 
 }
 
 cake_bool cake_fileobject_remove_element_from(Cake_FileObjectContainer *container, const char *key) {
+    if(container == NULL)
+        return cake_false;
     Cake_FileObject obj;
     obj.containers.length = container->containers.length;
     obj.containers.list   = container->containers.list;
@@ -684,6 +688,8 @@ cake_bool cake_fileobject_remove_element_from(Cake_FileObjectContainer *containe
 }
 
 Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectContainer *container, const char *key) {
+    if(container == NULL)
+        return NULL;
     Cake_FileObject obj;
     obj.containers.length = container->containers.length;
     obj.containers.list   = container->containers.list;
@@ -699,6 +705,8 @@ Cake_FileObjectContainer *cake_fileobject_get_container_from(Cake_FileObjectCont
 }
 
 Cake_FileObjectElement *cake_fileobject_get_element_from(Cake_FileObjectContainer *container, const char *key) {
+    if(container == NULL)
+        return NULL;
     Cake_FileObject obj;
     obj.containers.length = container->containers.length;
     obj.containers.list   = container->containers.list;
@@ -748,6 +756,8 @@ cake_bool cake_fileobject_remove_container(Cake_FileObject *obj, const char *key
 }
 
 cake_bool cake_fileobject_remove_container_from(Cake_FileObjectContainer *container, const char *key) {
+    if(container == NULL)
+        return cake_false;
     Cake_FileObject object;
     object.containers.length = container->containers.length;
     object.containers.list   = container->containers.list;

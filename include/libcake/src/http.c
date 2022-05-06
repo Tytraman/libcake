@@ -516,7 +516,7 @@ void cake_init_openssl() {
 }
 
 
-cake_bool cake_create_https_server(Cake_HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath) {
+cake_bool cake_create_https_server(Cake_HttpsServer *serverDest, const char *port, int backlog, const char *cacertPath, const char *certPath, const char *keyPath) {
     if(!cake_create_http_server(&serverDest->server, port, backlog))
         return cake_false;
     serverDest->ctx = SSL_CTX_new(TLS_server_method());

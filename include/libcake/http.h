@@ -138,7 +138,7 @@ void cake_free_http_client(Cake_HttpClient *client);
 
 #define cake_create_http_server(pServer, port, backlog) cake_create_server_socket(pServer, port, CAKE_IP_V4, backlog)
 
-cake_bool cake_create_https_server(Cake_HttpsServer *serverDest, const uchar *port, int backlog, const uchar *cacertPath, const uchar *certPath, const uchar *keyPath);
+cake_bool cake_create_https_server(Cake_HttpsServer *serverDest, const char *port, int backlog, const char *cacertPath, const char *certPath, const char *keyPath);
 Cake_AcceptedHttpsClient *cake_https_server_accept(Cake_HttpsServer *server, ulonglong requestMessageMaxLength);
 void cake_free_https_server(Cake_HttpsServer *server);
 
