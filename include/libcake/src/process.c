@@ -8,7 +8,7 @@ cake_bool cake_create_process(Cake_List_String_UTF8 *command, Cake_Process *proc
         return cake_false;
     Cake_String_UTF8 *command8 = cake_strutf8((cchar_ptr) command->list[0]->bytes);
     ulonglong i;
-    for(i = 0; i < command->data.length; ++i) {
+    for(i = 1; i < command->data.length; ++i) {
         cake_strutf8_add_char_array(command8, " ");
         cake_strutf8_add_char_array(command8, (cchar_ptr) command->list[i]->bytes);
     }

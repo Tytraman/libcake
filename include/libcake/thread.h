@@ -12,6 +12,8 @@ extern "C" {
 #include <process.h>
 
 #define cake_thread_exit(x) _endthreadex(x)
+
+#define cake_thread_alloc_storage() TlsAlloc()
 #else
 #include <pthread.h>
 

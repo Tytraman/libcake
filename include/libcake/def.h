@@ -93,7 +93,7 @@ typedef ssize_t cake_size;
 
 /* ===== Types ===== */
 
-typedef char        cake_bool;
+typedef char               cake_bool;
 typedef unsigned char      uchar;
 typedef unsigned short     ushort;
 typedef unsigned int       uint;

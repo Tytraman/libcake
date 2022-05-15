@@ -1148,3 +1148,16 @@ cake_bool cake_list_strutf8_insert(Cake_List_String_UTF8 *list, ulonglong index,
 
     return cake_true;
 }
+
+cake_bool cake_strutf8_set(Cake_String_UTF8 *dest, const char *value) {
+    ulonglong length = cake_str_count(value);
+    free(dest->bytes);
+    dest->bytes = (uchar *) malloc(length * sizeof(uchar) + sizeof(uchar));
+    if(dest->bytes == NULL)
+        return cake_false;
+    memcpy(dest->bytes, value, length * sizeof(uchar));
+    dest->data.length = length;
+    dest->bytes[dest->length] = '\0';
+    dest->length = cake_strutf8_length(dest);
+    return cake_true;
+}

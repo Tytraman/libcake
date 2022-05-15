@@ -501,6 +501,8 @@ void cake_strutf8_vector_delete_callback_ptr(void *args);
 
 Cake_String_UTF8 *cake_strutf8_substring(Cake_String_UTF8 *from, ulonglong startIndex, ulonglong endIndex);
 
+cake_bool cake_strutf8_set(Cake_String_UTF8 *dest, const char *value);
+
 #ifdef __cplusplus
 }
 #endif
