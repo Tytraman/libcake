@@ -5,6 +5,15 @@
 extern "C" {
 #endif
 
+#ifdef CAKE_WINDOWS
+#include <windows.h>
+
+#else
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+#endif
+
 #include "def.h"
 #include "strutf16.h"
 #include "strutf8.h"
@@ -14,8 +23,59 @@ extern "C" {
 #define CAKE_WINDOW_WIDGET_TEXT    2
 #define CAKE_WINDOW_WIDGET_EDITBOX 3
 
+typedef struct cake_window Cake_Window;
+
+// Structure commune à tous les widgets
+typedef struct cake_window_widget {
+    struct cake_window_widget *parent;
+
+    #ifdef CAKE_WINDOWS
+    HWND handle;
+    #else
+    Display *dpy;
+    int screen;
+    Window rootWin;
+    Window win;
+    #endif
+    uchar type;
+
+    int x, y;
+    int width, height;
+} Cake_Window_Widget;
+
+typedef int (*Cake_Window_Move_Event)(Cake_Window_Widget *widget);
+typedef int (*Cake_Window_Resize_Event)(Cake_Window_Widget *widget);
+typedef int (*Cake_Window_Destroy_Event)(Cake_Window *window);
+
+typedef struct cake_window_events {
+    Cake_Window_Move_Event moveEvent;
+    Cake_Window_Resize_Event resizeEvent;
+    Cake_Window_Destroy_Event destroyEvent;
+} Cake_Window_Events;
+
+typedef struct cake_list_window_widget {
+    Cake_Window_Widget **list;
+    ulonglong length;
+} Cake_List_Window_Widget;
+
+struct cake_window {
+    Cake_Window_Widget widget;
+    Cake_List_Window_Widget widgets;
+
+    Cake_String_UTF8 *className;
+    Cake_String_UTF8 *title;
+
+    Cake_Window_Events events;
+};
+
+typedef struct cake_list_window {
+    Cake_Window **list;
+    ulonglong length;
+} Cake_List_Window;
+
+Cake_List_Window *cake_list_window();
+
 #ifdef CAKE_WINDOWS
-#include <windows.h>
 
 #define CAKE_WINDOW_STYLE_EX_ACCEPTFILES         WS_EX_ACCEPTFILES
 #define CAKE_WINDOW_STYLE_EX_APPWINDOW           WS_EX_APPWINDOW
@@ -190,23 +250,8 @@ Cake_OpenGL_RC cake_gl_attach(Cake_DC dc);
 
 #define cake_swap_buffers(__dc) SwapBuffers(__dc)
 
-// Structure commune à tous les widgets
-typedef struct cake_window_widget {
-    struct cake_window_widget *parent;
-    HWND handle;
-    uchar type;
-
-    int x, y;
-    int width, height;
-} Cake_Window_Widget;
-
 typedef struct cake_window Cake_Window;
 typedef cake_window_res (*Cake_Window_Proc)(cake_window_handle handle, uint msg, cake_wparam wparam, cake_lparam lparam, Cake_Window *window);
-
-typedef struct cake_list_window_widget {
-    Cake_Window_Widget **list;
-    ulonglong length;
-} Cake_List_Window_Widget;
 
 // Menu qui apparaît au dessus du contenu de la fenêtre
 typedef struct HMENU__ Cake_Window_Menu;
@@ -214,38 +259,6 @@ typedef struct HMENU__ Cake_Window_Menu;
 #define cake_window_menu_append(__menu, __flags, __id, __cakeCharValue) AppendMenuW(__menu, __flags, __id, __cakeCharValue)
 
 #define cake_destroy_window(__handle) DestroyWindow(__handle)
-
-struct cake_window {
-    Cake_Window_Widget widget;
-    Cake_List_Window_Widget widgets;
-
-    Cake_String_UTF8 *className;
-    Cake_String_UTF8 *title;
-    
-    DWORD exStyle;
-    DWORD style;
-    Cake_Window_Menu *menu;
-    Cake_Window_Proc proc;
-};
-
-typedef struct cake_list_window {
-    Cake_Window **list;
-    ulonglong length;
-} Cake_List_Window;
-
-Cake_List_Window *cake_list_window();
-
-Cake_Window *cake_window_windows(
-    Cake_Window_Widget *parent,
-    const char *className,
-    const char *title,
-    DWORD style,
-    DWORD extendedStyle,
-    int x, int y,
-    int width, int height,
-    uchar r, uchar g, uchar b,
-    Cake_Window_Proc proc
-);
 
 #define cake_window_first_show(w) ShowWindow(w, SW_SHOWNORMAL)
 #define cake_window_show(w) ShowWindow(w, SW_SHOW)
@@ -258,19 +271,37 @@ Cake_Window *cake_window_windows(
 
 #define cake_window_proc_default(hwnd, msg, wparam, lparam) DefWindowProcW(hwnd, msg, wparam, lparam)
 
-void cake_window_exec(Cake_Window *window);
+
 void cake_window_update_title(Cake_Window *window);
 cake_bool cake_window_set_menu(Cake_Window *window, Cake_Window_Menu *menu);
+
+void cake_window_cleanup();
+#else
+void cake_window_show(Cake_Window *window);
+
+#define cake_window_cleanup() 
 
 #endif
 
 cake_bool cake_window_init();
-void cake_window_cleanup();
+
 cake_bool cake_window_init_thread();
 void cake_window_cleanup_thread();
 cake_bool cake_window_set_current(ulonglong value);
 cake_bool cake_window_inc_current(ulonglong value);
 cake_bool cake_windows_dec_current(ulonglong value);
+
+Cake_Window *cake_window(
+    Cake_Window_Widget *parent,
+    const char *className,
+    const char *title,
+    int x, int y,
+    int width, int height,
+    uchar r, uchar g, uchar b,
+    Cake_Window_Events *events
+);
+
+void cake_window_exec(Cake_Window *window);
 
 #ifdef __cplusplus
 }
