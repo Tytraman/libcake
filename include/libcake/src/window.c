@@ -176,7 +176,7 @@ Cake_Window *cake_window(
         x, y, width, height, 1, XBlackPixel(window->widget.dpy, window->widget.screen), color.pixel
     );
 
-    XSelectInput(window->widget.dpy, window->widget.win, ExposureMask | KeyPressMask | StructureNotifyMask);
+    XSelectInput(window->widget.dpy, window->widget.win, ExposureMask | KeyPressMask | KeyReleaseMask | StructureNotifyMask);
     #endif
 
     fusion->list.list = (Cake_Window **) ptr;
@@ -203,14 +203,19 @@ Cake_Window *cake_window(
     winHints.res_class = (char *) window->className->bytes;
     winHints.res_name  = (char *) window->className->bytes;
     XSetClassHint(window->widget.dpy, window->widget.win, &winHints);
+    XStoreName(window->widget.dpy, window->widget.win, (cchar_ptr) window->title->bytes);
     if(events != NULL) {
         window->events.moveEvent    = events->moveEvent;
         window->events.resizeEvent  = events->resizeEvent;
         window->events.destroyEvent = events->destroyEvent;
+        window->events.keyPressedEvent  = events->keyPressedEvent;
+        window->events.keyReleasedEvent = events->keyReleasedEvent;
     }else {
         window->events.moveEvent    = NULL;
         window->events.resizeEvent  = NULL;
         window->events.destroyEvent = NULL;
+        window->events.keyPressedEvent  = NULL;
+        window->events.keyReleasedEvent = NULL;
     }
 
     Atom wmDeleteWin = XInternAtom(window->widget.dpy, "WM_DELETE_WINDOW", 1);
@@ -248,11 +253,11 @@ Cake_Window *cake_window(
     free(class16.characteres);
     free(title16.characteres);
     #endif
-
+    XStoreName(window->widget.dpy, window->widget.win, (cchar_ptr) window->title->bytes);
     return window;
 }
 
-void cake_window_exec(Cake_Window *window) {
+cake_bool cake_window_poll_events(Cake_Window *window) {
     #ifdef CAKE_WINDOWS
     MSG msg;
     while(GetMessageW(&msg, window->widget.handle, 0, 0) > 0) {
@@ -260,71 +265,89 @@ void cake_window_exec(Cake_Window *window) {
         DispatchMessageW(&msg);
     }
     #else
+    if(XPending(window->widget.dpy) == 0)
+        return cake_true;
     XEvent event;
-    int retCode;
-    for(;;) {
-        retCode = 0;
-        XNextEvent(window->widget.dpy, &event);
-        switch(event.type) {
-            case DestroyNotify:
-            case ClientMessage:{
-                if(window->events.destroyEvent != NULL)
-                    retCode = window->events.destroyEvent(window);
-            } break;
+    int retCode = 0;
+    XNextEvent(window->widget.dpy, &event);
+    switch(event.type) {
+        case KeyPress:{
+            if(window->events.keyPressedEvent != NULL)
+                retCode = window->events.keyPressedEvent(window, XLookupKeysym(&event.xkey, 0));
+        } break;
+        case KeyRelease:{
+            if(window->events.keyReleasedEvent != NULL)
+                retCode = window->events.keyReleasedEvent(window, XLookupKeysym(&event.xkey, 0));
+        } break;
+        case DestroyNotify:
+        case ClientMessage:{
+            if(window->events.destroyEvent != NULL)
+                retCode = window->events.destroyEvent(window);
+        } break;
 
-            // Quand la fenêtre est redimenssionnée
-            case ConfigureNotify:{
-                if(
-                    window->widget.width  != event.xconfigure.width ||
-                    window->widget.height != event.xconfigure.height
-                ) {
-                    window->widget.width = event.xconfigure.width;
-                    window->widget.height = event.xconfigure.height;
-                    if(window->events.resizeEvent != NULL)
-                        retCode = window->events.resizeEvent(&window->widget);
-                }
-                XWindowAttributes attr;
-                Window child;
-                int x, y;
-                XTranslateCoordinates(window->widget.dpy, window->widget.win, window->widget.rootWin, 0, 0, &x, &y, &child);
-                XGetWindowAttributes(window->widget.dpy, window->widget.rootWin, &attr);
-                if(
-                    window->widget.x != x ||
-                    window->widget.y != y
-                ) {
-                    window->widget.x = x;
-                    window->widget.y = y;
-                    if(window->events.moveEvent != NULL)
-                        retCode = window->events.moveEvent(&window->widget);
-                }
-            } break;
-        }
-        switch(retCode) {
-            default: break;
-            case -1:{
-                XDestroyWindow(window->widget.dpy, window->widget.win);
-            } goto end_loop;
-        }
+        // Quand la fenêtre est redimenssionnée
+        case ConfigureNotify:{
+            if(
+                window->widget.width  != event.xconfigure.width ||
+                window->widget.height != event.xconfigure.height
+            ) {
+                window->widget.width = event.xconfigure.width;
+                window->widget.height = event.xconfigure.height;
+                if(window->events.resizeEvent != NULL)
+                    retCode = window->events.resizeEvent(window);
+            }
+            XWindowAttributes attr;
+            Window child;
+            int x, y;
+            XTranslateCoordinates(window->widget.dpy, window->widget.win, window->widget.rootWin, 0, 0, &x, &y, &child);
+            XGetWindowAttributes(window->widget.dpy, window->widget.win, &attr);
+            x -= attr.x;
+            y -= attr.y;
+            if(
+                window->widget.x != x ||
+                window->widget.y != y
+            ) {
+                window->widget.x = x;
+                window->widget.y = y;
+                //printf("x: %d y: %d\n", window->widget.x, window->widget.y);
+                if(window->events.moveEvent != NULL)
+                    retCode = window->events.moveEvent(window);
+            }
+        } break;
     }
-    end_loop:
+    switch(retCode) {
+        default: return cake_true;
+        case -1:{
+            XDestroyWindow(window->widget.dpy, window->widget.win);
+        } return cake_false;
+    }
     #endif
 }
 
-/*
+
 void cake_window_update_title(Cake_Window *window) {
+    #ifdef CAKE_WINDOWS
     Cake_String_UTF16 name16;
     cake_create_strutf16(&name16);
     cake_strutf8_to_utf16(window->title, &name16);
     SetWindowTextW(window->widget.handle, name16.characteres);
     free(name16.characteres);
+    #else
+
+    #endif
 }
+
+/*
 
 cake_bool cake_window_set_menu(Cake_Window *window, Cake_Window_Menu *menu) {
     DestroyMenu(window->menu);
     return SetMenu(window->widget.handle, menu);
 }
 
-Cake_OpenGL_RC cake_gl_attach(Cake_DC dc) {
+*/
+
+Cake_OpenGL_RC cake_gl_attach(Cake_Window *window) {
+    #ifdef CAKE_WINDOWS
     PIXELFORMATDESCRIPTOR pfd = { 
     sizeof(PIXELFORMATDESCRIPTOR),  //  size of this pfd  
     1,                     // version number  
@@ -349,9 +372,49 @@ Cake_OpenGL_RC cake_gl_attach(Cake_DC dc) {
     int  iPixelFormat = ChoosePixelFormat(dc, &pfd);
     SetPixelFormat(dc, iPixelFormat, &pfd);
     return wglCreateContext(dc);
+    #else
+    int attr[] = {
+      GLX_X_RENDERABLE    , cake_true,
+      GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
+      GLX_RENDER_TYPE     , GLX_RGBA_BIT,
+      GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
+      GLX_RED_SIZE        , 8,
+      GLX_GREEN_SIZE      , 8,
+      GLX_BLUE_SIZE       , 8,
+      GLX_ALPHA_SIZE      , 8,
+      GLX_DEPTH_SIZE      , 24,
+      GLX_STENCIL_SIZE    , 8,
+      GLX_DOUBLEBUFFER    , cake_true,
+      0
+    };
 
+    int fbcount;
+    GLXFBConfig *fbc = glXChooseFBConfig(window->widget.dpy, window->widget.screen, attr, &fbcount);
+    if(fbc == NULL)
+        return NULL;
+    
+    int i, bestFbc = -1, bestSamples = -1;
+    for(i = 0; i < fbcount; ++i) {
+        XVisualInfo *viInfo = glXGetVisualFromFBConfig(window->widget.dpy, fbc[i]);
+        if(viInfo != NULL) {
+            int sampBuff, samples;
+            glXGetFBConfigAttrib(window->widget.dpy, fbc[i], GLX_SAMPLE_BUFFERS, &sampBuff);
+            glXGetFBConfigAttrib(window->widget.dpy, fbc[i], GLX_SAMPLES, &samples);
+            if((bestFbc < 0) || (sampBuff && (samples > bestSamples))) {
+                bestFbc = i;
+                bestSamples = samples;
+            }
+        }
+    }
+    GLXFBConfig myFbc = fbc[bestFbc];
+    XFree(fbc);
+    XVisualInfo *bestViInfo = glXGetVisualFromFBConfig(window->widget.dpy, myFbc);
+    GLXContext glContext = glXCreateContext(window->widget.dpy, bestViInfo, NULL, cake_true);
+    XFree(bestViInfo);
+    return glContext;
+    #endif
 }
-*/
+
 
 Cake_List_Window *cake_list_window() {
     Cake_List_Window *windows = (Cake_List_Window *) malloc(sizeof(*windows));

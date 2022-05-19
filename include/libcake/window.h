@@ -9,8 +9,11 @@ extern "C" {
 #include <windows.h>
 
 #else
+#include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
 
 #endif
 
@@ -43,14 +46,24 @@ typedef struct cake_window_widget {
     int width, height;
 } Cake_Window_Widget;
 
-typedef int (*Cake_Window_Move_Event)(Cake_Window_Widget *widget);
-typedef int (*Cake_Window_Resize_Event)(Cake_Window_Widget *widget);
+#ifdef CAKE_WINDOWS
+typedef DWORD cake_keycode;
+#else
+typedef KeySym cake_keycode;
+#endif
+
+typedef int (*Cake_Window_Move_Event)(Cake_Window *widget);
+typedef int (*Cake_Window_Resize_Event)(Cake_Window *widget);
 typedef int (*Cake_Window_Destroy_Event)(Cake_Window *window);
+typedef int (*Cake_Window_KeyPressed_Event)(Cake_Window *window, cake_keycode key);
+typedef int (*Cake_Window_KeyReleased_Event)(Cake_Window *window, cake_keycode key);
 
 typedef struct cake_window_events {
     Cake_Window_Move_Event moveEvent;
     Cake_Window_Resize_Event resizeEvent;
     Cake_Window_Destroy_Event destroyEvent;
+    Cake_Window_KeyPressed_Event keyPressedEvent;
+    Cake_Window_KeyReleased_Event keyReleasedEvent;
 } Cake_Window_Events;
 
 typedef struct cake_list_window_widget {
@@ -244,8 +257,8 @@ typedef HDC Cake_DC;
 #define cake_release_dc(__handle, __dc) ReleaseDC(__handle, __dc)
 
 typedef HGLRC Cake_OpenGL_RC;
-Cake_OpenGL_RC cake_gl_attach(Cake_DC dc);
-#define cake_gl_delete_context(__rc) wglDeleteContext(__rc)
+
+#define cake_gl_delete_context(__window, __rc) wglDeleteContext(__rc)
 #define cake_gl_make_current(__dc, __gl_rc) wglMakeCurrent(__dc, __gl_rc)
 
 #define cake_swap_buffers(__dc) SwapBuffers(__dc)
@@ -271,12 +284,135 @@ typedef struct HMENU__ Cake_Window_Menu;
 
 #define cake_window_proc_default(hwnd, msg, wparam, lparam) DefWindowProcW(hwnd, msg, wparam, lparam)
 
-
-void cake_window_update_title(Cake_Window *window);
 cake_bool cake_window_set_menu(Cake_Window *window, Cake_Window_Menu *menu);
 
 void cake_window_cleanup();
 #else
+
+#define CAKE_VK_BACK     XK_BackSpace
+#define CAKE_VK_TAB      XK_Tab
+#define CAKE_VK_CLEAR    XK_Clear
+#define CAKE_VK_RETURN   XK_Return
+#define CAKE_VK_LSHIFT   XK_Shift_L
+#define CAKE_VK_RSHIFT   XK_Shift_R
+#define CAKE_VK_SHIFT    CAKE_VK_LSHIFT
+#define CAKE_VK_LCONTROL XK_Control_L
+#define CAKE_VK_RCONTROL XK_Control_R
+#define CAKE_VK_CONTROL  CAKE_VK_LCONTROL
+#define CAKE_VK_MENU     XK_Menu
+#define CAKE_VK_PAUSE    XK_Pause
+#define CAKE_VK_CAPITAL  XK_Caps_Lock
+#define CAKE_VK_ESC      XK_Escape
+#define CAKE_VK_SPACE    XK_space
+#define CAKE_VK_PAGEUP   XK_Page_Up
+#define CAKE_VK_PAGEDOWN XK_Page_Down
+#define CAKE_VK_END      XK_End
+#define CAKE_VK_HOME     XK_Home
+#define CAKE_VK_LEFT     XK_Left
+#define CAKE_VK_UP       XK_Up
+#define CAKE_VK_RIGHT    XK_Right
+#define CAKE_VK_DOWN     XK_Down
+#define CAKE_VK_SELECT   XK_Select
+#define CAKE_VK_PRINT    XK_Print
+#define CAKE_VK_EXECUTE  XK_Execute
+#define CAKE_VK_INSERT   XK_Insert
+
+#define CAKE_VK_F1 XK_F1
+#define CAKE_VK_F2 XK_F2
+#define CAKE_VK_F3 XK_F3
+#define CAKE_VK_F4 XK_F4
+#define CAKE_VK_F5 XK_F5
+#define CAKE_VK_F6 XK_F6
+#define CAKE_VK_F7 XK_F7
+#define CAKE_VK_F8 XK_F8
+#define CAKE_VK_F9 XK_F9
+#define CAKE_VK_F10 XK_F10
+#define CAKE_VK_F11 XK_F11
+#define CAKE_VK_F12 XK_F12
+#define CAKE_VK_F13 XK_F13
+#define CAKE_VK_F14 XK_F14
+#define CAKE_VK_F15 XK_F15
+#define CAKE_VK_F16 XK_F16
+#define CAKE_VK_F17 XK_F17
+#define CAKE_VK_F18 XK_F18
+#define CAKE_VK_F19 XK_F19
+#define CAKE_VK_F20 XK_F20
+#define CAKE_VK_F21 XK_F21
+#define CAKE_VK_F22 XK_F22
+#define CAKE_VK_F23 XK_F23
+#define CAKE_VK_F24 XK_F24printf("%d FBConfigs.\n", fbcount);
+
+#define CAKE_VK_NUMLOCK XK_Num_Lock
+
+#define CAKE_VK_A XK_A
+#define CAKE_VK_B XK_B
+#define CAKE_VK_C XK_C
+#define CAKE_VK_D XK_D
+#define CAKE_VK_E XK_E
+#define CAKE_VK_F XK_F
+#define CAKE_VK_G XK_G
+#define CAKE_VK_H XK_H
+#define CAKE_VK_I XK_I
+#define CAKE_VK_J XK_J
+#define CAKE_VK_K XK_K
+#define CAKE_VK_L XK_L
+#define CAKE_VK_M XK_M
+#define CAKE_VK_N XK_N
+#define CAKE_VK_O XK_O
+#define CAKE_VK_P XK_P
+#define CAKE_VK_Q XK_Q
+#define CAKE_VK_R XK_R
+#define CAKE_VK_S XK_S
+#define CAKE_VK_T XK_T
+#define CAKE_VK_U XK_U
+#define CAKE_VK_V XK_V
+#define CAKE_VK_W XK_W
+#define CAKE_VK_X XK_X
+#define CAKE_VK_Y XK_Y
+#define CAKE_VK_Z XK_Z
+
+#define CAKE_VK_a XK_a
+#define CAKE_VK_b XK_b
+#define CAKE_VK_c XK_c
+#define CAKE_VK_d XK_d
+#define CAKE_VK_e XK_e
+#define CAKE_VK_f XK_f
+#define CAKE_VK_g XK_g
+#define CAKE_VK_h XK_h
+#define CAKE_VK_i XK_i
+#define CAKE_VK_j XK_j
+#define CAKE_VK_k XK_k
+#define CAKE_VK_l XK_l
+#define CAKE_VK_m XK_m
+#define CAKE_VK_n XK_n
+#define CAKE_VK_o XK_o
+#define CAKE_VK_p XK_p
+#define CAKE_VK_q XK_q
+#define CAKE_VK_r XK_r
+#define CAKE_VK_s XK_s
+#define CAKE_VK_t XK_t
+#define CAKE_VK_u XK_u
+#define CAKE_VK_v XK_v
+#define CAKE_VK_w XK_w
+#define CAKE_VK_x XK_x
+#define CAKE_VK_y XK_y
+#define CAKE_VK_z XK_z
+
+#define CAKE_VK_0 XK_0
+#define CAKE_VK_1 XK_1
+#define CAKE_VK_2 XK_2
+#define CAKE_VK_3 XK_3
+#define CAKE_VK_4 XK_4
+#define CAKE_VK_5 XK_5
+#define CAKE_VK_6 XK_6
+#define CAKE_VK_7 XK_7
+#define CAKE_VK_8 XK_8
+#define CAKE_VK_9 XK_9
+
+typedef GLXContext Cake_OpenGL_RC;
+
+#define cake_window_move(__window, __x, __y) XMoveWindow((__window).widget.dpy, (__window).widget.win, __x, __y)
+
 void cake_window_show(Cake_Window *window);
 
 #define cake_window_cleanup() 
@@ -291,6 +427,8 @@ cake_bool cake_window_set_current(ulonglong value);
 cake_bool cake_window_inc_current(ulonglong value);
 cake_bool cake_windows_dec_current(ulonglong value);
 
+void cake_window_update_title(Cake_Window *window);
+
 Cake_Window *cake_window(
     Cake_Window_Widget *parent,
     const char *className,
@@ -301,7 +439,12 @@ Cake_Window *cake_window(
     Cake_Window_Events *events
 );
 
-void cake_window_exec(Cake_Window *window);
+cake_bool cake_window_poll_events(Cake_Window *window);
+
+Cake_OpenGL_RC cake_gl_attach(Cake_Window *window);
+#define cake_gl_make_current(__window, __gl_rc) glXMakeCurrent((__window).widget.dpy, (__window).widget.win, __gl_rc)
+#define cake_gl_delete_context(__window, __gl_rc) glXDestroyContext((__window).widget.dpy, __gl_rc)
+#define cake_swap_buffers(__window) glXSwapBuffers((__window).widget.dpy, (__window).widget.win)
 
 #ifdef __cplusplus
 }
