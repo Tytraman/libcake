@@ -53,11 +53,30 @@ typedef WPARAM cake_keycode;
 typedef KeySym cake_keycode;
 #endif
 
-typedef int (*Cake_Window_Move_Event)(Cake_Window *window);
-typedef int (*Cake_Window_Resize_Event)(Cake_Window *window);
-typedef int (*Cake_Window_Destroy_Event)(Cake_Window *window);
-typedef int (*Cake_Window_KeyPressed_Event)(Cake_Window *window, cake_keycode key);
-typedef int (*Cake_Window_KeyReleased_Event)(Cake_Window *window, cake_keycode key);
+typedef struct cake_window_move_event {
+    int (*callback)(Cake_Window *window, void *args);
+    void *args;
+} Cake_Window_Move_Event;
+
+typedef struct cake_window_resize_event {
+    int (*callback)(Cake_Window *window, void *args);
+    void *args;
+} Cake_Window_Resize_Event;
+
+typedef struct cake_window_destroy_event {
+    int (*callback)(Cake_Window *window, void *args);
+    void *args;
+} Cake_Window_Destroy_Event;
+
+typedef struct cake_window_keypressed_event {
+    int (*callback)(Cake_Window *window, cake_keycode key, void *args);
+    void *args;
+} Cake_Window_KeyPressed_Event;
+
+typedef struct cake_window_keyreleased_event {
+    int (*callback)(Cake_Window *window, cake_keycode key, void *args);
+    void *args;
+} Cake_Window_KeyReleased_Event;
 
 typedef struct cake_window_events {
     Cake_Window_Move_Event moveEvent;
@@ -416,7 +435,7 @@ void cake_window_cleanup();
 
 typedef GLXContext Cake_OpenGL_RC;
 
-#define cake_window_move(__window, __x, __y) XMoveWindow((__window).widget.dpy, (__window).widget.win, __x, __y)
+#define cake_window_move(__window, __x, __y) XMoveWindow((*__window).widget.dpy, (*__window).widget.win, __x, __y)
 
 void cake_window_show(Cake_Window *window);
 

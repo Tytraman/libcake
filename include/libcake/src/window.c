@@ -111,24 +111,24 @@ cake_window_res __cake_window_proc(cake_window_handle hwnd, uint msg, cake_wpara
             GetWindowRect(hwnd, &size);
             fusion->list.list[fusion->current]->widget.width = size.right - size.left;
             fusion->list.list[fusion->current]->widget.height = size.bottom - size.top;
-            if(fusion->list.list[fusion->current]->events.resizeEvent != NULL)
-                retCode = fusion->list.list[fusion->current]->events.resizeEvent(fusion->list.list[fusion->current]);
+            if(fusion->list.list[fusion->current]->events.resizeEvent.callback != NULL)
+                retCode = fusion->list.list[fusion->current]->events.resizeEvent.callback(fusion->list.list[fusion->current], fusion->list.list[fusion->current]->events.resizeEvent.args);
         } break;
         case CAKE_WINDOW_EVENT_MOVE:{
             RECT pos;
             GetWindowRect(hwnd, &pos);
             fusion->list.list[fusion->current]->widget.x = pos.left;
             fusion->list.list[fusion->current]->widget.y = pos.top;
-            if(fusion->list.list[fusion->current]->events.moveEvent != NULL)
-                retCode = fusion->list.list[fusion->current]->events.moveEvent(fusion->list.list[fusion->current]);
+            if(fusion->list.list[fusion->current]->events.moveEvent.callback != NULL)
+                retCode = fusion->list.list[fusion->current]->events.moveEvent.callback(fusion->list.list[fusion->current], fusion->list.list[fusion->current]->events.moveEvent.args);
         } break;
         case CAKE_WINDOW_EVENT_KEYDOWN:{
-            if(fusion->list.list[fusion->current]->events.keyPressedEvent != NULL)
-                retCode = fusion->list.list[fusion->current]->events.keyPressedEvent(fusion->list.list[fusion->current], wparam);
+            if(fusion->list.list[fusion->current]->events.keyPressedEvent.callback != NULL)
+                retCode = fusion->list.list[fusion->current]->events.keyPressedEvent.callback(fusion->list.list[fusion->current], wparam, fusion->list.list[fusion->current]->events.keyPressedEvent.args);
         } break;
         case CAKE_WINDOW_EVENT_DESTROY:{
-            if(fusion->list.list[fusion->current]->events.destroyEvent != NULL)
-                retCode = fusion->list.list[fusion->current]->events.destroyEvent(fusion->list.list[fusion->current]);
+            if(fusion->list.list[fusion->current]->events.destroyEvent.callback != NULL)
+                retCode = fusion->list.list[fusion->current]->events.destroyEvent.callback(fusion->list.list[fusion->current], fusion->list.list[fusion->current]->events.destroyEvent.args);
         } break;
     }
     switch(retCode) {
@@ -225,11 +225,11 @@ Cake_Window *cake_window(
         window->events.keyPressedEvent  = events->keyPressedEvent;
         window->events.keyReleasedEvent = events->keyReleasedEvent;
     }else {
-        window->events.moveEvent    = NULL;
-        window->events.resizeEvent  = NULL;
-        window->events.destroyEvent = NULL;
-        window->events.keyPressedEvent  = NULL;
-        window->events.keyReleasedEvent = NULL;
+        window->events.moveEvent.callback    = NULL;
+        window->events.resizeEvent.callback  = NULL;
+        window->events.destroyEvent.callback = NULL;
+        window->events.keyPressedEvent.callback  = NULL;
+        window->events.keyReleasedEvent.callback = NULL;
     }
 
     #ifdef CAKE_UNIX
@@ -295,20 +295,20 @@ cake_bool cake_window_poll_events(Cake_Window *window) {
     XNextEvent(window->widget.dpy, &event);
     switch(event.type) {
         case KeyPress:{
-            if(window->events.keyPressedEvent != NULL)
-                retCode = window->events.keyPressedEvent(window, XLookupKeysym(&event.xkey, 0));
+            if(window->events.keyPressedEvent.callback != NULL)
+                retCode = window->events.keyPressedEvent.callback(window, XLookupKeysym(&event.xkey, 0), window->events.keyPressedEvent.args);
         } break;
         case KeyRelease:{
-            if(window->events.keyReleasedEvent != NULL)
-                retCode = window->events.keyReleasedEvent(window, XLookupKeysym(&event.xkey, 0));
+            if(window->events.keyReleasedEvent.callback != NULL)
+                retCode = window->events.keyReleasedEvent.callback(window, XLookupKeysym(&event.xkey, 0), window->events.keyReleasedEvent.args);
         } break;
         case DestroyNotify:
         case ClientMessage:{
-            if(window->events.destroyEvent != NULL)
-                retCode = window->events.destroyEvent(window);
+            if(window->events.destroyEvent.callback != NULL)
+                retCode = window->events.destroyEvent.callback(window, window->events.destroyEvent.args);
         } break;
 
-        // Quand la fenêtre est redimenssionnée
+        // Quand la fenêtre est redimenssionnée ou déplacée
         case ConfigureNotify:{
             if(
                 window->widget.width  != event.xconfigure.width ||
@@ -316,8 +316,8 @@ cake_bool cake_window_poll_events(Cake_Window *window) {
             ) {
                 window->widget.width = event.xconfigure.width;
                 window->widget.height = event.xconfigure.height;
-                if(window->events.resizeEvent != NULL)
-                    retCode = window->events.resizeEvent(window);
+                if(window->events.resizeEvent.callback != NULL)
+                    retCode = window->events.resizeEvent.callback(window, window->events.resizeEvent.args);
             }
             XWindowAttributes attr;
             Window child;
@@ -333,8 +333,8 @@ cake_bool cake_window_poll_events(Cake_Window *window) {
                 window->widget.x = x;
                 window->widget.y = y;
                 //printf("x: %d y: %d\n", window->widget.x, window->widget.y);
-                if(window->events.moveEvent != NULL)
-                    retCode = window->events.moveEvent(window);
+                if(window->events.moveEvent.callback != NULL)
+                    retCode = window->events.moveEvent.callback(window, window->events.moveEvent.args);
             }
         } break;
     }
@@ -455,6 +455,13 @@ void cake_window_show(Cake_Window *window) {
     XMapWindow(window->widget.dpy, window->widget.win);
     XFlush(window->widget.dpy);
 }
+
+/*
+void cake_window_move(Cake_Window *window, int x, int y) {
+    XMoveWindow(window->widget.dpy, window->widget.win, x, y);
+    XFlush(window->widget.dpy);
+}
+*/
 #endif
 
 void cake_free_window(Cake_Window *window) {
