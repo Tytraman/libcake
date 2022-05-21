@@ -4,6 +4,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include "def.h"
+#include "strutf16.h"
+#include "strutf8.h"
 
 #ifdef CAKE_WINDOWS
 #include <windows.h>
@@ -17,9 +20,7 @@ extern "C" {
 
 #endif
 
-#include "def.h"
-#include "strutf16.h"
-#include "strutf8.h"
+
 
 #define CAKE_WINDOW_WIDGET_WINDOW  0
 #define CAKE_WINDOW_WIDGET_MENU    1
@@ -47,13 +48,13 @@ typedef struct cake_window_widget {
 } Cake_Window_Widget;
 
 #ifdef CAKE_WINDOWS
-typedef DWORD cake_keycode;
+typedef WPARAM cake_keycode;
 #else
 typedef KeySym cake_keycode;
 #endif
 
-typedef int (*Cake_Window_Move_Event)(Cake_Window *widget);
-typedef int (*Cake_Window_Resize_Event)(Cake_Window *widget);
+typedef int (*Cake_Window_Move_Event)(Cake_Window *window);
+typedef int (*Cake_Window_Resize_Event)(Cake_Window *window);
 typedef int (*Cake_Window_Destroy_Event)(Cake_Window *window);
 typedef int (*Cake_Window_KeyPressed_Event)(Cake_Window *window, cake_keycode key);
 typedef int (*Cake_Window_KeyReleased_Event)(Cake_Window *window, cake_keycode key);
@@ -73,12 +74,15 @@ typedef struct cake_list_window_widget {
 
 struct cake_window {
     Cake_Window_Widget widget;
-    Cake_List_Window_Widget widgets;
 
     Cake_String_UTF8 *className;
     Cake_String_UTF8 *title;
 
     Cake_Window_Events events;
+    #ifdef CAKE_WINDOWS
+    cake_bool active;
+    HDC hdc;
+    #endif
 };
 
 typedef struct cake_list_window {
@@ -258,11 +262,6 @@ typedef HDC Cake_DC;
 
 typedef HGLRC Cake_OpenGL_RC;
 
-#define cake_gl_delete_context(__window, __rc) wglDeleteContext(__rc)
-#define cake_gl_make_current(__dc, __gl_rc) wglMakeCurrent(__dc, __gl_rc)
-
-#define cake_swap_buffers(__dc) SwapBuffers(__dc)
-
 typedef struct cake_window Cake_Window;
 typedef cake_window_res (*Cake_Window_Proc)(cake_window_handle handle, uint msg, cake_wparam wparam, cake_lparam lparam, Cake_Window *window);
 
@@ -273,18 +272,24 @@ typedef struct HMENU__ Cake_Window_Menu;
 
 #define cake_destroy_window(__handle) DestroyWindow(__handle)
 
-#define cake_window_first_show(w) ShowWindow(w, SW_SHOWNORMAL)
-#define cake_window_show(w) ShowWindow(w, SW_SHOW)
-#define cake_window_hide(w) ShowWindow(w, SW_HIDE)
-#define cake_window_show_minimized(w) ShowWindow(w, SW_SHOWMINIMIZED)
-#define cake_window_show_maximized(w) ShowWindow(w, SW_SHOWMAXIMIZED)
-#define cake_window_minimize(w) ShowWindow(w, SW_MINIMIZE);
+#define cake_window_first_show(__window) ShowWindow((__window).widget.handle, SW_SHOWNORMAL)
+#define cake_window_show(__window) ShowWindow((__window).widget.handle, SW_SHOW)
+#define cake_window_hide(__window) ShowWindow((__window).widget.handle, SW_HIDE)
+#define cake_window_show_minimized(__window) ShowWindow((__window).widget.handle, SW_SHOWMINIMIZED)
+#define cake_window_show_maximized(__window) ShowWindow((__window).widget.handle, SW_SHOWMAXIMIZED)
+#define cake_window_minimize(__window) ShowWindow((__window).widget.handle, SW_MINIMIZE);
 
 #define cake_window_post_quit_event(__retCode) PostQuitMessage(__retCode)
 
 #define cake_window_proc_default(hwnd, msg, wparam, lparam) DefWindowProcW(hwnd, msg, wparam, lparam)
 
+#define cake_window_move(__window, __x, __y) MoveWindow((__window).widget.handle, __x, __y, (__window).widget.width, (__window).widget.height, cake_true)
+
 cake_bool cake_window_set_menu(Cake_Window *window, Cake_Window_Menu *menu);
+
+#define cake_gl_make_current(__window, __gl_rc) wglMakeCurrent((__window).hdc, __gl_rc)
+#define cake_gl_delete_context(__window, __gl_rc) wglDeleteContext(__gl_rc)
+#define cake_swap_buffers(__window) SwapBuffers((__window).hdc)
 
 void cake_window_cleanup();
 #else
@@ -415,7 +420,11 @@ typedef GLXContext Cake_OpenGL_RC;
 
 void cake_window_show(Cake_Window *window);
 
-#define cake_window_cleanup() 
+#define cake_window_cleanup()
+
+#define cake_gl_make_current(__window, __gl_rc) glXMakeCurrent((__window).widget.dpy, (__window).widget.win, __gl_rc)
+#define cake_gl_delete_context(__window, __gl_rc) glXDestroyContext((__window).widget.dpy, __gl_rc)
+#define cake_swap_buffers(__window) glXSwapBuffers((__window).widget.dpy, (__window).widget.win)
 
 #endif
 
@@ -442,9 +451,9 @@ Cake_Window *cake_window(
 cake_bool cake_window_poll_events(Cake_Window *window);
 
 Cake_OpenGL_RC cake_gl_attach(Cake_Window *window);
-#define cake_gl_make_current(__window, __gl_rc) glXMakeCurrent((__window).widget.dpy, (__window).widget.win, __gl_rc)
-#define cake_gl_delete_context(__window, __gl_rc) glXDestroyContext((__window).widget.dpy, __gl_rc)
-#define cake_swap_buffers(__window) glXSwapBuffers((__window).widget.dpy, (__window).widget.win)
+
+void cake_free_window(Cake_Window *window);
+
 
 #ifdef __cplusplus
 }

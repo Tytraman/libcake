@@ -102,20 +102,43 @@ cake_window_res __cake_window_proc(cake_window_handle hwnd, uint msg, cake_wpara
     struct cake_fusion_index_thread *fusion = (struct cake_fusion_index_thread *) TlsGetValue(__indexThreadWindow);
     if(fusion == NULL)
         return cake_window_proc_default(hwnd, msg, wparam, lparam);
+    int retCode = 0;
     switch(msg) {
-        default: break;
-        case CAKE_WINDOW_EVENT_RESIZE:
-            fusion->list.list[fusion->current]->widget.width = lparam & 0xFFFF;
-            fusion->list.list[fusion->current]->widget.height = (lparam >> 16) & 0xFFFF;
-            break;
-        case CAKE_WINDOW_EVENT_MOVE:
-            fusion->list.list[fusion->current]->widget.x = (short) (lparam & 0xFFFF);
-            fusion->list.list[fusion->current]->widget.y = (short) (((lparam >> 16) & 0xFFFF));
-            break;
+        default:
+            return cake_window_proc_default(hwnd, msg, wparam, lparam);
+        case CAKE_WINDOW_EVENT_RESIZE:{
+            RECT size;
+            GetWindowRect(hwnd, &size);
+            fusion->list.list[fusion->current]->widget.width = size.right - size.left;
+            fusion->list.list[fusion->current]->widget.height = size.bottom - size.top;
+            if(fusion->list.list[fusion->current]->events.resizeEvent != NULL)
+                retCode = fusion->list.list[fusion->current]->events.resizeEvent(fusion->list.list[fusion->current]);
+        } break;
+        case CAKE_WINDOW_EVENT_MOVE:{
+            RECT pos;
+            GetWindowRect(hwnd, &pos);
+            fusion->list.list[fusion->current]->widget.x = pos.left;
+            fusion->list.list[fusion->current]->widget.y = pos.top;
+            if(fusion->list.list[fusion->current]->events.moveEvent != NULL)
+                retCode = fusion->list.list[fusion->current]->events.moveEvent(fusion->list.list[fusion->current]);
+        } break;
+        case CAKE_WINDOW_EVENT_KEYDOWN:{
+            if(fusion->list.list[fusion->current]->events.keyPressedEvent != NULL)
+                retCode = fusion->list.list[fusion->current]->events.keyPressedEvent(fusion->list.list[fusion->current], wparam);
+        } break;
+        case CAKE_WINDOW_EVENT_DESTROY:{
+            if(fusion->list.list[fusion->current]->events.destroyEvent != NULL)
+                retCode = fusion->list.list[fusion->current]->events.destroyEvent(fusion->list.list[fusion->current]);
+        } break;
     }
-    if(fusion->list.list[fusion->current]->proc != NULL)
-        return fusion->list.list[fusion->current]->proc(hwnd, msg, wparam, lparam, fusion->list.list[fusion->current]);
-    return cake_window_proc_default(hwnd, msg, wparam, lparam);
+    switch(retCode) {
+        default: return 0;
+        case -1:{
+            fusion->list.list[fusion->current]->active = cake_false;
+            PostQuitMessage(0);
+            return 0;
+        }
+    }
 }
 #endif
 
@@ -161,7 +184,6 @@ Cake_Window *cake_window(
 
     window->widget.screen = XDefaultScreen(window->widget.dpy);
 
-    window->widget.parent = parent;
     Window parentWin;
     if(parent != NULL) {
         parentWin = parent->win;
@@ -193,17 +215,9 @@ Cake_Window *cake_window(
     window->widget.width  = width;
     window->widget.height = height;
 
-    window->widgets.list = NULL;
-    window->widgets.length = 0;
-
     window->className = cake_strutf8(className);
     window->title     = cake_strutf8(title);
 
-    XClassHint winHints;
-    winHints.res_class = (char *) window->className->bytes;
-    winHints.res_name  = (char *) window->className->bytes;
-    XSetClassHint(window->widget.dpy, window->widget.win, &winHints);
-    XStoreName(window->widget.dpy, window->widget.win, (cchar_ptr) window->title->bytes);
     if(events != NULL) {
         window->events.moveEvent    = events->moveEvent;
         window->events.resizeEvent  = events->resizeEvent;
@@ -218,10 +232,18 @@ Cake_Window *cake_window(
         window->events.keyReleasedEvent = NULL;
     }
 
+    #ifdef CAKE_UNIX
+    XClassHint winHints;
+    winHints.res_class = (char *) window->className->bytes;
+    winHints.res_name  = (char *) window->className->bytes;
+    XSetClassHint(window->widget.dpy, window->widget.win, &winHints);
+    XStoreName(window->widget.dpy, window->widget.win, (cchar_ptr) window->title->bytes);
+
     Atom wmDeleteWin = XInternAtom(window->widget.dpy, "WM_DELETE_WINDOW", 1);
     XSetWMProtocols(window->widget.dpy, window->widget.win, &wmDeleteWin, 1);
-
-    #ifdef CAKE_WINDOWS
+    XStoreName(window->widget.dpy, window->widget.win, (cchar_ptr) window->title->bytes);
+    #elif CAKE_WINDOWS
+    window->active = cake_true;
     Cake_String_UTF16 class16, title16;
     cake_create_strutf16(&class16);
     cake_create_strutf16(&title16);
@@ -235,35 +257,36 @@ Cake_Window *cake_window(
     wc.lpszClassName = class16.characteres;
     wc.hbrBackground = CreateSolidBrush(RGB(r, g, b));
     wc.lpfnWndProc = __cake_window_proc;
-    wc.cbWndExtra = sizeof(&window->widget);
 
     RegisterClassExW(&wc);
 
     window->widget.handle = CreateWindowExW(
-        extendedStyle,
+        0,
         class16.characteres,
         title16.characteres,
-        style,
+        CAKE_WINDOW_STYLE_OVERLAPPEDWINDOW,
         x, y,
         width, height,
         (window->widget.parent != NULL ? window->widget.parent->handle : NULL),
-        window->menu,
-        wc.hInstance, window
+        NULL,
+        wc.hInstance,
+        NULL
     );
+    window->hdc = NULL;
     free(class16.characteres);
     free(title16.characteres);
     #endif
-    XStoreName(window->widget.dpy, window->widget.win, (cchar_ptr) window->title->bytes);
     return window;
 }
 
 cake_bool cake_window_poll_events(Cake_Window *window) {
     #ifdef CAKE_WINDOWS
     MSG msg;
-    while(GetMessageW(&msg, window->widget.handle, 0, 0) > 0) {
+    if(PeekMessageW(&msg, window->widget.handle, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessageW(&msg);
     }
+    return window->active;
     #else
     if(XPending(window->widget.dpy) == 0)
         return cake_true;
@@ -369,9 +392,11 @@ Cake_OpenGL_RC cake_gl_attach(Cake_Window *window) {
     0, 0, 0                // layer masks ignored  
     };
 
-    int  iPixelFormat = ChoosePixelFormat(dc, &pfd);
-    SetPixelFormat(dc, iPixelFormat, &pfd);
-    return wglCreateContext(dc);
+    window->hdc = GetDC(window->widget.handle);
+    int  iPixelFormat = ChoosePixelFormat(window->hdc, &pfd);
+    SetPixelFormat(window->hdc, iPixelFormat, &pfd);
+    Cake_OpenGL_RC rc = wglCreateContext(window->hdc);
+    return rc;
     #else
     int attr[] = {
       GLX_X_RENDERABLE    , cake_true,
@@ -431,3 +456,12 @@ void cake_window_show(Cake_Window *window) {
     XFlush(window->widget.dpy);
 }
 #endif
+
+void cake_free_window(Cake_Window *window) {
+    cake_free_strutf8(window->className);
+    cake_free_strutf8(window->title);
+    #ifdef CAKE_WINDOWS
+    ReleaseDC(window->widget.handle, window->hdc);
+    #endif
+    free(window);
+}
