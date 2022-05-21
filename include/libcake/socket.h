@@ -5,13 +5,8 @@
 
 #ifdef CAKE_WINDOWS
 
-#ifndef CAKE_WIN_SOCK
-#define CAKE_WIN_SOCK 0
-#endif
 
-#if CAKE_WIN_SOCK > 0
 #include <ws2tcpip.h>
-#endif
 
 typedef int cake_socklen;
 

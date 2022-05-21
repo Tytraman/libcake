@@ -5,20 +5,8 @@
 #include "socket.h"
 #include "strutf8.h"
 
-#ifndef CAKE_WIN_SOCK
-#define CAKE_WIN_SOCK 0
-#endif
 
-#ifndef CAKE_SSL
-#define CAKE_SSL 0
-#endif
-
-#if CAKE_SSL > 0
 #include <openssl/ssl.h>
-#else
-typedef cake_undefined_type SSL;
-typedef cake_undefined_type SSL_CTX;
-#endif
 
 #define CAKE_HTTP_GET  0
 #define CAKE_HTTP_POST 1

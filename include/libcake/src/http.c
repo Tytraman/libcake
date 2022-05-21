@@ -2,13 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#if CAKE_SSL > 0
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#endif
 
-
-#if defined(CAKE_UNIX) || (defined(CAKE_WINDOWS) && CAKE_WIN_SOCK > 0)
 cake_bool cake_create_http_client(Cake_HttpClient *client, const char *hostname, const char *port) {
     if(!cake_create_client_socket(&client->sock, hostname, port, CAKE_IP_V4))
         return cake_false;
@@ -35,7 +31,6 @@ cake_bool cake_create_http_client(Cake_HttpClient *client, const char *hostname,
     return cake_true;
 }
 
-#if CAKE_SSL > 0
 Cake_AcceptedHttpClient *cake_http_server_accept(Cake_HttpServer *server, ulonglong requestMessageMaxLength) {
     Cake_AcceptedHttpClient *client = (Cake_AcceptedHttpClient *) malloc(sizeof(Cake_AcceptedHttpClient));
 
@@ -89,7 +84,6 @@ Cake_AcceptedHttpsClient *cake_https_server_accept(Cake_HttpsServer *server, ulo
     }
     return client;
 }
-#endif
 
 void cake_free_http_client(Cake_HttpClient *client) {
     cake_clear_http_response(&client->response);
@@ -164,7 +158,7 @@ cake_bool cake_http_client_send(Cake_HttpClient *client, cake_byte mode) {
                 diff = client->request.formattedHeader->data.length - index;
                 if(diff == 0)
                     break;
-                if((bytesSent = send(client->sock.socket, &client->request.formattedHeader->bytes[index], (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff), 0)) == CAKE_HTTP_ERROR_SEND)
+                if((bytesSent = send(client->sock.socket, (cchar_ptr) client->request.formattedHeader->bytes + index, (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff), 0)) == CAKE_HTTP_ERROR_SEND)
                     return cake_false;
                 index += bytesSent;
             }
@@ -174,7 +168,7 @@ cake_bool cake_http_client_send(Cake_HttpClient *client, cake_byte mode) {
                 diff = client->request.message.size - index;
                 if(diff == 0)
                     break;
-                if((bytesSent = send(client->sock.socket, &client->request.message.buffer[index], (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff), 0)) == CAKE_HTTP_ERROR_SEND)
+                if((bytesSent = send(client->sock.socket, (cchar_ptr) client->request.message.buffer + index, (diff > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : diff), 0)) == CAKE_HTTP_ERROR_SEND)
                     return cake_false;
                 index += bytesSent;
             }
@@ -188,20 +182,16 @@ cake_bool cake_http_client_send(Cake_HttpClient *client, cake_byte mode) {
 
 typedef struct HttpSendFusion {
     cake_socket sock;
-    #if CAKE_SSL > 0
     SSL *ssl;
-    #endif
 } HttpSendFusion;
 
 int __http_send_callback(HttpSendFusion *fusion, uchar *buff, int length) {
-    return send(fusion->sock, buff, length, 0);
+    return send(fusion->sock, (cchar_ptr) buff, length, 0);
 }
 
-#if CAKE_SSL > 0
 int __https_send_callback(HttpSendFusion *fusion, uchar *buff, int length) {
     return SSL_write(fusion->ssl, buff, length);
 }
-#endif
 
 cake_bool __accepted_http_client_send(Cake_AcceptedHttpClient *client, cake_byte mode, HttpSendFusion *fusion, int (*sendCallback)(HttpSendFusion *, uchar *, int)) {
     ulonglong index = 0;
@@ -241,13 +231,11 @@ cake_bool cake_accepted_http_client_send(Cake_AcceptedHttpClient *client, cake_b
     return __accepted_http_client_send(client, mode, &fusion, __http_send_callback);
 }
 
-#if CAKE_SSL > 0
 cake_bool cake_accepted_https_client_send(Cake_AcceptedHttpsClient *client, cake_byte mode) {
     HttpSendFusion fusion;
     fusion.ssl = client->ssl;
     return __accepted_http_client_send(client->client, mode, &fusion, __https_send_callback);
 }
-#endif
 
 void cake_free_accepted_http_client(Cake_AcceptedHttpClient *client) {
     cake_clear_http_response(&client->response);
@@ -343,25 +331,21 @@ accepted_http_client_parse_header_ignore:
 
 typedef struct HttpReceiveFusion {
     cake_socket sock;
-    #if CAKE_SSL > 0 
     SSL *ssl;
-    #endif
 } HttpReceiveFusion;
 
-int __http_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length) {
+int __http_receive_callback(HttpReceiveFusion *fusion, char *buff, int length) {
     return recv(fusion->sock, buff, length, 0);
 }
 
-#if CAKE_SSL > 0
-int __https_receive_callback(HttpReceiveFusion *fusion, uchar *buff, int length) {
+int __https_receive_callback(HttpReceiveFusion *fusion, char *buff, int length) {
     return SSL_read(fusion->ssl, buff, length);
 }
-#endif
 
-cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, uchar *, int)) {
+cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, HttpReceiveFusion *fusion, int (*recvCallback)(HttpReceiveFusion *, char *, int)) {
     int bytesRead;
     
-    uchar buffer[CAKE_BUFF_SIZE];
+    char buffer[CAKE_BUFF_SIZE];
     ulonglong tempLength = 0;
     uchar *search;
     cake_bool pass = cake_false;
@@ -416,7 +400,7 @@ cake_byte __cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMess
                 remain = destMessage->size;
             if(remain > 0) {
                 while(1) {
-                    bytesRead = recvCallback(fusion, &destMessage->buffer[current], (remain > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : remain));
+                    bytesRead = recvCallback(fusion, (char *) destMessage->buffer + current, (remain > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : remain));
                     if(bytesRead == CAKE_HTTP_ERROR_RECV)
                         return CAKE_HTTP_ERROR_RECEIVE;
                     else if(bytesRead == 0)
@@ -440,13 +424,11 @@ cake_byte cake_http_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessag
     return __cake_http_receive(dest, destMessage, header, getOrPost, url, &fusion, __http_receive_callback);
 }
 
-#if CAKE_SSL > 0
 cake_byte cake_https_receive(Cake_BytesBuffer *dest, Cake_BytesBuffer *destMessage, Cake_HttpHeader **header, cake_byte *getOrPost, Cake_String_UTF8 *url, SSL *ssl) {
     HttpReceiveFusion fusion;
     fusion.ssl = ssl;
     return __cake_http_receive(dest, destMessage, header, getOrPost, url, &fusion, __https_receive_callback);
 }
-#endif
 
 Cake_LinkedList_String_UTF8_Pair *cake_accepted_http_client_parse_post_message(Cake_AcceptedHttpClient *client) {
     Cake_LinkedList_String_UTF8_Pair *current = NULL;
@@ -508,7 +490,6 @@ Cake_HttpHeader *cake_http_header_find(Cake_HttpHeader *first, const char *key) 
     return first;
 }
 
-#if CAKE_SSL > 0
 void cake_init_openssl() {
     ERR_load_crypto_strings();
     SSL_load_error_strings();
@@ -581,7 +562,6 @@ void cake_free_accepted_https_client(Cake_AcceptedHttpsClient *client) {
     cake_free_accepted_http_client(client->client);
     free(client);
 }
-#endif
 
 void cake_create_http_response(Cake_HttpResponse *response) {
     response->formattedHeader = cake_strutf8("");
@@ -620,4 +600,3 @@ void cake_clear_http_request(Cake_HttpRequest *request) {
     free(request->receivedData.buffer);
     free(request->message.buffer);
 }
-#endif

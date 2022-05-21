@@ -272,12 +272,12 @@ typedef struct HMENU__ Cake_Window_Menu;
 
 #define cake_destroy_window(__handle) DestroyWindow(__handle)
 
-#define cake_window_first_show(__window) ShowWindow((__window).widget.handle, SW_SHOWNORMAL)
-#define cake_window_show(__window) ShowWindow((__window).widget.handle, SW_SHOW)
-#define cake_window_hide(__window) ShowWindow((__window).widget.handle, SW_HIDE)
-#define cake_window_show_minimized(__window) ShowWindow((__window).widget.handle, SW_SHOWMINIMIZED)
-#define cake_window_show_maximized(__window) ShowWindow((__window).widget.handle, SW_SHOWMAXIMIZED)
-#define cake_window_minimize(__window) ShowWindow((__window).widget.handle, SW_MINIMIZE);
+#define cake_window_first_show(__window) ShowWindow((*__window).widget.handle, SW_SHOWNORMAL)
+#define cake_window_show(__window) ShowWindow((*__window).widget.handle, SW_SHOW)
+#define cake_window_hide(__window) ShowWindow((*__window).widget.handle, SW_HIDE)
+#define cake_window_show_minimized(__window) ShowWindow((*__window).widget.handle, SW_SHOWMINIMIZED)
+#define cake_window_show_maximized(__window) ShowWindow((*__window).widget.handle, SW_SHOWMAXIMIZED)
+#define cake_window_minimize(__window) ShowWindow((*__window).widget.handle, SW_MINIMIZE);
 
 #define cake_window_post_quit_event(__retCode) PostQuitMessage(__retCode)
 
@@ -420,11 +420,13 @@ typedef GLXContext Cake_OpenGL_RC;
 
 void cake_window_show(Cake_Window *window);
 
+#define cake_window_first_show(__window) cake_window_show(__window)
+
 #define cake_window_cleanup()
 
-#define cake_gl_make_current(__window, __gl_rc) glXMakeCurrent((__window).widget.dpy, (__window).widget.win, __gl_rc)
-#define cake_gl_delete_context(__window, __gl_rc) glXDestroyContext((__window).widget.dpy, __gl_rc)
-#define cake_swap_buffers(__window) glXSwapBuffers((__window).widget.dpy, (__window).widget.win)
+#define cake_gl_make_current(__window, __gl_rc) glXMakeCurrent((*__window).widget.dpy, (*__window).widget.win, __gl_rc)
+#define cake_gl_delete_context(__window, __gl_rc) glXDestroyContext((*__window).widget.dpy, __gl_rc)
+#define cake_swap_buffers(__window) glXSwapBuffers((*__window).widget.dpy, (*__window).widget.win)
 
 #endif
 

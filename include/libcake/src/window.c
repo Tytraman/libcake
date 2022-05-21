@@ -253,7 +253,7 @@ Cake_Window *cake_window(
     WNDCLASSEXW wc = { 0 };
     wc.cbSize = sizeof(wc);
     wc.hInstance = GetModuleHandleA(NULL);
-    wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
+    wc.hCursor = LoadCursorA(NULL, IDC_ARROW);
     wc.lpszClassName = class16.characteres;
     wc.hbrBackground = CreateSolidBrush(RGB(r, g, b));
     wc.lpfnWndProc = __cake_window_proc;
@@ -462,6 +462,8 @@ void cake_free_window(Cake_Window *window) {
     cake_free_strutf8(window->title);
     #ifdef CAKE_WINDOWS
     ReleaseDC(window->widget.handle, window->hdc);
+    #else
+    XCloseDisplay(window->widget.dpy);
     #endif
     free(window);
 }
