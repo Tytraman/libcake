@@ -25,6 +25,8 @@
 #include <WinSock2.h>
 #include <windows.h>
 
+#define cake_sleep(__millis) Sleep(__millis)
+
 // Sous Windows un cake_char est équivalent à un wchar_t.
 typedef wchar_t cake_char;
 
@@ -99,6 +101,9 @@ typedef unsigned short     ushort;
 typedef unsigned int       uint;
 typedef unsigned long      ulong;
 typedef unsigned long long ulonglong;
+
+typedef long long longlong;
+
 typedef uchar cake_byte;
 typedef uchar cake_undefined_type;
 

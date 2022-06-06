@@ -15,9 +15,7 @@ extern "C" {
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <GL/gl.h>
-#include <GL/glx.h>
-
+#include <glad/glad_glx.h>
 #endif
 
 
@@ -78,12 +76,18 @@ typedef struct cake_window_keyreleased_event {
     void *args;
 } Cake_Window_KeyReleased_Event;
 
+typedef struct cake_window_mousemove_event {
+    int (*callback)(Cake_Window *window, short x, short y, void *args);
+    void *args;
+} Cake_Window_MouseMove_Event;
+
 typedef struct cake_window_events {
     Cake_Window_Move_Event moveEvent;
     Cake_Window_Resize_Event resizeEvent;
     Cake_Window_Destroy_Event destroyEvent;
     Cake_Window_KeyPressed_Event keyPressedEvent;
     Cake_Window_KeyReleased_Event keyReleasedEvent;
+    Cake_Window_MouseMove_Event mouseMoveEvent;
 } Cake_Window_Events;
 
 typedef struct cake_list_window_widget {
@@ -112,6 +116,13 @@ typedef struct cake_list_window {
 Cake_List_Window *cake_list_window();
 
 #ifdef CAKE_WINDOWS
+
+#define cake_get_syskey_state(__virt_key) GetAsyncKeyState(__virt_key)
+#define cake_get_key_state(__ascii_key) GetKeyState(__ascii_key)
+
+#define cake_show_cursor(__bool) ShowCursor(__bool)
+
+#define CAKE_KEY_PRESSED 0x8000
 
 #define CAKE_WINDOW_STYLE_EX_ACCEPTFILES         WS_EX_ACCEPTFILES
 #define CAKE_WINDOW_STYLE_EX_APPWINDOW           WS_EX_APPWINDOW
@@ -261,12 +272,14 @@ Cake_List_Window *cake_list_window();
 #define CAKE_VK_LCONTROL   VK_LCONTROL
 #define CAKE_VK_RCONTROL   VK_RCONTROL
 
-#define CAKE_WINDOW_EVENT_RESIZE  WM_SIZE
-#define CAKE_WINDOW_EVENT_KEYDOWN WM_KEYDOWN
-#define CAKE_WINDOW_EVENT_MOVE    WM_MOVE
-#define CAKE_WINDOW_EVENT_CLOSE   WM_CLOSE
-#define CAKE_WINDOW_EVENT_DESTROY WM_DESTROY
-#define CAKE_WINDOW_EVENT_COMMAND WM_COMMAND
+#define CAKE_WINDOW_EVENT_RESIZE    WM_SIZE
+#define CAKE_WINDOW_EVENT_KEYDOWN   WM_KEYDOWN
+#define CAKE_WINDOW_EVENT_KEYUP     WM_KEYUP
+#define CAKE_WINDOW_EVENT_MOVE      WM_MOVE
+#define CAKE_WINDOW_EVENT_CLOSE     WM_CLOSE
+#define CAKE_WINDOW_EVENT_DESTROY   WM_DESTROY
+#define CAKE_WINDOW_EVENT_COMMAND   WM_COMMAND
+#define CAKE_WINDOW_EVENT_MOUSEMOVE WM_MOUSEMOVE
 
 typedef HWND cake_window_handle;
 typedef LRESULT cake_window_res;
@@ -302,13 +315,13 @@ typedef struct HMENU__ Cake_Window_Menu;
 
 #define cake_window_proc_default(hwnd, msg, wparam, lparam) DefWindowProcW(hwnd, msg, wparam, lparam)
 
-#define cake_window_move(__window, __x, __y) MoveWindow((__window).widget.handle, __x, __y, (__window).widget.width, (__window).widget.height, cake_true)
+#define cake_window_move(__window, __x, __y) MoveWindow((*__window).widget.handle, __x, __y, (*__window).widget.width, (*__window).widget.height, cake_true)
 
 cake_bool cake_window_set_menu(Cake_Window *window, Cake_Window_Menu *menu);
 
-#define cake_gl_make_current(__window, __gl_rc) wglMakeCurrent((__window).hdc, __gl_rc)
+#define cake_gl_make_current(__window, __gl_rc) wglMakeCurrent((*__window).hdc, __gl_rc)
 #define cake_gl_delete_context(__window, __gl_rc) wglDeleteContext(__gl_rc)
-#define cake_swap_buffers(__window) SwapBuffers((__window).hdc)
+#define cake_swap_buffers(__window) SwapBuffers((*__window).hdc)
 
 void cake_window_cleanup();
 #else
@@ -455,9 +468,17 @@ cake_bool cake_window_init_thread();
 void cake_window_cleanup_thread();
 cake_bool cake_window_set_current(ulonglong value);
 cake_bool cake_window_inc_current(ulonglong value);
-cake_bool cake_windows_dec_current(ulonglong value);
+cake_bool cake_window_dec_current(ulonglong value);
 
 void cake_window_update_title(Cake_Window *window);
+void cake_window_lock_cursor(Cake_Window *window);
+void cake_set_cursor_pos_quiet(short x, short y, short screenWidth, short screenHeight);
+void cake_window_get_middle_abs(Cake_Window *window, short *destx, short *desty);
+
+#define cake_set_cursor_pos(__x, __y) SetCursorPos(__x, __y)
+void cake_window_get_rect(Cake_Window *window, int *destx, int *desty, int *destWidth, int *destHeight);
+
+cake_bool cake_get_screen_size_of_window(Cake_Window *window, int *destWidth, int *destHeight);
 
 Cake_Window *cake_window(
     Cake_Window_Widget *parent,

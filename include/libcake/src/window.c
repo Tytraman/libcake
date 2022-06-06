@@ -85,7 +85,7 @@ cake_bool cake_window_inc_current(ulonglong value) {
     return cake_true;
 }
 
-cake_bool cake_windows_dec_current(ulonglong value) {
+cake_bool cake_window_dec_current(ulonglong value) {
     #ifdef CAKE_WINDOWS
     struct cake_fusion_index_thread *fusion = (struct cake_fusion_index_thread *) TlsGetValue(__indexThreadWindow);
     #else
@@ -108,7 +108,7 @@ cake_window_res __cake_window_proc(cake_window_handle hwnd, uint msg, cake_wpara
             return cake_window_proc_default(hwnd, msg, wparam, lparam);
         case CAKE_WINDOW_EVENT_RESIZE:{
             RECT size;
-            GetWindowRect(hwnd, &size);
+            GetClientRect(hwnd, &size);
             fusion->list.list[fusion->current]->widget.width = size.right - size.left;
             fusion->list.list[fusion->current]->widget.height = size.bottom - size.top;
             if(fusion->list.list[fusion->current]->events.resizeEvent.callback != NULL)
@@ -116,7 +116,9 @@ cake_window_res __cake_window_proc(cake_window_handle hwnd, uint msg, cake_wpara
         } break;
         case CAKE_WINDOW_EVENT_MOVE:{
             RECT pos;
-            GetWindowRect(hwnd, &pos);
+            GetClientRect(hwnd, &pos);
+            ClientToScreen(hwnd, (LPPOINT) &pos.left);
+            ClientToScreen(hwnd, (LPPOINT) &pos.right);
             fusion->list.list[fusion->current]->widget.x = pos.left;
             fusion->list.list[fusion->current]->widget.y = pos.top;
             if(fusion->list.list[fusion->current]->events.moveEvent.callback != NULL)
@@ -126,9 +128,17 @@ cake_window_res __cake_window_proc(cake_window_handle hwnd, uint msg, cake_wpara
             if(fusion->list.list[fusion->current]->events.keyPressedEvent.callback != NULL)
                 retCode = fusion->list.list[fusion->current]->events.keyPressedEvent.callback(fusion->list.list[fusion->current], wparam, fusion->list.list[fusion->current]->events.keyPressedEvent.args);
         } break;
+        case CAKE_WINDOW_EVENT_KEYUP:{
+            if(fusion->list.list[fusion->current]->events.keyReleasedEvent.callback != NULL)
+                retCode = fusion->list.list[fusion->current]->events.keyReleasedEvent.callback(fusion->list.list[fusion->current], wparam, fusion->list.list[fusion->current]->events.keyReleasedEvent.args);
+        } break;
         case CAKE_WINDOW_EVENT_DESTROY:{
             if(fusion->list.list[fusion->current]->events.destroyEvent.callback != NULL)
                 retCode = fusion->list.list[fusion->current]->events.destroyEvent.callback(fusion->list.list[fusion->current], fusion->list.list[fusion->current]->events.destroyEvent.args);
+        } break;
+        case CAKE_WINDOW_EVENT_MOUSEMOVE:{
+            if(fusion->list.list[fusion->current]->events.mouseMoveEvent.callback != NULL)
+                retCode = fusion->list.list[fusion->current]->events.mouseMoveEvent.callback(fusion->list.list[fusion->current], (short) (lparam & 0xFFFF), (short) ((lparam >> 16) & 0xFFFF), fusion->list.list[fusion->current]->events.mouseMoveEvent.args);
         } break;
     }
     switch(retCode) {
@@ -175,6 +185,8 @@ Cake_Window *cake_window(
         return cake_false;
     }
 
+    window->widget.screen = XDefaultScreen(window->widget.dpy);
+
     char colorBuff[16];
     snprintf(colorBuff, sizeof(colorBuff), "rgb:%02x/%02x/%02x", r, g, b);
     XColor color;
@@ -182,7 +194,7 @@ Cake_Window *cake_window(
     XParseColor(window->widget.dpy, colormap, colorBuff, &color);
     XAllocColor(window->widget.dpy, colormap, &color);
 
-    window->widget.screen = XDefaultScreen(window->widget.dpy);
+    
 
     Window parentWin;
     if(parent != NULL) {
@@ -197,6 +209,8 @@ Cake_Window *cake_window(
         parentWin,
         x, y, width, height, 1, XBlackPixel(window->widget.dpy, window->widget.screen), color.pixel
     );
+
+    XSetTransientForHint(window->widget.dpy, window->widget.win, window->widget.rootWin);
 
     XSelectInput(window->widget.dpy, window->widget.win, ExposureMask | KeyPressMask | KeyReleaseMask | StructureNotifyMask);
     #endif
@@ -224,12 +238,14 @@ Cake_Window *cake_window(
         window->events.destroyEvent = events->destroyEvent;
         window->events.keyPressedEvent  = events->keyPressedEvent;
         window->events.keyReleasedEvent = events->keyReleasedEvent;
+        window->events.mouseMoveEvent   = events->mouseMoveEvent;
     }else {
         window->events.moveEvent.callback    = NULL;
         window->events.resizeEvent.callback  = NULL;
         window->events.destroyEvent.callback = NULL;
         window->events.keyPressedEvent.callback  = NULL;
         window->events.keyReleasedEvent.callback = NULL;
+        window->events.mouseMoveEvent.callback   = NULL;
     }
 
     #ifdef CAKE_UNIX
@@ -253,7 +269,7 @@ Cake_Window *cake_window(
     WNDCLASSEXW wc = { 0 };
     wc.cbSize = sizeof(wc);
     wc.hInstance = GetModuleHandleA(NULL);
-    wc.hCursor = LoadCursorA(NULL, IDC_ARROW);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.lpszClassName = class16.characteres;
     wc.hbrBackground = CreateSolidBrush(RGB(r, g, b));
     wc.lpfnWndProc = __cake_window_proc;
@@ -412,11 +428,12 @@ Cake_OpenGL_RC cake_gl_attach(Cake_Window *window) {
       GLX_DOUBLEBUFFER    , cake_true,
       0
     };
-
     int fbcount;
     GLXFBConfig *fbc = glXChooseFBConfig(window->widget.dpy, window->widget.screen, attr, &fbcount);
     if(fbc == NULL)
         return NULL;
+
+    
     
     int i, bestFbc = -1, bestSamples = -1;
     for(i = 0; i < fbcount; ++i) {
@@ -473,4 +490,63 @@ void cake_free_window(Cake_Window *window) {
     XCloseDisplay(window->widget.dpy);
     #endif
     free(window);
+}
+
+void cake_window_lock_cursor(Cake_Window *window) {
+    // TODO: portage Linux
+    #ifdef CAKE_WINDOWS
+    RECT rect;
+    rect.left = window->widget.x;
+    rect.top = window->widget.y;
+    rect.right = window->widget.x + window->widget.width;
+    rect.bottom = window->widget.y + window->widget.height;
+    ClipCursor(&rect);
+    #endif
+}
+
+void cake_window_get_rect(Cake_Window *window, int *destx, int *desty, int *destWidth, int *destHeight) {
+    // TODO: portage Linux
+    #ifdef CAKE_WINDOWS
+    RECT rect;
+    GetWindowRect(window->widget.handle, &rect);
+    *destx = rect.left;
+    *desty = rect.top;
+    *destWidth = rect.right;
+    *destHeight = rect.bottom;
+    #endif
+}
+
+cake_bool cake_get_screen_size_of_window(Cake_Window *window, int *destWidth, int *destHeight) {
+    // TODO: portage Linux
+    #ifdef CAKE_WINDOWS
+    HMONITOR monitor = MonitorFromWindow(window->widget.handle, MONITOR_DEFAULTTONULL);
+    if(monitor == NULL)
+        return cake_false;
+    MONITORINFO info;
+    info.cbSize = sizeof(info);
+    if(!GetMonitorInfoA(monitor, &info))
+        return cake_false;
+    *destWidth = info.rcMonitor.right;
+    *destHeight = info.rcMonitor.bottom;
+    return cake_true;
+    #endif
+}
+
+void cake_set_cursor_pos_quiet(short x, short y, short screenWidth, short screenHeight) {
+    // TODO: portage Linux
+    #ifdef CAKE_WINDOWS
+    INPUT input;
+    input.type = INPUT_MOUSE;
+    input.mi.dx = (x * (65536.0f / (float) screenWidth)) + 1;
+    input.mi.dy = (y * (65536.0f / (float) screenHeight)) + 1;
+    input.mi.mouseData = 0;
+    input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    input.mi.time = 0;
+    SendInput(1, &input, sizeof(INPUT));
+    #endif
+}
+
+void cake_window_get_middle_abs(Cake_Window *window, short *destx, short *desty) {
+    *destx = (float) window->widget.width / 2.0f + (float) window->widget.x;
+    *desty = (float) window->widget.height / 2.0f + (float) window->widget.y;
 }

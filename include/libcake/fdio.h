@@ -4,6 +4,10 @@
 #include "def.h"
 #include "strutf8.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CAKE_FDIO_PTR(var) &var
 
 #ifdef CAKE_WINDOWS
@@ -51,6 +55,8 @@ typedef HANDLE cake_fd;
 #define __cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) WriteFile(fd, buffer, numberOfBytesToWrite, bytesWritten, NULL)
 #define cake_fdio_write(fd, numberOfBytesToWrite, bytesWritten, buffer) __cake_fdio_write(fd, numberOfBytesToWrite, CAKE_FDIO_PTR(bytesWritten), buffer)
 #define cake_fdio_write_no_ret(fd, numberOfBytesToWrite, buffer) WriteFile(fd, buffer, numberOfBytesToWrite, NULL, NULL)
+
+
 
 /*
         Ouvre un fichier et retourne son FileDescriptor.
@@ -156,5 +162,9 @@ char cake_fdio_compare_time(cake_fd fd, cake_fd compareTo, cake_byte mode);
 
 void cake_fdio_mem_copy_strutf8(Cake_String_UTF8 *dest, cake_fd fd, ushort buffSize);
 void cake_fdio_mem_copy(uchar **dest, ulonglong *destLength, cake_fd fd, ushort buffSize);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

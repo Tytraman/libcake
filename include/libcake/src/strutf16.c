@@ -58,7 +58,7 @@ cake_bool cake_strutf16_add_wchar_array(Cake_String_UTF16 *utf, const wchar_t *s
 }
 
 cake_bool cake_strutf16_add_char(Cake_String_UTF16 *utf, wchar_t c) {
-    void *ptr = realloc(utf->characteres, utf->length * sizeof(wchar_t) + sizeof(wchar_t));
+    void *ptr = realloc(utf->characteres, (utf->length * sizeof(wchar_t)) + (sizeof(wchar_t) * 2));
     if(ptr == NULL)
         return cake_false;
     (utf->length)++;
