@@ -324,9 +324,11 @@ void *__cake_fileobject_get(
     Cake_FileObjectContainer *tempContainer;
 
     cake_bool loop = cake_true;
+
     while(loop) {
-        if(containers->list == NULL && element_callback == NULL)
+        if(containers->list == NULL && element_callback == NULL) {
             break;
+        }
         ptr = cake_strutf8_search_from_start(copy, ".", &internalIndex);
         if(ptr != NULL)
             *ptr = '\0';

@@ -272,7 +272,7 @@ Cake_Window *cake_window(
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.lpszClassName = class16.characteres;
     wc.hbrBackground = CreateSolidBrush(RGB(r, g, b));
-    wc.lpfnWndProc = __cake_window_proc;
+    wc.lpfnWndProc = (WNDPROC) __cake_window_proc;
 
     RegisterClassExW(&wc);
 
@@ -530,6 +530,7 @@ cake_bool cake_get_screen_size_of_window(Cake_Window *window, int *destWidth, in
     *destHeight = info.rcMonitor.bottom;
     return cake_true;
     #endif
+    return cake_false;
 }
 
 void cake_set_cursor_pos_quiet(short x, short y, short screenWidth, short screenHeight) {
@@ -549,4 +550,14 @@ void cake_set_cursor_pos_quiet(short x, short y, short screenWidth, short screen
 void cake_window_get_middle_abs(Cake_Window *window, short *destx, short *desty) {
     *destx = (float) window->widget.width / 2.0f + (float) window->widget.x;
     *desty = (float) window->widget.height / 2.0f + (float) window->widget.y;
+}
+
+void cake_get_cursor_pos(long *destx, long *desty) {
+    // TODO: portage Linux
+    #ifdef CAKE_WINDOWS
+    POINT pos;
+    GetCursorPos(&pos);
+    *destx = pos.x;
+    *desty = pos.y;
+    #endif
 }

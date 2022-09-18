@@ -387,7 +387,7 @@ void cake_char_array_to_strutf16(const char *source, Cake_String_UTF16 *dest) {
     dest->length = 0;
     uchar *pStart, *pEnd;
 
-    int bytes;
+    cake_byte bytes;
     ushort value;
     while((uchar *) source <= end) {
         cake_strutf8_index_by_index((const uchar *) source, end, 0L, &pStart, &pEnd, &bytes);

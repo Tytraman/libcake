@@ -1,0 +1,1 @@
+cl /Fo:obj\ /Fe:cake.exe /DEBUG /I include /I ..\..\glad\include /I "C:\Program Files\OpenSSL\include" main.c include\libcake\src\*.c include\glad.c User32.lib Gdi32.lib opengl32.lib ws2_32.lib libssl.lib libcrypto.lib /link /LIBPATH:"C:\Program Files\OpenSSL\lib"

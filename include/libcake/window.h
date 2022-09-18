@@ -122,6 +122,8 @@ Cake_List_Window *cake_list_window();
 
 #define cake_show_cursor(__bool) ShowCursor(__bool)
 
+void cake_get_cursor_pos(long *destx, long *desty);
+
 #define CAKE_KEY_PRESSED 0x8000
 
 #define CAKE_WINDOW_STYLE_EX_ACCEPTFILES         WS_EX_ACCEPTFILES
@@ -472,6 +474,7 @@ cake_bool cake_window_dec_current(ulonglong value);
 
 void cake_window_update_title(Cake_Window *window);
 void cake_window_lock_cursor(Cake_Window *window);
+#define cake_window_unlock_cursor() ClipCursor(NULL)
 void cake_set_cursor_pos_quiet(short x, short y, short screenWidth, short screenHeight);
 void cake_window_get_middle_abs(Cake_Window *window, short *destx, short *desty);
 

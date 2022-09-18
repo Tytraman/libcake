@@ -31,11 +31,24 @@ typedef struct cake_linkedlist_string_utf8_pair {
     struct cake_linkedlist_string_utf8_pair *next;
 } Cake_LinkedList_String_UTF8_Pair;
 
+typedef struct cake_strutf8_reader {
+    Cake_String_UTF8 *utf;
+    ulonglong pos;
+} Cake_String_UTF8_Reader;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* ===== Initialisation ===== */
+
+void cake_create_strutf8_reader_str(Cake_String_UTF8_Reader *dest, const char *str);
+void cake_create_strutf8_reader_utf(Cake_String_UTF8_Reader *dest, Cake_String_UTF8 *utf);
+
+void cake_strutf8_reader_skip_char(Cake_String_UTF8_Reader *reader, char value);
+void cake_strutf8_reader_skip_achar(Cake_String_UTF8_Reader *reader, const char *values, ulonglong size);
+
+Cake_String_UTF8 *cake_strutf8_readline(Cake_String_UTF8_Reader *reader);
 
 /**
  * @brief Crée dynamiquement un `Cake_String_UTF8_Pair`.
@@ -121,6 +134,8 @@ void cake_strutf8_add_wchar_array(Cake_String_UTF8 *dest, const wchar_t *str);
  * @param str 
  */
 cake_bool cake_strutf8_add_char_array(Cake_String_UTF8 *dest, const char *str);
+
+cake_bool cake_strutf8_add_bytes(Cake_String_UTF8 *dest, const cake_byte *bytes, ulonglong size);
 
 
 /**
@@ -244,10 +259,6 @@ cake_bool cake_strutf8_remove_from_to_internal(Cake_String_UTF8 *utf, ulonglong 
  */
 void cake_strutf8_to_utf16(Cake_String_UTF8 *src, Cake_String_UTF16 *dest);
 
-/*
-        
-*/
-
 /**
  * @brief Copie une chaîne de caractères dans une chaîne UTF-8,
  * aucune conversion n'est effectuée,
@@ -300,6 +311,8 @@ void cake_ulonglong_to_char_array(ulonglong value, char *buffer);
 
 char *cake_ulonglong_to_char_array_dyn(ulonglong value);
 
+float cake_strutf8_to_float(Cake_String_UTF8 *utf, char decimalSeparator);
+
 /* ===== Cleaner ===== */
 
 // Nettoie la chaîne UTF-8 en utilisant free et en remettant les valeurs à 0 et NULL.
@@ -325,7 +338,7 @@ void cake_free_list_strutf8(Cake_List_String_UTF8 *list);
         Permet de trouver l'adresse dans une chaîne UTF-8 par rapport à un index, étant donné qu'un caractère peut avoir plusieurs octets,
         faire utf[6] peut avoir des effets indésirables, cette fonction parcourt la chaîne et compte les index.
 */
-ulonglong cake_strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, int *bytes);
+ulonglong cake_strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, cake_byte *bytes);
 
 ulonglong cake_strutf8_index_by_index_reverse(Cake_String_UTF8 *utf, ulonglong utfIndex, cake_byte *bytes);
 
