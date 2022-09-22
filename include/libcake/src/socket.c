@@ -1,5 +1,6 @@
 #include "../socket.h"
 #include "../strutf8.h"
+#include "../alloc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,7 @@
 
 /* ===== INTERNAL FUNCTIONS ===== */
 
-cake_bool __cake_socket_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived) {
+cake_bool __cake_client_socket_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived) {
     Cake_ClientSocket *client = (Cake_ClientSocket *) _s;
     *_bytesReceived = recv(client->socket, _buffer, len, 0);
     if(*_bytesReceived == SOCKET_ERROR) {
@@ -155,6 +156,19 @@ cake_bool cake_tls_client_send(Cake_TLSClient *tls, const char *data, ulonglong 
     return cake_true;
 }
 
+char *cake_tls_client_recv_dyn(Cake_TLSClient *tls, ulonglong size) {
+    tls->clientSocket.errorFrom = CAKE_SOCKET_ERROR_FROM_NO_ERROR;
+    char *ptr = (char *) malloc(size);
+    if(ptr == NULL)
+        return NULL;
+    ulonglong b;
+    if(!__cake_tls_client_recv(tls, ptr, size, &b)) {
+        free(ptr);
+        return NULL;
+    }
+    return ptr;
+}
+
 void cake_free_tls_client(Cake_TLSClient *tls) {
     cake_free_client_socket(&tls->clientSocket);
     SSL_free(tls->ssl);
@@ -230,7 +244,7 @@ void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *sock) {
 
 /* ===== SOCKET STREAM FUNCTIONS ===== */
 
-Cake_String_UTF8 *__cake_socket_stream_readline(Cake_SocketBuffer *_stream, cake_bool (*recvFunc)(void *, char *, ulonglong, ulonglong *), void *_s) {
+Cake_String_UTF8 *__cake_socket_stream_read_line(Cake_SocketBuffer *_stream, cake_bool (*recvFunc)(void *, char *, ulonglong, ulonglong *), void *_s) {
     // TODO: portage Linux
     #ifdef CAKE_WINDOWS
     char buffer[CAKE_SOCKET_READ_BUFFER_SIZE];
@@ -249,7 +263,7 @@ Cake_String_UTF8 *__cake_socket_stream_readline(Cake_SocketBuffer *_stream, cake
             // On ignore les retours chariots
             while(i < _stream->size && _stream->ptr[i] == '\r')
                 i++;
-            
+
             // On modifie le buffer interne
             size = _stream->size - i;
             ptr = malloc(size);
@@ -306,8 +320,75 @@ Cake_String_UTF8 *__cake_socket_stream_readline(Cake_SocketBuffer *_stream, cake
     return NULL;
 }
 
-Cake_String_UTF8 *cake_client_socket_stream_readline(Cake_ClientSocketStream *stream) {
-    return __cake_socket_stream_readline(&stream->buffer, __cake_socket_recv, &stream->client);
+Cake_String_UTF8 *cake_client_socket_stream_read_line(Cake_ClientSocketStream *stream) {
+    return __cake_socket_stream_read_line(&stream->buffer, __cake_client_socket_recv, &stream->client);
+}
+
+cake_bool __cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len, char *buff) {
+    stream->tls.clientSocket.errorFrom = CAKE_SOCKET_ERROR_FROM_NO_ERROR;
+    len -= stream->buffer.size;
+
+    ulonglong b;
+    ulonglong total = 0;
+    while(1) {
+        if(!__cake_tls_client_recv(&stream->tls, buff + total, len, &b))
+            return cake_false;
+        total += b;
+        if(total == len)
+            return cake_true;
+    }
+}
+
+char *cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len) {
+    if(len > stream->buffer.size) {
+        char *ptr = (char *) cake_realloc(stream->buffer.ptr, len);
+        if(ptr == NULL)
+            return NULL;
+
+        if(!__cake_tls_client_stream_read_raw(stream, len, ptr + stream->buffer.size)) {
+            stream->buffer.ptr = (cake_byte *) ptr;
+            return NULL;
+        }
+
+        stream->buffer.ptr  = NULL;
+        stream->buffer.size = 0;
+
+        return ptr;
+    }
+
+    // TODO: len <= buffer size
+    return NULL;
+}
+
+Cake_String_UTF8 *cake_tls_client_stream_read_str(Cake_TLSClientStream *stream, ulonglong len) {
+    Cake_String_UTF8 *ret = (Cake_String_UTF8 *) cake_new(sizeof(*ret));
+    if(ret == NULL)
+        return NULL;
+
+    if(len > stream->buffer.size) {
+        ret->bytes = (uchar *) cake_realloc(stream->buffer.ptr, len * sizeof(*ret->bytes) + sizeof(*ret->bytes));
+        if(ret->bytes == NULL) {
+            cake_free(ret);
+            return NULL;
+        }
+
+        if(!__cake_tls_client_stream_read_raw(stream, len, ret->bytes)) {
+            stream->buffer.ptr = (cake_byte *) ret->bytes;
+            cake_free(ret);
+            return NULL;
+        }
+        
+        stream->buffer.ptr  = NULL;
+        stream->buffer.size = 0;
+
+        ret->bytes[len] = '\0';
+        ret->data.length = len;
+        ret->length = cake_strutf8_length(ret);
+
+        return ret;
+    }
+    // TODO: len <= buffer size
+    return NULL;
 }
 
 void cake_free_client_socket_stream(Cake_ClientSocketStream *stream) {
@@ -315,8 +396,8 @@ void cake_free_client_socket_stream(Cake_ClientSocketStream *stream) {
     cake_free_client_socket(&stream->client);
 }
 
-Cake_String_UTF8 *cake_tls_client_stream_readline(Cake_TLSClientStream *stream) {
-    return __cake_socket_stream_readline(&stream->buffer, __cake_tls_client_recv, &stream->tls);
+Cake_String_UTF8 *cake_tls_client_stream_read_line(Cake_TLSClientStream *stream) {
+    return __cake_socket_stream_read_line(&stream->buffer, __cake_tls_client_recv, &stream->tls);
 }
 
 void cake_free_tls_client_stream(Cake_TLSClientStream *stream) {

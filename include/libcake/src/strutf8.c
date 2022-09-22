@@ -1,4 +1,5 @@
 #include "../strutf8.h"
+#include "../alloc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -114,6 +115,8 @@ void cake_create_strutf8(Cake_String_UTF8 *utf) {
 
 Cake_String_UTF8 *cake_strutf8(const char *value) {
     Cake_String_UTF8 *utf = (Cake_String_UTF8 *) malloc(sizeof(Cake_String_UTF8));
+    if(utf == NULL)
+        return NULL;
 
     utf->data.length = cake_str_count(value);
     utf->bytes = (uchar *) malloc(utf->data.length * sizeof(uchar) + sizeof(uchar));
@@ -124,16 +127,45 @@ Cake_String_UTF8 *cake_strutf8(const char *value) {
     return utf;
 }
 
-void cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src) {
-    dest->data.length = src->data.length;
-    dest->length = src->length;
+Cake_String_UTF8 *cake_strutf8_pre_alloc(ulonglong size) {
+    Cake_String_UTF8 *ret = (Cake_String_UTF8 *) cake_new(sizeof(*ret));
+
+    if(ret == NULL)
+        return NULL;
+
+    if(size > 0) {
+        ret->bytes = (uchar *) cake_new(size);
+        if(ret->bytes == NULL) {
+            cake_free(ret);
+            return NULL;
+        }
+    }else
+        ret->bytes = NULL;
+
+    ret->data.length = size;
+
+    return ret;
+}
+
+cake_bool cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src) {
     if(src->data.length == 0) {
         dest->bytes = NULL;
-        return;
+        dest->data.length = 0;
+        dest->length = 0;
+        return cake_true;
     }
-    dest->bytes = (uchar *) realloc(dest->bytes, src->data.length * sizeof(uchar) + sizeof(uchar));
+
+    void *ptr = malloc(src->data.length * sizeof(uchar) + sizeof(uchar));
+    if(ptr == NULL)
+        return cake_false;
+
+    dest->bytes = (uchar *) ptr;
     memcpy(dest->bytes, src->bytes, src->data.length * sizeof(uchar));
-    dest->bytes[dest->data.length] = STR_NULL_END;
+    dest->bytes[dest->data.length] = '\0';
+
+    dest->data.length = src->data.length;
+    dest->length = src->length;
+    return cake_true;
 }
 
 void cake_clear_strutf8(Cake_String_UTF8 *utf) {

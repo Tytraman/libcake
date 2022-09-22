@@ -92,6 +92,8 @@ void cake_create_strutf8(Cake_String_UTF8 *utf);
  */
 Cake_String_UTF8 *cake_strutf8(const char *value);
 
+Cake_String_UTF8 *cake_strutf8_pre_alloc(ulonglong size);
+
 /**
  * @brief Crée dynamiquement une `Cake_List_String_UTF8`, ne pas oublier de free.
  * 
@@ -100,12 +102,12 @@ Cake_String_UTF8 *cake_strutf8(const char *value);
 Cake_List_String_UTF8 *cake_list_strutf8();
 
 /**
- * @brief Copie une chaîne vers une autre.
+ * @brief Copie une chaîne vers une autre. Memory leak si dest a déjà une chaine de caractères.
  * 
  * @param dest Chaîne destination.
  * @param src Chaîne source.
  */
-void cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src);
+cake_bool cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src);
 
 
 /* ===== Ajout ===== */
