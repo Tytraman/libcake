@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{2BDCE0CD-C302-4A63-926C-7529505FBAB4}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBCAKE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>opengl32.lib;ws2_32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBCAKE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;ws2_32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <AdditionalDependencies>opengl32.lib;ws2_32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <AdditionalDependencies>opengl32.lib;ws2_32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="include\glad.c" />
+    <ClCompile Include="include\libcake\src\array.c" />
+    <ClCompile Include="include\libcake\src\console.c" />
+    <ClCompile Include="include\libcake\src\css.c" />
+    <ClCompile Include="include\libcake\src\csv.c" />
+    <ClCompile Include="include\libcake\src\directory.c" />
+    <ClCompile Include="include\libcake\src\encrypt.c" />
+    <ClCompile Include="include\libcake\src\error.c" />
+    <ClCompile Include="include\libcake\src\fdio.c" />
+    <ClCompile Include="include\libcake\src\file.c" />
+    <ClCompile Include="include\libcake\src\fileobject.c" />
+    <ClCompile Include="include\libcake\src\hook.c" />
+    <ClCompile Include="include\libcake\src\html.c" />
+    <ClCompile Include="include\libcake\src\http.c" />
+    <ClCompile Include="include\libcake\src\option.c" />
+    <ClCompile Include="include\libcake\src\pipe.c" />
+    <ClCompile Include="include\libcake\src\process.c" />
+    <ClCompile Include="include\libcake\src\signal.c" />
+    <ClCompile Include="include\libcake\src\socket.c" />
+    <ClCompile Include="include\libcake\src\strutf16.c" />
+    <ClCompile Include="include\libcake\src\strutf8.c" />
+    <ClCompile Include="include\libcake\src\thread.c" />
+    <ClCompile Include="include\libcake\src\time.c" />
+    <ClCompile Include="include\libcake\src\vector.c" />
+    <ClCompile Include="include\libcake\src\win.c" />
+    <ClCompile Include="include\libcake\src\window.c" />
+    <ClCompile Include="main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\libcake\alloc.h" />
+    <ClInclude Include="include\libcake\array.h" />
+    <ClInclude Include="include\libcake\assembly.h" />
+    <ClInclude Include="include\libcake\console.h" />
+    <ClInclude Include="include\libcake\css.h" />
+    <ClInclude Include="include\libcake\csv.h" />
+    <ClInclude Include="include\libcake\def.h" />
+    <ClInclude Include="include\libcake\directory.h" />
+    <ClInclude Include="include\libcake\encrypt.h" />
+    <ClInclude Include="include\libcake\error.h" />
+    <ClInclude Include="include\libcake\fdio.h" />
+    <ClInclude Include="include\libcake\file.h" />
+    <ClInclude Include="include\libcake\fileobject.h" />
+    <ClInclude Include="include\libcake\hook.h" />
+    <ClInclude Include="include\libcake\html.h" />
+    <ClInclude Include="include\libcake\http.h" />
+    <ClInclude Include="include\libcake\option.h" />
+    <ClInclude Include="include\libcake\pipe.h" />
+    <ClInclude Include="include\libcake\process.h" />
+    <ClInclude Include="include\libcake\signal.h" />
+    <ClInclude Include="include\libcake\socket.h" />
+    <ClInclude Include="include\libcake\strutf16.h" />
+    <ClInclude Include="include\libcake\strutf8.h" />
+    <ClInclude Include="include\libcake\thread.h" />
+    <ClInclude Include="include\libcake\time.h" />
+    <ClInclude Include="include\libcake\vector.h" />
+    <ClInclude Include="include\libcake\win.h" />
+    <ClInclude Include="include\libcake\window.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
