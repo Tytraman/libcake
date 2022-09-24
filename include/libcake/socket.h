@@ -10,19 +10,12 @@
 
 typedef int cake_socklen;
 
-#define cake_init_winsock() WSADATA __winsock_data;\
-                       WSAStartup(MAKEWORD(2, 2), &__winsock_data)
-
-#define cake_clean_winsock() WSACleanup()
-
 typedef SOCKET cake_socket;
 
 #define CAKE_SOCKET_BAD_SOCKET INVALID_SOCKET
 #define CAKE_SOCKET_ERROR SOCKET_ERROR
 
-#define cake_socket_get_last_error_code() WSAGetLastError()
 
-#define cake_close_socket(sock) closesocket(sock)
 #else
 #include <unistd.h>
 #include <sys/types.h>
@@ -52,6 +45,8 @@ typedef int cake_socket;
 #define CAKE_IP_V4 AF_INET
 #define CAKE_IP_V6 AF_INET6
 
+/* ===== SOCKET ===== */
+
 typedef struct cake_clientsocket {
     cake_socket socket;
     struct addrinfo *address;
@@ -59,25 +54,24 @@ typedef struct cake_clientsocket {
     ulong errorCode;
 } Cake_ClientSocket;
 
-typedef struct cake_serversocket {
-    cake_socket socket;
-    cake_byte errorFrom;
-    int errorCode;
-} Cake_ServerSocket;
-
-typedef struct cake_acceptedclientsocket {
-    cake_socket socket;
-    struct sockaddr_in addr;
-} Cake_AcceptedClientSocket;
-
-
-
 typedef struct cake_tlsclient {
     Cake_ClientSocket clientSocket;
     SSL_CTX *ctx;
     SSL *ssl;
 } Cake_TLSClient;
 
+typedef struct cake_acceptedclientsocket {
+    cake_socket sock;
+    struct sockaddr_in addr;
+    cake_byte errorFrom;
+    ulong errorCode;
+} Cake_AcceptedClientSocket;
+
+typedef struct cake_serversocket {
+    cake_socket socket;
+    cake_byte errorFrom;
+    int errorCode;
+} Cake_ServerSocket;
 
 /* ===== STREAM ===== */
 
@@ -96,14 +90,15 @@ typedef struct cake_tlsclientstream {
     Cake_TLSClient tls;
 } Cake_TLSClientStream;
 
+typedef struct cake_acceptedclientsocketstream {
+    Cake_SocketBuffer buffer;
+    Cake_AcceptedClientSocket client;
+} Cake_AcceptedClientSocketStream;
+
 #define CAKE_CLIENT_SOCKET_CONNECT_OK 0
 
 #define CAKE_SOCKET_CLOSE 0
 #define CAKE_SOCKET_READ_ERROR SOCKET_ERROR
-
-#define cake_socket_read(socket, buffer, size) recv(socket, buffer, size, 0)
-
-#define cake_socket_send(socket, buffer, size) send(socket, buffer, size, 0)
 
 #define CAKE_SOCKET_ERROR_FROM_NO_ERROR     0
 #define CAKE_SOCKET_ERROR_FROM_GETADDRINFO  1
@@ -125,15 +120,54 @@ typedef struct cake_tlsclientstream {
 extern "C" {
 #endif
 
+#ifdef CAKE_WINDOWS
+inline int cake_init_winsock() {
+    WSADATA win;
+    return WSAStartup(MAKEWORD(2, 2), &win);
+}
+
+inline int cake_clean_winsock() {
+    return WSACleanup();
+}
+
+inline int cake_socket_get_last_error_code() {
+    return WSAGetLastError();
+}
+
+inline int cake_socket_read(cake_socket sock, char *buffer, int size) {
+    return recv(sock, buffer, size, 0);
+}
+
+inline int cake_socket_send(cake_socket sock, char *buffer, int size) {
+    return send(sock, buffer, size, 0);
+}
+
+inline int cake_close_socket(cake_socket sock) {
+    return closesocket(sock);
+}
+#else
+#define cake_init_winsock
+#define cake_clean_winsock
+#endif
+
+inline void cake_init_ssl() {
+    SSL_library_init();
+    ERR_load_crypto_strings();
+    SSL_load_error_strings();
+}
+
 /* ===== CLIENT SOCKET ===== */
+
+cake_bool __cake_client_socket_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived);
 
 cake_bool cake_create_client_socket(Cake_ClientSocket *sock, const char *hostname, const char *port, cake_byte ipMode);
 cake_bool cake_client_socket_connect(Cake_ClientSocket *sock);
 cake_bool cake_client_socket_send(Cake_ClientSocket *sock, const char *data, ulonglong size);
 void cake_free_client_socket(Cake_ClientSocket *sock);
 
-
 /* ===== TLS CLIENT ===== */
+
+cake_bool __cake_tls_client_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived);
 
 cake_bool cake_create_tls_client(Cake_TLSClient *tls, const char *hostname, const char *port, cake_byte ipMode);
 cake_bool cake_tls_client_connect(Cake_TLSClient *tls);
@@ -141,21 +175,46 @@ cake_bool cake_tls_client_send(Cake_TLSClient *tls, const char *data, ulonglong 
 char *cake_tls_client_recv_dyn(Cake_TLSClient *tls, ulonglong size);
 void cake_free_tls_client(Cake_TLSClient *tls);
 
-cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, cake_byte ipMode, int backlog);
-#define cake_free_server_socket(sock) cake_close_socket(sock.socket)
+/* ===== ACCEPTED CLIENT SOCKET ===== */
 
-Cake_AcceptedClientSocket *cake_server_socket_accept(Cake_ServerSocket *sock);
-void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *sock);
+cake_bool __cake_accepted_client_socket_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived);
+
+cake_bool cake_accepted_client_socket_send(Cake_AcceptedClientSocket *sock, const char *data, ulonglong size);
+inline void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *client) {
+    cake_close_socket(client->sock);
+}
+
+/* ===== SERVER SOCKET ===== */
+
+cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, cake_byte ipMode, int backlog);
+
+inline void cake_free_server_socket(Cake_ServerSocket *sock) {
+    cake_close_socket(sock->socket);
+}
+
+cake_bool cake_server_socket_accept(Cake_ServerSocket *sock, Cake_AcceptedClientSocket *dest);
+
 
 /* ===== SOCKET STREAM FUNCTIONS ===== */
 
-Cake_String_UTF8 *cake_client_socket_stream_read_line(Cake_ClientSocketStream *stream);
+Cake_String_UTF8 *__cake_socket_stream_read_line(Cake_SocketBuffer *_stream, cake_bool (*recvFunc)(void *, char *, ulonglong, ulonglong *), void *_s);
+
+cake_bool __cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len, char *buff);
+
+inline Cake_String_UTF8 *cake_client_socket_stream_read_line(Cake_ClientSocketStream *stream) {
+    return __cake_socket_stream_read_line(&stream->buffer, __cake_client_socket_recv, &stream->client);
+}
 void cake_free_client_socket_stream(Cake_ClientSocketStream *stream);
 
 Cake_String_UTF8 *cake_tls_client_stream_read_line(Cake_TLSClientStream *stream);
 char *cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len);
 Cake_String_UTF8 *cake_tls_client_stream_read_str(Cake_TLSClientStream *stream, ulonglong len);
 void cake_free_tls_client_stream(Cake_TLSClientStream *stream);
+
+inline Cake_String_UTF8 *cake_accepted_client_socket_stream_read_line(Cake_AcceptedClientSocketStream *stream) {
+    return __cake_socket_stream_read_line(&stream->buffer, __cake_accepted_client_socket_recv, &stream->client);
+}
+void cake_free_accepted_client_socket_stream(Cake_AcceptedClientSocketStream *stream);
 
 #ifdef __cplusplus
 }

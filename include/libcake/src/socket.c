@@ -14,7 +14,7 @@ cake_bool __cake_client_socket_recv(void *_s, char *_buffer, ulonglong len, ulon
     *_bytesReceived = recv(client->socket, _buffer, len, 0);
     if(*_bytesReceived == SOCKET_ERROR) {
         client->errorFrom = CAKE_SOCKET_ERROR_FROM_RECV;
-        client->errorCode = WSAGetLastError();
+        client->errorCode = cake_socket_get_last_error_code();
         return cake_false;
     }
     return cake_true;
@@ -31,6 +31,107 @@ cake_bool __cake_tls_client_recv(void *_s, char *_buffer, ulonglong len, ulonglo
     return cake_true;
 }
 
+cake_bool __cake_accepted_client_socket_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived) {
+    Cake_AcceptedClientSocket *client = (Cake_AcceptedClientSocket *) _s;
+    *_bytesReceived = recv(client->sock, _buffer, len, 0);
+    if(*_bytesReceived == SOCKET_ERROR) {
+        client->errorFrom = CAKE_SOCKET_ERROR_FROM_RECV;
+        client->errorCode = cake_socket_get_last_error_code();
+        return cake_false;
+    }
+    return cake_true;
+}
+
+Cake_String_UTF8 *__cake_socket_stream_read_line(Cake_SocketBuffer *_stream, cake_bool (*recvFunc)(void *, char *, ulonglong, ulonglong *), void *_s) {
+    // TODO: portage Linux
+#ifdef CAKE_WINDOWS
+    char buffer[CAKE_SOCKET_READ_BUFFER_SIZE];
+    ulonglong bytesReceived;
+    ulonglong size, i;
+    void *ptr;
+
+    Cake_String_UTF8 *out = cake_strutf8("");
+
+    // On vérifie si le buffer ne contient pas déjà un saut de ligne
+    for(i = 0; i < _stream->size; i++) {
+        if(_stream->ptr[i] == '\n') {
+            cake_strutf8_add_bytes(out, _stream->ptr, i);
+            i++;
+
+            // On ignore les retours chariots
+            while(i < _stream->size && _stream->ptr[i] == '\r')
+                i++;
+
+            // On modifie le buffer interne
+            size = _stream->size - i;
+            ptr = malloc(size);
+            if(ptr != NULL) {
+                memcpy(ptr, _stream->ptr + i, size);
+                free(_stream->ptr);
+                _stream->ptr = (cake_byte *) ptr;
+                _stream->size = size;
+            }
+
+            return out;
+        }
+    }
+
+    cake_strutf8_add_bytes(out, _stream->ptr, _stream->size);
+
+    // Lecture des données depuis le socket
+    while(recvFunc(_s, buffer, CAKE_SOCKET_READ_BUFFER_SIZE, &bytesReceived) && bytesReceived > 0) {
+        // On vérifie s'il y a un saut de ligne
+        for(i = 0; i < bytesReceived; i++) {
+            if(buffer[i] == '\n') {
+                cake_strutf8_add_bytes(out, buffer, i);
+                i++;
+
+                // On ignore les retours chariots
+                while(i < bytesReceived && buffer[i] == '\r')
+                    i++;
+
+                // On modifie le buffer interne
+                size = bytesReceived - i;
+                ptr = malloc(size);
+                if(ptr != NULL) {
+                    free(_stream->ptr);
+                    _stream->ptr = (cake_byte *) ptr;
+                    _stream->size = size;
+                    memcpy(_stream->ptr, buffer + i, size);
+                }
+                return out;
+            }
+        }
+
+        size = _stream->size + bytesReceived;
+        ptr = realloc(_stream->ptr, size);
+        if(ptr != NULL) {
+            _stream->ptr = (cake_byte *) ptr;
+            memcpy(_stream->ptr + _stream->size, buffer, bytesReceived);
+            _stream->size = size;
+        }
+    }
+#else
+
+#endif
+    cake_free_strutf8(out);
+    return NULL;
+}
+
+cake_bool __cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len, char *buff) {
+    stream->tls.clientSocket.errorFrom = CAKE_SOCKET_ERROR_FROM_NO_ERROR;
+    len -= stream->buffer.size;
+
+    ulonglong b;
+    ulonglong total = 0;
+    while(1) {
+        if(!__cake_tls_client_recv(&stream->tls, buff + total, len, &b))
+            return cake_false;
+        total += b;
+        if(total == len)
+            return cake_true;
+    }
+}
 
 /* ===== CLIENT SOCKET FUNCTIONS ===== */
 
@@ -73,7 +174,7 @@ cake_bool cake_client_socket_send(Cake_ClientSocket *sock, const char *data, ulo
     #ifdef CAKE_WINDOWS
     if(send(sock->socket, data, size, 0) == SOCKET_ERROR) {
         sock->errorFrom = CAKE_SOCKET_ERROR_FROM_SEND;
-        sock->errorCode = WSAGetLastError();
+        sock->errorCode = cake_socket_get_last_error_code();
         return cake_false;
     }
     #else
@@ -86,7 +187,6 @@ void cake_free_client_socket(Cake_ClientSocket *sock) {
     cake_close_socket(sock->socket);
     freeaddrinfo(sock->address);
 }
-
 
 /* ===== TLS CLIENT FUNCTIONS ===== */
 
@@ -175,6 +275,21 @@ void cake_free_tls_client(Cake_TLSClient *tls) {
     SSL_CTX_free(tls->ctx);
 }
 
+/* ===== ACCEPTED CLIENT SOCKET ===== */
+
+cake_bool cake_accepted_client_socket_send(Cake_AcceptedClientSocket *sock, const char *data, ulonglong size) {
+    // TODO: portage Linux
+#ifdef CAKE_WINDOWS
+    if(send(sock->sock, data, size, 0) == SOCKET_ERROR) {
+        sock->errorFrom = CAKE_SOCKET_ERROR_FROM_SEND;
+        sock->errorCode = cake_socket_get_last_error_code();
+        return cake_false;
+    }
+#else
+
+#endif
+    return cake_true;
+}
 
 /* ===== SERVER SOCKET FUNCTIONS ===== */
 
@@ -218,126 +333,18 @@ cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, c
     return cake_true;
 }
 
-
-/* ===== ACCEPTED CLIENT SOCKET FUNCTIONS ===== */
-
-Cake_AcceptedClientSocket *cake_server_socket_accept(Cake_ServerSocket *sock) {
-    Cake_AcceptedClientSocket *client = (Cake_AcceptedClientSocket *) malloc(sizeof(Cake_AcceptedClientSocket));
-    cake_socklen length = sizeof(client->addr);
-
-    client->socket = accept(sock->socket, (struct sockaddr *) &client->addr, &length);
-    if(client->socket == CAKE_SOCKET_BAD_SOCKET) {
-        free(client);
+cake_bool cake_server_socket_accept(Cake_ServerSocket *sock, Cake_AcceptedClientSocket *dest) {
+    cake_socklen size = sizeof(dest->addr);
+    dest->sock = accept(sock->socket, &dest->addr, &size);
+    if(dest->sock == CAKE_SOCKET_BAD_SOCKET) {
         sock->errorFrom = CAKE_SOCKET_ERROR_FROM_ACCEPT;
         sock->errorCode = cake_socket_get_last_error_code();
-        return NULL;
+        return cake_false;
     }
-
-    return client;
+    return cake_true;
 }
-
-void cake_free_accepted_client_socket(Cake_AcceptedClientSocket *sock) {
-    cake_close_socket(sock->socket);
-    free(sock);
-}
-
 
 /* ===== SOCKET STREAM FUNCTIONS ===== */
-
-Cake_String_UTF8 *__cake_socket_stream_read_line(Cake_SocketBuffer *_stream, cake_bool (*recvFunc)(void *, char *, ulonglong, ulonglong *), void *_s) {
-    // TODO: portage Linux
-    #ifdef CAKE_WINDOWS
-    char buffer[CAKE_SOCKET_READ_BUFFER_SIZE];
-    ulonglong bytesReceived;
-    ulonglong size, i;
-    void *ptr;
-
-    Cake_String_UTF8 *out = cake_strutf8("");
-
-    // On vérifie si le buffer ne contient pas déjà un saut de ligne
-    for(i = 0; i < _stream->size; i++) {
-        if(_stream->ptr[i] == '\n') {
-            cake_strutf8_add_bytes(out, _stream->ptr, i);
-            i++;
-
-            // On ignore les retours chariots
-            while(i < _stream->size && _stream->ptr[i] == '\r')
-                i++;
-
-            // On modifie le buffer interne
-            size = _stream->size - i;
-            ptr = malloc(size);
-            if(ptr != NULL) {
-                memcpy(ptr, _stream->ptr + i, size);
-                free(_stream->ptr);
-                _stream->ptr = (cake_byte *) ptr;
-                _stream->size = size;
-            }
-
-            return out;
-        }
-    }
-
-    cake_strutf8_add_bytes(out, _stream->ptr, _stream->size);
-
-    // Lecture des données depuis le socket
-    while(recvFunc(_s, buffer, CAKE_SOCKET_READ_BUFFER_SIZE, &bytesReceived) && bytesReceived > 0) {
-        // On vérifie s'il y a un saut de ligne
-        for(i = 0; i < bytesReceived; i++) {
-            if(buffer[i] == '\n') {
-                cake_strutf8_add_bytes(out, buffer, i);
-                i++;
-
-                // On ignore les retours chariots
-                while(i < bytesReceived && buffer[i] == '\r')
-                    i++;
-                
-                // On modifie le buffer interne
-                size = bytesReceived - i;
-                ptr = malloc(size);
-                if(ptr != NULL) {
-                    free(_stream->ptr);
-                    _stream->ptr = (cake_byte *) ptr;
-                    _stream->size = size;
-                    memcpy(_stream->ptr, buffer + i, size);
-                }
-                return out;
-            }
-        }
-
-        size = _stream->size + bytesReceived;
-        ptr = realloc(_stream->ptr, size);
-        if(ptr != NULL) {
-            _stream->ptr = (cake_byte *) ptr;
-            memcpy(_stream->ptr + _stream->size, buffer, bytesReceived);
-            _stream->size = size;
-        }
-    }
-    #else
-
-    #endif
-    cake_free_strutf8(out);
-    return NULL;
-}
-
-Cake_String_UTF8 *cake_client_socket_stream_read_line(Cake_ClientSocketStream *stream) {
-    return __cake_socket_stream_read_line(&stream->buffer, __cake_client_socket_recv, &stream->client);
-}
-
-cake_bool __cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len, char *buff) {
-    stream->tls.clientSocket.errorFrom = CAKE_SOCKET_ERROR_FROM_NO_ERROR;
-    len -= stream->buffer.size;
-
-    ulonglong b;
-    ulonglong total = 0;
-    while(1) {
-        if(!__cake_tls_client_recv(&stream->tls, buff + total, len, &b))
-            return cake_false;
-        total += b;
-        if(total == len)
-            return cake_true;
-    }
-}
 
 char *cake_tls_client_stream_read_raw(Cake_TLSClientStream *stream, ulonglong len) {
     if(len > stream->buffer.size) {
@@ -403,4 +410,9 @@ Cake_String_UTF8 *cake_tls_client_stream_read_line(Cake_TLSClientStream *stream)
 void cake_free_tls_client_stream(Cake_TLSClientStream *stream) {
     free(stream->buffer.ptr);
     cake_free_tls_client(&stream->tls);
+}
+
+void cake_free_accepted_client_socket_stream(Cake_AcceptedClientSocketStream *stream) {
+    free(stream->buffer.ptr);
+    cake_free_accepted_client_socket(&stream->client);
 }
