@@ -22,7 +22,7 @@ var dir_c0d7cb1b5cb6479285a38a7801e17d6e =
     [ "signal.h", "signal_8h_source.html", null ],
     [ "socket.h", "socket_8h_source.html", null ],
     [ "strutf16.h", "strutf16_8h_source.html", null ],
-    [ "strutf8.h", "strutf8_8h_source.html", null ],
+    [ "strutf8.h", "strutf8_8h.html", "strutf8_8h" ],
     [ "thread.h", "thread_8h_source.html", null ],
     [ "time.h", "time_8h_source.html", null ],
     [ "vector.h", "vector_8h_source.html", null ],

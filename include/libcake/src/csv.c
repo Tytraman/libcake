@@ -50,12 +50,12 @@ void cake_csv_parse_file(Cake_CSV *dest, cake_fd fd, char delim) {
     uchar ignored1 = '\r', ignored2 = '\n', ignored3 = '\0';
 
     ulonglong i;
-    for(i = 0; i <= utf->data.length; ++i) {
+    for(i = 0; i <= utf->size; ++i) {
         if(utf->bytes[i] == ignored1 || utf->bytes[i] == ignored2 || utf->bytes[i] == ignored3) {
             utf->bytes[i] = '\0';
             cake_csv_add_line(dest, (char *) lastPtr, delim);
             i++;
-            while(i < utf->data.length && (utf->bytes[i] == ignored1 || utf->bytes[i] == ignored2 || utf->bytes[i] == ignored3)) i++;
+            while(i < utf->size && (utf->bytes[i] == ignored1 || utf->bytes[i] == ignored2 || utf->bytes[i] == ignored3)) i++;
             lastPtr = &utf->bytes[i];
         }
     }
@@ -82,8 +82,8 @@ cake_bool cake_csv_save(Cake_CSV *csv, const char *filename, char delim) {
     for(i = 0; i < csv->data.length; ++i) {
         for(j = 0; j < csv->utfList[i]->data.length; ++j) {
             total = 0;
-            while(total < cake_csv_get(csv, i, j)->data.length) {
-                if(cake_fdio_write(fd, (cake_csv_get(csv, i, j)->data.length > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : cake_csv_get(csv, i, j)->data.length), bytesWritten, &cake_csv_get(csv, i, j)->bytes[total]) == CAKE_FDIO_ERROR_WRITE) {
+            while(total < cake_csv_get(csv, i, j)->size) {
+                if(cake_fdio_write(fd, (cake_csv_get(csv, i, j)->size > CAKE_BUFF_SIZE ? CAKE_BUFF_SIZE : cake_csv_get(csv, i, j)->size), bytesWritten, &cake_csv_get(csv, i, j)->bytes[total]) == CAKE_FDIO_ERROR_WRITE) {
                     cake_fdio_close(fd);
                     return cake_false;
                 }

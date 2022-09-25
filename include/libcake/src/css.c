@@ -23,7 +23,7 @@ void cake_css_optimize(Cake_CSS *css) {
     ulonglong savePos;
 
     // On enlève d'abord les espaces
-    for(i = 1; i < css->data.length; ++i) {
+    for(i = 1; i < css->size; ++i) {
         if(css->bytes[i] == ' ' || css->bytes[i] == '\t') {
             if(
                 !(
@@ -34,7 +34,7 @@ void cake_css_optimize(Cake_CSS *css) {
             ) {
                 savePos = i;
                 i++;
-                while(i < css->data.length && (css->bytes[i] == ' ' || css->bytes[i] == '\t'))
+                while(i < css->size && (css->bytes[i] == ' ' || css->bytes[i] == '\t'))
                     i++;
                 cake_strutf8_remove_from_to_internal(css, savePos, i);
                 i = savePos;
@@ -43,13 +43,13 @@ void cake_css_optimize(Cake_CSS *css) {
     }
 
     // On enlève les commentaires
-    for(i = 1; i < css->data.length; ++i) {
+    for(i = 1; i < css->size; ++i) {
         if(css->bytes[i - 1] == '/' && css->bytes[i] == '*') {
             savePos = i - 1;
             i += 2;
             while(1) {
-                if(i >= css->data.length) {
-                    i = css->data.length - 1;
+                if(i >= css->size) {
+                    i = css->size - 1;
                     break;
                 }else if(css->bytes[i - 1] == '*' && css->bytes[i] == '/') {
                     i++;
@@ -57,8 +57,8 @@ void cake_css_optimize(Cake_CSS *css) {
                 }
                 i++;
             }
-            if(i > css->data.length)
-                i = css->data.length;
+            if(i > css->size)
+                i = css->size;
             cake_strutf8_remove_from_to_internal(css, savePos, i);
             i = savePos;
         }

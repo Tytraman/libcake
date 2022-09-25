@@ -68,11 +68,11 @@ void cake_fdio_mem_copy_strutf8(Cake_String_UTF8 *dest, cake_fd fd, ushort buffS
         cake_fdio_read(fd, buffSize, bytesRead, buffer);
         if(bytesRead == CAKE_FDIO_ERROR_READ || bytesRead == 0)
             break;
-        dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar) + sizeof(uchar));
-        memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
-        (dest->data.length) += bytesRead;
+        dest->bytes = (uchar *) realloc(dest->bytes, (dest->size + bytesRead) * sizeof(uchar) + sizeof(uchar));
+        memcpy(&dest->bytes[dest->size], buffer, bytesRead * sizeof(uchar));
+        (dest->size) += bytesRead;
     }
-    dest->bytes[dest->data.length] = '\0';
+    dest->bytes[dest->size] = '\0';
     dest->length = cake_strutf8_length(dest);
     free(buffer);
 }

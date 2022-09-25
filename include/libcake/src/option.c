@@ -35,7 +35,7 @@ Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const char *key, char 
             uchar *space = NULL;
             while(1) {
                 while(1) {
-                    if(internalIndex < source->data.length) {
+                    if(internalIndex < source->size) {
                         if(source->bytes[internalIndex] == ' ' || source->bytes[internalIndex] == '\t') {
                             if(firstSpace) {
                                 space = &source->bytes[internalIndex];
@@ -49,7 +49,7 @@ Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const char *key, char 
                 }
                 if(source->bytes[internalIndex] == delim)
                     break;
-                else if(internalIndex >= source->data.length)
+                else if(internalIndex >= source->size)
                     break;
                 internalIndex++;
             }
@@ -77,23 +77,23 @@ Cake_Option *__cake_load_option(Cake_String_UTF8 *source, const char *key, char 
 
     
 
-    if(internalIndex < source->data.length) {
+    if(internalIndex < source->size) {
         internalIndex++;
-        while(internalIndex < source->data.length && (source->bytes[internalIndex] == ' ' || source->bytes[internalIndex] == '\t'))
+        while(internalIndex < source->size && (source->bytes[internalIndex] == ' ' || source->bytes[internalIndex] == '\t'))
             internalIndex++;
 
         ulonglong startIndex = internalIndex;
         if(valueIndex != NULL)
             *valueIndex = startIndex;
-        if(internalIndex < source->data.length) {
+        if(internalIndex < source->size) {
             ulonglong keyLength = 0;
-            while(internalIndex < source->data.length && source->bytes[internalIndex] != '\r' && source->bytes[internalIndex] != '\n') {
+            while(internalIndex < source->size && source->bytes[internalIndex] != '\r' && source->bytes[internalIndex] != '\n') {
                 internalIndex++;
                 keyLength++;
             }
             if(keyLength > 0) {
                 opt->value->bytes = (uchar *) realloc(opt->value->bytes, keyLength * sizeof(uchar) + sizeof(uchar));
-                opt->value->data.length = keyLength;
+                opt->value->size = keyLength;
                 memcpy(opt->value->bytes, source->bytes + startIndex, keyLength * sizeof(uchar));
                 opt->value->bytes[keyLength] = '\0';
                 opt->value->length = cake_strutf8_length(opt->value);

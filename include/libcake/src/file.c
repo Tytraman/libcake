@@ -104,7 +104,7 @@ void cake_list_files_recursive(const char *path, Cake_List_String_UTF8 *files, C
             #endif
         ){
             cake_strutf8_copy(utf8Path, &snapshots.list[snapshots.current - 1].path);
-            if(utf8Path->bytes[utf8Path->data.length - 1] != FILE_SEPARATOR)
+            if(utf8Path->bytes[utf8Path->size - 1] != FILE_SEPARATOR)
                 cake_strutf8_add_char_array(utf8Path, FILE_SEPARATOR_CHAR_STR);
             #ifdef CAKE_WINDOWS
             cake_strutf8_add_wchar_array(utf8Path, snapshots.list[snapshots.current - 1].dataw.cFileName);
@@ -184,17 +184,17 @@ cake_bool file_mem_copy(
                 break;
             }
             default:{
-                dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar));
-                memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
-                dest->data.length += bytesRead;
+                dest->bytes = (uchar *) realloc(dest->bytes, (dest->size + bytesRead) * sizeof(uchar));
+                memcpy(&dest->bytes[dest->size], buffer, bytesRead * sizeof(uchar));
+                dest->size += bytesRead;
                 break;
             }
         }
     }
     close(fd);
     free(buffer);
-    dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
-    dest->bytes[dest->data.length] = '\0';
+    dest->bytes = (uchar *) realloc(dest->bytes, dest->size * sizeof(uchar) + sizeof(uchar));
+    dest->bytes[dest->size] = '\0';
     dest->length = cake_strutf8_length(dest);
     #else
     HANDLE hFile = CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -215,15 +215,15 @@ cake_bool file_mem_copy(
         if(bytesRead == 0)
             loop = cake_false;
         else {
-            dest->bytes = (uchar *) realloc(dest->bytes, (dest->data.length + bytesRead) * sizeof(uchar));
-            memcpy(&dest->bytes[dest->data.length], buffer, bytesRead * sizeof(uchar));
-            dest->data.length += bytesRead;
+            dest->bytes = (uchar *) realloc(dest->bytes, (dest->size + bytesRead) * sizeof(uchar));
+            memcpy(&dest->bytes[dest->size], buffer, bytesRead * sizeof(uchar));
+            dest->size += bytesRead;
         }
     }
     CloseHandle(hFile);
     free(buffer);
-    dest->bytes = (uchar *) realloc(dest->bytes, dest->data.length * sizeof(uchar) + sizeof(uchar));
-    dest->bytes[dest->data.length] = '\0';
+    dest->bytes = (uchar *) realloc(dest->bytes, dest->size * sizeof(uchar) + sizeof(uchar));
+    dest->bytes[dest->size] = '\0';
     dest->length = cake_strutf8_length(dest);
     #endif
 
@@ -264,15 +264,15 @@ cake_bool cake_mkdirs(const char *filepath) {
         pathCopy.characteres[pathCopy.length - 1] == FILE_SEPARATOR ||
         pathCopy.characteres[pathCopy.length - 1] == FILE_SEPARATOR_REVERSE
         #else
-        pathCopy->bytes[pathCopy->data.length - 1] == FILE_SEPARATOR ||
-        pathCopy->bytes[pathCopy->data.length - 1] == FILE_SEPARATOR_REVERSE
+        pathCopy->bytes[pathCopy->size - 1] == FILE_SEPARATOR ||
+        pathCopy->bytes[pathCopy->size - 1] == FILE_SEPARATOR_REVERSE
          #endif
     ) {
         if(
             #ifdef CAKE_WINDOWS
             pathCopy.length == 1
             #else
-            pathCopy->data.length == 1
+            pathCopy->size == 1
             #endif
         )
             return cake_false;
@@ -281,8 +281,8 @@ cake_bool cake_mkdirs(const char *filepath) {
         pathCopy.length--;
         pathCopy.characteres[pathCopy.length] = L'\0';
         #else
-        (pathCopy->data.length)--;
-        pathCopy->bytes[pathCopy->data.length] = '\0';
+        (pathCopy->size)--;
+        pathCopy->bytes[pathCopy->size] = '\0';
         #endif
     }
 

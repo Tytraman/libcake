@@ -1,3 +1,5 @@
+/** @file strutf8.h */
+
 #ifndef __CAKE_UTF8_H__
 #define __CAKE_UTF8_H__
 
@@ -6,7 +8,7 @@
 #include "array.h"
 
 /**
- * @brief Structure pour utiliser des chaînes de caractères encodées en UTF-8.
+ * @brief Chaînes de caractères encodées en UTF-8.
 */
 typedef struct cake_string_utf8 {
     uchar *bytes;
@@ -15,8 +17,7 @@ typedef struct cake_string_utf8 {
 } Cake_String_UTF8;
 
 /**
- * @brief Structure pour utiliser un tableau dynamique de chaînes de caractères
- * encodées en UTF-8.
+ * @brief Tableau dynamique de chaînes de caractères encodées en UTF-8.
 */
 typedef struct cake_list_string_utf8 {
     Cake_ArrayList data;
@@ -24,18 +25,24 @@ typedef struct cake_list_string_utf8 {
 } Cake_List_String_UTF8;
 
 /**
- * @brief Structure qui associe 2 chaînes de caractères encodées en UTF-8.
+ * @brief Associe 2 chaînes de caractères encodées en UTF-8.
 */
 typedef struct cake_string_utf8_pair {
     Cake_String_UTF8 *key;
     Cake_String_UTF8 *value;
 } Cake_String_UTF8_Pair;
 
+/**
+ * @brief Listes liées de chaînes de caractères encodées en UTF-8.
+*/
 typedef struct cake_linkedlist_string_utf8_pair {
     Cake_String_UTF8_Pair *pair;
     struct cake_linkedlist_string_utf8_pair *next;
 } Cake_LinkedList_String_UTF8_Pair;
 
+/**
+ * @brief Lit le contenu d'une chaîne de caractères encodées en UTF-8.
+*/
 typedef struct cake_strutf8_reader {
     Cake_String_UTF8 *utf;
     ulonglong pos;
@@ -45,58 +52,99 @@ typedef struct cake_strutf8_reader {
 extern "C" {
 #endif
 
-/* ===== Initialisation ===== */
-
-void cake_create_strutf8_reader_str(Cake_String_UTF8_Reader *dest, const char *str);
-void cake_create_strutf8_reader_utf(Cake_String_UTF8_Reader *dest, Cake_String_UTF8 *utf);
-
-void cake_strutf8_reader_skip_char(Cake_String_UTF8_Reader *reader, char value);
-void cake_strutf8_reader_skip_achar(Cake_String_UTF8_Reader *reader, const char *values, ulonglong size);
-
-Cake_String_UTF8 *cake_strutf8_readline(Cake_String_UTF8_Reader *reader);
 
 /**
- * @brief Crée dynamiquement un <B>Cake_String_UTF8_Pair</B>.
- * @warning Ne pas oublier de free avec `cake_free_strutf8_pair`.
+* @deprecated Utiliser \ref cake_strutf8 à la place.
+*
+* @brief Initialise un \ref Cake_String_UTF8.
+*
+* @param[out] utf - Chaîne à initialiser.
+*/
+void cake_create_strutf8(Cake_String_UTF8 *utf);
+
+/**
+* @brief Crée dynamiquement un \ref Cake_String_UTF8.
+* @warning Ne pas oublier de libérer la mémoire avec \ref cake_free_strutf8.
+*
+* @param[in] value - Chaîne de caractères à copier.
+* 
+* @return \ref Cake_String_UTF8 * - La chaîne créée.
+* @return `NULL` en cas d'erreur.
+*/
+Cake_String_UTF8 *cake_strutf8(const char *value);
+
+/**
+* @brief Libère la mémoire d'un \ref Cake_String_UTF8 alloué dynamiquement.
+* 
+* @param utf - La chaîne de caractères à faire disparaitre.
+*/
+void cake_free_strutf8(Cake_String_UTF8 *utf);
+
+
+/**
+ * @brief Crée un lecteur de \ref Cake_String_UTF8.
+ * @param[out] dest - Pointeur dans lequel initialiser les données, ne doit pas être `NULL`.
+ * @param[in] str - Chaîne de caractères à copier dans le lecteur.
+*/
+void cake_create_strutf8_reader_str(Cake_String_UTF8_Reader *dest, const char *str);
+
+/**
+ * @brief Crée un lecteur de \ref Cake_String_UTF8.
+ * @param[out] dest - Pointeur dans lequel initialiser les données, ne doit pas être `NULL`.
+ * @param[in] utf - Référence utilisée par le lecteur.
+*/
+void cake_create_strutf8_reader_utf(Cake_String_UTF8_Reader *dest, Cake_String_UTF8 *utf);
+
+/**
+ * @brief Saute tous les prochains caractères si égaux à `value`.
+ * @param reader - Lecteur dans lequel sauter les caractères.
+ * @param value - Caractère à sauter.
+*/
+void cake_strutf8_reader_skip_char(Cake_String_UTF8_Reader *reader, char value);
+
+/**
+ * @brief Saute tous les prochains caractères si égaux à un des caractères de `values`.
+ * @param reader - Lecteur dans lequel sauter les caractères.
+ * @param values - Caractères à sauter.
+ * @param size - Nombre de caractères dans <c>values</c>.
+*/
+void cake_strutf8_reader_skip_achar(Cake_String_UTF8_Reader *reader, const char *values, ulonglong size);
+
+/**
+ * @brief Retourne la prochaine ligne du lecteur.
+ * @param reader - Lecteur dans lequel chercher la prochaine ligne.
+ * @return \ref Cake_String_UTF8 * - La ligne trouvée.
+ * @return `NULL` s'il n'y a plus de caractères à lire.
+*/
+Cake_String_UTF8 *cake_strutf8_reader_read_line(Cake_String_UTF8_Reader *reader);
+
+/**
+ * @brief Crée dynamiquement un \ref Cake_String_UTF8_Pair.
+ * @warning Ne pas oublier de libérer la mémoire avec \ref cake_free_strutf8_pair.
  * 
- * @param key Chaîne 1 à copier.
- * @param value Chaîne 2 à copier.
- * @return `Cake_String_UTF8_Pair *` La paire de chaînes créée.
+ * @param[in] key - Chaîne 1 à copier.
+ * @param[in] value - Chaîne 2 à copier.
+ * @return \ref Cake_String_UTF8_Pair * - La paire de chaînes créée.
  */
 Cake_String_UTF8_Pair *cake_strutf8_pair(const char *key, const char *value);
 
 /**
- * @brief Libère la mémoire d'un `Cake_String_UTF8_Pair`.
+ * @brief Libère la mémoire d'un \ref Cake_String_UTF8_Pair alloué dynamiquement.
  * 
- * @param pair La paire de chaînes à libérer.
+ * @param pair - La paire de chaînes à libérer.
  */
 void cake_free_strutf8_pair(Cake_String_UTF8_Pair *pair);
 
-/*
-        Initialise toutes les valeurs de la structure Cake_String_UTF8.
-
-        A utiliser une seule fois après chaque déclaration d'une variable Cake_String_UTF8,
-        sauf cas exceptionnels où certaines fonctions le spécifie.
+/**
+ * @brief Crée un \ref Cake_String_UTF8 dynamiquement et pré-alloue le buffer interne de la taille spécifiée.
+ * 
+ * @warning Ne pas oublier de libérer la mémoire avec \ref cake_free_strutf8.
+ * 
+ * @param size - Taille du buffer interne.
+ * 
+ * @return \ref Cake_String_UTF8 * - La chaîne pré-allouée.
+ * @return `NULL` en cas d'erreur.
 */
-
-/**
- * @deprecated Utiliser cake_strutf8 à la place.
- * 
- * @brief Initialise un `Cake_String_UTF8`.
- * 
- * @param utf Chaîne à initialiser.
- */
-void cake_create_strutf8(Cake_String_UTF8 *utf);
-
-/**
- * @brief Crée dynamiquement un `Cake_String_UTF8`.
- * @warning Ne pas oublier de free avec `cake_free_strutf8`.
- * 
- * @param value Chaîne à copier.
- * @return La chaîne créée.
- */
-Cake_String_UTF8 *cake_strutf8(const char *value);
-
 Cake_String_UTF8 *cake_strutf8_pre_alloc(ulonglong size);
 
 /**
@@ -113,9 +161,6 @@ Cake_List_String_UTF8 *cake_list_strutf8();
  * @param src Chaîne source.
  */
 cake_bool cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src);
-
-
-/* ===== Ajout ===== */
 
 /**
  * @brief Ajoute un caractère unicode dans la chaîne UTF-8.
@@ -324,14 +369,6 @@ float cake_strutf8_to_float(Cake_String_UTF8 *utf, char decimalSeparator);
 
 // Nettoie la chaîne UTF-8 en utilisant free et en remettant les valeurs à 0 et NULL.
 void cake_clear_strutf8(Cake_String_UTF8 *utf);
-
-
-/*
-        Libère la mémoire d'un Cake_String_UTF8 dynamique.
-
-        Ne met pas les valeurs à 0 ni à NULL, la fonction n'effectue que des free.
-*/
-void cake_free_strutf8(Cake_String_UTF8 *utf);
 
 void cake_free_list_strutf8(Cake_List_String_UTF8 *list);
 

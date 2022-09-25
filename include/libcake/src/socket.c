@@ -389,7 +389,7 @@ Cake_String_UTF8 *cake_tls_client_stream_read_str(Cake_TLSClientStream *stream, 
         stream->buffer.size = 0;
 
         ret->bytes[len] = '\0';
-        ret->data.length = len;
+        ret->size = len;
         ret->length = cake_strutf8_length(ret);
 
         return ret;

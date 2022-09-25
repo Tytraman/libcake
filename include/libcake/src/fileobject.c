@@ -106,7 +106,7 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
 
     // On ignore les espaces et les sauts de lignes du début du fichier
     while(
-        i != copy->data.length &&
+        i != copy->size &&
         (
             copy->bytes[i] == '\r' ||
             copy->bytes[i] == '\n' ||
@@ -120,7 +120,7 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
     valuePtr = keyPtr;
 
     while(1) {
-        if(i == copy->data.length)
+        if(i == copy->size)
             break;
         // Si on trouve le délimiteur
         if(copy->bytes[i] == ':') {
@@ -132,12 +132,12 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
             i++;
 
             // On ignore les espaces situés après le délimiteur
-            while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t'))
+            while(i != copy->size && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t'))
                 i++;
             valuePtr = &copy->bytes[i];
 
             while(1) {
-                if(i >= copy->data.length)
+                if(i >= copy->size)
                     goto fileobject_jump;
                 if(copy->bytes[i] == '\r' || copy->bytes[i] == '\n') {
                     copy->bytes[i] = '\0';
@@ -150,7 +150,7 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
             }
 
             // On ignore tous les espaces et les sauts de lignes suivants
-            while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
+            while(i != copy->size && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
                 i++;
             keyPtr = &copy->bytes[i];
 
@@ -175,7 +175,7 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
             length++;
 
             // On ignore les espaces et les sauts de lignes
-            while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
+            while(i != copy->size && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
                 i++;
             keyPtr = &copy->bytes[i];
         }else if(copy->bytes[i] == '}') {
@@ -183,7 +183,7 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
 
             i++;
             // On ignore les espaces et les sauts de lignes
-            while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
+            while(i != copy->size && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
                 i++;
             keyPtr = &copy->bytes[i];
         
@@ -201,12 +201,12 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
         ) {
             i++;
             // On ignore les espaces situés après le tiret
-            while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t'))
+            while(i != copy->size && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t'))
                 i++;
             keyPtr = &copy->bytes[i];
 
             while(1) {
-                if(i >= copy->data.length)
+                if(i >= copy->size)
                     goto fileobject_jumpk;
                 if(copy->bytes[i] == '\r' || copy->bytes[i] == '\n') {
                     copy->bytes[i] = '\0';
@@ -219,7 +219,7 @@ Cake_FileObject *cake_fileobject_load(const char *filename) {
             }
 
             // On ignore tous les espaces et les sauts de lignes suivants
-            while(i != copy->data.length && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
+            while(i != copy->size && (copy->bytes[i] == ' ' || copy->bytes[i] == '\t' || copy->bytes[i] == '\r' || copy->bytes[i] == '\n'))
                 i++;
             keyPtr = &copy->bytes[i];
         }else
@@ -583,7 +583,7 @@ Cake_FileObjectElement *cake_fileobject_add_element(Cake_FileObject *obj, const 
     Cake_FileObjectElement *element = NULL;
 
     while(1) {
-        if(ptr == &copy->bytes[copy->data.length]) {
+        if(ptr == &copy->bytes[copy->size]) {
             element = cake_list_fileobject_element_add(listElements, (cchar_ptr) lastPtr, value);
             break;
         }
@@ -645,7 +645,7 @@ cake_bool cake_fileobject_remove_element(Cake_FileObject *obj, const char *key) 
     ulonglong i;
 
     while(1) {
-        if(ptr == &copy->bytes[copy->data.length]) {
+        if(ptr == &copy->bytes[copy->size]) {
             cake_bool retCode = cake_list_fileobject_element_remove(listElements, (cchar_ptr) lastPtr);
             cake_free_strutf8(copy);
             return retCode;

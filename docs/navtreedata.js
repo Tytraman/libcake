@@ -25,12 +25,18 @@
 var NAVTREE =
 [
   [ "libcake", "index.html", [
+    [ "Liste des éléments obsolètes", "deprecated.html", null ],
     [ "Structures de données", "annotated.html", [
       [ "Structures de données", "annotated.html", "annotated_dup" ],
       [ "Index des structures de données", "classes.html", null ]
     ] ],
     [ "Fichiers", "files.html", [
-      [ "Liste des fichiers", "files.html", "files_dup" ]
+      [ "Liste des fichiers", "files.html", "files_dup" ],
+      [ "Variables globale", "globals.html", [
+        [ "Tout", "globals.html", null ],
+        [ "Fonctions", "globals_func.html", null ],
+        [ "Définitions de type", "globals_type.html", null ]
+      ] ]
     ] ]
   ] ]
 ];

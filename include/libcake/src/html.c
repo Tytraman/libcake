@@ -17,12 +17,12 @@ void cake_html_optimize(Cake_HTML *html) {
     ulonglong i, savePos;
 
     // On enlève d'abord les espaces
-    for(i = 1; i < html->data.length; ++i) {
+    for(i = 1; i < html->size; ++i) {
         if(html->bytes[i] == ' ' || html->bytes[i] == '\t') {
             if(html->bytes[i - 1] == '>' || html->bytes[i - 1] == '\n') {
                 savePos = i;
                 i++;
-                while(i < html->data.length && (html->bytes[i] == ' ' || html->bytes[i] == '\t'))
+                while(i < html->size && (html->bytes[i] == ' ' || html->bytes[i] == '\t'))
                     i++;
                 cake_strutf8_remove_from_to_internal(html, savePos, i);
                 i = savePos;
@@ -32,13 +32,13 @@ void cake_html_optimize(Cake_HTML *html) {
     cake_strutf8_remove_all(html, "\n");
 
     // On enlève les commentaires
-    for(i = 3; i < html->data.length; ++i) {
+    for(i = 3; i < html->size; ++i) {
         if(html->bytes[i - 3] == '<' && html->bytes[i - 2] == '!' && html->bytes[i - 1] == '-' && html->bytes[i] == '-') {
             savePos = i - 3;
             i += 3;
             while(1) {
-                if(i >= html->data.length) {
-                    i = html->data.length - 1;
+                if(i >= html->size) {
+                    i = html->size - 1;
                     break;
                 }else if(html->bytes[i - 2] == '-' && html->bytes[i - 1] == '-' && html->bytes[i] == '>') {
                     i++;
@@ -46,8 +46,8 @@ void cake_html_optimize(Cake_HTML *html) {
                 }
                 i++;
             }
-            if(i > html->data.length)
-                i = html->data.length;
+            if(i > html->size)
+                i = html->size;
             cake_strutf8_remove_from_to_internal(html, savePos, i);
             i = savePos;
         }
