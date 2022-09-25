@@ -335,7 +335,7 @@ cake_bool cake_create_server_socket(Cake_ServerSocket *sock, const char *port, c
 
 cake_bool cake_server_socket_accept(Cake_ServerSocket *sock, Cake_AcceptedClientSocket *dest) {
     cake_socklen size = sizeof(dest->addr);
-    dest->sock = accept(sock->socket, &dest->addr, &size);
+    dest->sock = accept(sock->socket, (struct sockaddr *) &dest->addr, &size);
     if(dest->sock == CAKE_SOCKET_BAD_SOCKET) {
         sock->errorFrom = CAKE_SOCKET_ERROR_FROM_ACCEPT;
         sock->errorCode = cake_socket_get_last_error_code();

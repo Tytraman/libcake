@@ -5,22 +5,27 @@
 #include "strutf16.h"
 #include "array.h"
 
-// Données internes utilisées par Cake_String_UTF8.
-typedef struct cake_utf_data {
-    ulonglong length;
-} Cake_UTF_Data;
-
+/**
+ * @brief Structure pour utiliser des chaînes de caractères encodées en UTF-8.
+*/
 typedef struct cake_string_utf8 {
-    Cake_UTF_Data data;
-    ulonglong length;
     uchar *bytes;
+    ulonglong size;
+    ulonglong length;
 } Cake_String_UTF8;
 
+/**
+ * @brief Structure pour utiliser un tableau dynamique de chaînes de caractères
+ * encodées en UTF-8.
+*/
 typedef struct cake_list_string_utf8 {
     Cake_ArrayList data;
     Cake_String_UTF8 **list;
 } Cake_List_String_UTF8;
 
+/**
+ * @brief Structure qui associe 2 chaînes de caractères encodées en UTF-8.
+*/
 typedef struct cake_string_utf8_pair {
     Cake_String_UTF8 *key;
     Cake_String_UTF8 *value;
@@ -51,12 +56,12 @@ void cake_strutf8_reader_skip_achar(Cake_String_UTF8_Reader *reader, const char 
 Cake_String_UTF8 *cake_strutf8_readline(Cake_String_UTF8_Reader *reader);
 
 /**
- * @brief Crée dynamiquement un `Cake_String_UTF8_Pair`.
+ * @brief Crée dynamiquement un <B>Cake_String_UTF8_Pair</B>.
  * @warning Ne pas oublier de free avec `cake_free_strutf8_pair`.
  * 
  * @param key Chaîne 1 à copier.
  * @param value Chaîne 2 à copier.
- * @return La paire de chaînes créée.
+ * @return `Cake_String_UTF8_Pair *` La paire de chaînes créée.
  */
 Cake_String_UTF8_Pair *cake_strutf8_pair(const char *key, const char *value);
 

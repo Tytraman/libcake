@@ -155,7 +155,7 @@ cake_bool cake_strutf8_copy(Cake_String_UTF8 *dest, Cake_String_UTF8 *src) {
         return cake_true;
     }
 
-    void *ptr = malloc(src->data.length * sizeof(uchar) + sizeof(uchar));
+    void *ptr = cake_new(src->data.length * sizeof(uchar) + sizeof(uchar));
     if(ptr == NULL)
         return cake_false;
 
