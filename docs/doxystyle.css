@@ -1,0 +1,11 @@
+body, #top, #titlearea, .tabs {
+    background-color: #212223;
+}
+
+.tablist a, a {
+    color: #e23124;
+}
+
+.tablist a:hover, a:hover {
+    color: #e08c86;
+}
