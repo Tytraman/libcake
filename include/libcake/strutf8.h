@@ -1,11 +1,17 @@
-/** @file strutf8.h */
+/**
+* @file strutf8.h
+* @brief Fichier contenant le prototypes de tout ce qui touche aux chaînes de caractères UTF-8.
+* @author Tytraman
+*/
 
 #ifndef __CAKE_UTF8_H__
 #define __CAKE_UTF8_H__
 
+/// @cond
 #include "def.h"
 #include "strutf16.h"
 #include "array.h"
+/// @endcond
 
 /**
  * @brief Chaînes de caractères encodées en UTF-8.

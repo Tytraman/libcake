@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.2"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>libcake: Référence du fichier include/libcake/socket.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="style.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">libcake<span id="projectnumber">&#160;0.0.1</span>
+   </div>
+   <div id="projectbrief">Librairie en C</div>
+  </td>
+    <td>        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Recherche" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Généré par Doxygen 1.9.2 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search",'Recherche','.html');
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('socket_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Structures de données</a> &#124;
+<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Définitions de type</a> &#124;
+<a href="#func-members">Fonctions</a>  </div>
+  <div class="headertitle"><div class="title">Référence du fichier socket.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Fichier contenant le prototypes de tout ce qui touche aux sockets.  
+<a href="#details">Plus de détails...</a></p>
+
+<p><a href="socket_8h_source.html">Aller au code source de ce fichier.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Structures de données</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__clientsocket.html">cake_clientsocket</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket de connexion client.  <a href="structcake__clientsocket.html#details">Plus de détails...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__tlsclient.html">cake_tlsclient</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket de connexion client utilisant le protocole TLS, sécurisant les communications.  <a href="structcake__tlsclient.html#details">Plus de détails...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__acceptedclientsocket.html">cake_acceptedclientsocket</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket client accepté par un socket serveur.  <a href="structcake__acceptedclientsocket.html#details">Plus de détails...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__serversocket.html">cake_serversocket</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket de serveur.  <a href="structcake__serversocket.html#details">Plus de détails...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__socketbuffer.html">cake_socketbuffer</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__clientsocketstream.html">cake_clientsocketstream</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__tlsclientstream.html">cake_tlsclientstream</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcake__acceptedclientsocketstream.html">cake_acceptedclientsocketstream</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a9191c6e45efc5b13fd4d0a6a10c33ffe"><td class="memItemLeft" align="right" valign="top"><a id="a9191c6e45efc5b13fd4d0a6a10c33ffe" name="a9191c6e45efc5b13fd4d0a6a10c33ffe"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>cake_init_winsock</b>()</td></tr>
+<tr class="separator:a9191c6e45efc5b13fd4d0a6a10c33ffe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55eca50550d20b4b70f853fc2f601dbb"><td class="memItemLeft" align="right" valign="top"><a id="a55eca50550d20b4b70f853fc2f601dbb" name="a55eca50550d20b4b70f853fc2f601dbb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>cake_clean_winsock</b>()</td></tr>
+<tr class="separator:a55eca50550d20b4b70f853fc2f601dbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a173fe2407497c37d7256aa3ff22c6e"><td class="memItemLeft" align="right" valign="top"><a id="a3a173fe2407497c37d7256aa3ff22c6e" name="a3a173fe2407497c37d7256aa3ff22c6e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_BAD_SOCKET</b>&#160;&#160;&#160;-1</td></tr>
+<tr class="separator:a3a173fe2407497c37d7256aa3ff22c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2cb2a11226a0349e0c8a0d6e1dfd9a3"><td class="memItemLeft" align="right" valign="top"><a id="ad2cb2a11226a0349e0c8a0d6e1dfd9a3" name="ad2cb2a11226a0349e0c8a0d6e1dfd9a3"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR</b>&#160;&#160;&#160;-1</td></tr>
+<tr class="separator:ad2cb2a11226a0349e0c8a0d6e1dfd9a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab551f5e3bf6abfc09a75b51f3a3ab431"><td class="memItemLeft" align="right" valign="top"><a id="ab551f5e3bf6abfc09a75b51f3a3ab431" name="ab551f5e3bf6abfc09a75b51f3a3ab431"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>cake_socket_get_last_error_code</b>()&#160;&#160;&#160;errno</td></tr>
+<tr class="separator:ab551f5e3bf6abfc09a75b51f3a3ab431"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a392bfc74f46a7b52e8af8be9ad390f80"><td class="memItemLeft" align="right" valign="top"><a id="a392bfc74f46a7b52e8af8be9ad390f80" name="a392bfc74f46a7b52e8af8be9ad390f80"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>cake_close_socket</b>(sock)&#160;&#160;&#160;close(sock)</td></tr>
+<tr class="separator:a392bfc74f46a7b52e8af8be9ad390f80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43fc604a1cdd06ecae08a87c8b9f699e"><td class="memItemLeft" align="right" valign="top"><a id="a43fc604a1cdd06ecae08a87c8b9f699e" name="a43fc604a1cdd06ecae08a87c8b9f699e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_IP_V4</b>&#160;&#160;&#160;AF_INET</td></tr>
+<tr class="separator:a43fc604a1cdd06ecae08a87c8b9f699e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd5c37bd037f08853327af1910a35355"><td class="memItemLeft" align="right" valign="top"><a id="acd5c37bd037f08853327af1910a35355" name="acd5c37bd037f08853327af1910a35355"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_IP_V6</b>&#160;&#160;&#160;AF_INET6</td></tr>
+<tr class="separator:acd5c37bd037f08853327af1910a35355"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16b5ad019f520f8a9596d84aa52cb1d1"><td class="memItemLeft" align="right" valign="top"><a id="a16b5ad019f520f8a9596d84aa52cb1d1" name="a16b5ad019f520f8a9596d84aa52cb1d1"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_CLIENT_SOCKET_CONNECT_OK</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:a16b5ad019f520f8a9596d84aa52cb1d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48e175cec688fc9a049627471d2ea16f"><td class="memItemLeft" align="right" valign="top"><a id="a48e175cec688fc9a049627471d2ea16f" name="a48e175cec688fc9a049627471d2ea16f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_CLOSE</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:a48e175cec688fc9a049627471d2ea16f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a198cab940d20756564b53ccdfeb819c9"><td class="memItemLeft" align="right" valign="top"><a id="a198cab940d20756564b53ccdfeb819c9" name="a198cab940d20756564b53ccdfeb819c9"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_READ_ERROR</b>&#160;&#160;&#160;SOCKET_ERROR</td></tr>
+<tr class="separator:a198cab940d20756564b53ccdfeb819c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4988c76c4d13ef50cd2aa0d6294ad2da"><td class="memItemLeft" align="right" valign="top"><a id="a4988c76c4d13ef50cd2aa0d6294ad2da" name="a4988c76c4d13ef50cd2aa0d6294ad2da"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_NO_ERROR</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:a4988c76c4d13ef50cd2aa0d6294ad2da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a3db3eabf1ea11178c2bce86c35537b"><td class="memItemLeft" align="right" valign="top"><a id="a5a3db3eabf1ea11178c2bce86c35537b" name="a5a3db3eabf1ea11178c2bce86c35537b"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_GETADDRINFO</b>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:a5a3db3eabf1ea11178c2bce86c35537b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45f55ae6b4cc7805b79164a8a076c2c0"><td class="memItemLeft" align="right" valign="top"><a id="a45f55ae6b4cc7805b79164a8a076c2c0" name="a45f55ae6b4cc7805b79164a8a076c2c0"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_SOCKET</b>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:a45f55ae6b4cc7805b79164a8a076c2c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed077d1c0450c1882a0763b37df67e2b"><td class="memItemLeft" align="right" valign="top"><a id="aed077d1c0450c1882a0763b37df67e2b" name="aed077d1c0450c1882a0763b37df67e2b"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_CONNECT</b>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:aed077d1c0450c1882a0763b37df67e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6828ef70dd26528b058bc99af0cad35e"><td class="memItemLeft" align="right" valign="top"><a id="a6828ef70dd26528b058bc99af0cad35e" name="a6828ef70dd26528b058bc99af0cad35e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_BIND</b>&#160;&#160;&#160;4</td></tr>
+<tr class="separator:a6828ef70dd26528b058bc99af0cad35e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8ff11b51b7ea9f8a4af975a64e55693"><td class="memItemLeft" align="right" valign="top"><a id="ad8ff11b51b7ea9f8a4af975a64e55693" name="ad8ff11b51b7ea9f8a4af975a64e55693"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_LISTEN</b>&#160;&#160;&#160;5</td></tr>
+<tr class="separator:ad8ff11b51b7ea9f8a4af975a64e55693"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4b925925927a45899686790e81b295f"><td class="memItemLeft" align="right" valign="top"><a id="aa4b925925927a45899686790e81b295f" name="aa4b925925927a45899686790e81b295f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_ACCEPT</b>&#160;&#160;&#160;6</td></tr>
+<tr class="separator:aa4b925925927a45899686790e81b295f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0514e53a055575670a3b3f9b92e80d74"><td class="memItemLeft" align="right" valign="top"><a id="a0514e53a055575670a3b3f9b92e80d74" name="a0514e53a055575670a3b3f9b92e80d74"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_RECV</b>&#160;&#160;&#160;7</td></tr>
+<tr class="separator:a0514e53a055575670a3b3f9b92e80d74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab257111d81b4f000831e0bb5096099ed"><td class="memItemLeft" align="right" valign="top"><a id="ab257111d81b4f000831e0bb5096099ed" name="ab257111d81b4f000831e0bb5096099ed"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_SEND</b>&#160;&#160;&#160;8</td></tr>
+<tr class="separator:ab257111d81b4f000831e0bb5096099ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67dc12badd17d231de47880e4dc3d023"><td class="memItemLeft" align="right" valign="top"><a id="a67dc12badd17d231de47880e4dc3d023" name="a67dc12badd17d231de47880e4dc3d023"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_SSL_SET_FD</b>&#160;&#160;&#160;9</td></tr>
+<tr class="separator:a67dc12badd17d231de47880e4dc3d023"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa016b8134807862efcde556aebbc581f"><td class="memItemLeft" align="right" valign="top"><a id="aa016b8134807862efcde556aebbc581f" name="aa016b8134807862efcde556aebbc581f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_SSL_CONNECT</b>&#160;&#160;&#160;10</td></tr>
+<tr class="separator:aa016b8134807862efcde556aebbc581f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e62245a9908f6b46856c8a99836d89e"><td class="memItemLeft" align="right" valign="top"><a id="a1e62245a9908f6b46856c8a99836d89e" name="a1e62245a9908f6b46856c8a99836d89e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_SSL_WRITE_EX</b>&#160;&#160;&#160;11</td></tr>
+<tr class="separator:a1e62245a9908f6b46856c8a99836d89e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a9a0840df1067ce8e21c06d8715b216"><td class="memItemLeft" align="right" valign="top"><a id="a6a9a0840df1067ce8e21c06d8715b216" name="a6a9a0840df1067ce8e21c06d8715b216"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_ERROR_FROM_SSL_READ_EX</b>&#160;&#160;&#160;12</td></tr>
+<tr class="separator:a6a9a0840df1067ce8e21c06d8715b216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ffeb8f940855cd01cfd17017a1af077"><td class="memItemLeft" align="right" valign="top"><a id="a5ffeb8f940855cd01cfd17017a1af077" name="a5ffeb8f940855cd01cfd17017a1af077"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>CAKE_SOCKET_READ_BUFFER_SIZE</b>&#160;&#160;&#160;2048</td></tr>
+<tr class="separator:a5ffeb8f940855cd01cfd17017a1af077"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b0c17d187e9a0d9f1ab710c25df2bfd"><td class="memItemLeft" align="right" valign="top"><a id="a1b0c17d187e9a0d9f1ab710c25df2bfd" name="a1b0c17d187e9a0d9f1ab710c25df2bfd"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>cake_init_winsock</b></td></tr>
+<tr class="separator:a1b0c17d187e9a0d9f1ab710c25df2bfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbb0986473907f7fb3cb8f7105feb2be"><td class="memItemLeft" align="right" valign="top"><a id="adbb0986473907f7fb3cb8f7105feb2be" name="adbb0986473907f7fb3cb8f7105feb2be"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>cake_clean_winsock</b></td></tr>
+<tr class="separator:adbb0986473907f7fb3cb8f7105feb2be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Définitions de type</h2></td></tr>
+<tr class="memitem:a255ea1ef0450b46fc8a375e096260f8c"><td class="memItemLeft" align="right" valign="top"><a id="a255ea1ef0450b46fc8a375e096260f8c" name="a255ea1ef0450b46fc8a375e096260f8c"></a>
+typedef socklen_t&#160;</td><td class="memItemRight" valign="bottom"><b>cake_socklen</b></td></tr>
+<tr class="separator:a255ea1ef0450b46fc8a375e096260f8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff9e092773df353447c749da2fe6d0cc"><td class="memItemLeft" align="right" valign="top"><a id="aff9e092773df353447c749da2fe6d0cc" name="aff9e092773df353447c749da2fe6d0cc"></a>
+typedef int&#160;</td><td class="memItemRight" valign="bottom"><b>cake_socket</b></td></tr>
+<tr class="separator:aff9e092773df353447c749da2fe6d0cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acde778565b1902fe7213b0a95230c793"><td class="memItemLeft" align="right" valign="top"><a id="acde778565b1902fe7213b0a95230c793" name="acde778565b1902fe7213b0a95230c793"></a>
+typedef struct <a class="el" href="structcake__clientsocket.html">cake_clientsocket</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_ClientSocket</b></td></tr>
+<tr class="memdesc:acde778565b1902fe7213b0a95230c793"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket de connexion client. <br /></td></tr>
+<tr class="separator:acde778565b1902fe7213b0a95230c793"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32368227ec3832456075001ac631ca46"><td class="memItemLeft" align="right" valign="top"><a id="a32368227ec3832456075001ac631ca46" name="a32368227ec3832456075001ac631ca46"></a>
+typedef struct <a class="el" href="structcake__tlsclient.html">cake_tlsclient</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_TLSClient</b></td></tr>
+<tr class="memdesc:a32368227ec3832456075001ac631ca46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket de connexion client utilisant le protocole TLS, sécurisant les communications. <br /></td></tr>
+<tr class="separator:a32368227ec3832456075001ac631ca46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0757fd007abf6028f5890f5c12423e9"><td class="memItemLeft" align="right" valign="top"><a id="ab0757fd007abf6028f5890f5c12423e9" name="ab0757fd007abf6028f5890f5c12423e9"></a>
+typedef struct <a class="el" href="structcake__acceptedclientsocket.html">cake_acceptedclientsocket</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_AcceptedClientSocket</b></td></tr>
+<tr class="memdesc:ab0757fd007abf6028f5890f5c12423e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket client accepté par un socket serveur. <br /></td></tr>
+<tr class="separator:ab0757fd007abf6028f5890f5c12423e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e7632762e99695ca5707d938e3312d1"><td class="memItemLeft" align="right" valign="top"><a id="a9e7632762e99695ca5707d938e3312d1" name="a9e7632762e99695ca5707d938e3312d1"></a>
+typedef struct <a class="el" href="structcake__serversocket.html">cake_serversocket</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_ServerSocket</b></td></tr>
+<tr class="memdesc:a9e7632762e99695ca5707d938e3312d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket de serveur. <br /></td></tr>
+<tr class="separator:a9e7632762e99695ca5707d938e3312d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba24bd7df63891a55884e799c45cbd9d"><td class="memItemLeft" align="right" valign="top"><a id="aba24bd7df63891a55884e799c45cbd9d" name="aba24bd7df63891a55884e799c45cbd9d"></a>
+typedef struct <a class="el" href="structcake__socketbuffer.html">cake_socketbuffer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_SocketBuffer</b></td></tr>
+<tr class="separator:aba24bd7df63891a55884e799c45cbd9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af13dec26ca648b86fb03cac464e9842b"><td class="memItemLeft" align="right" valign="top"><a id="af13dec26ca648b86fb03cac464e9842b" name="af13dec26ca648b86fb03cac464e9842b"></a>
+typedef struct <a class="el" href="structcake__clientsocketstream.html">cake_clientsocketstream</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_ClientSocketStream</b></td></tr>
+<tr class="separator:af13dec26ca648b86fb03cac464e9842b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37293c99022528d16cae48c6be86689f"><td class="memItemLeft" align="right" valign="top"><a id="a37293c99022528d16cae48c6be86689f" name="a37293c99022528d16cae48c6be86689f"></a>
+typedef struct <a class="el" href="structcake__tlsclientstream.html">cake_tlsclientstream</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_TLSClientStream</b></td></tr>
+<tr class="separator:a37293c99022528d16cae48c6be86689f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9d921f6169e3f3780a3463148cce243"><td class="memItemLeft" align="right" valign="top"><a id="af9d921f6169e3f3780a3463148cce243" name="af9d921f6169e3f3780a3463148cce243"></a>
+typedef struct <a class="el" href="structcake__acceptedclientsocketstream.html">cake_acceptedclientsocketstream</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Cake_AcceptedClientSocketStream</b></td></tr>
+<tr class="separator:af9d921f6169e3f3780a3463148cce243"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Fonctions</h2></td></tr>
+<tr class="memitem:a2fcb5d452a26cab52b6e41fd234d3a62"><td class="memItemLeft" align="right" valign="top"><a id="a2fcb5d452a26cab52b6e41fd234d3a62" name="a2fcb5d452a26cab52b6e41fd234d3a62"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_init_ssl</b> ()</td></tr>
+<tr class="separator:a2fcb5d452a26cab52b6e41fd234d3a62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b0c74a9d4f20c11bf5314eaf027b85c"><td class="memItemLeft" align="right" valign="top"><a id="a3b0c74a9d4f20c11bf5314eaf027b85c" name="a3b0c74a9d4f20c11bf5314eaf027b85c"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>__cake_client_socket_recv</b> (void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived)</td></tr>
+<tr class="separator:a3b0c74a9d4f20c11bf5314eaf027b85c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff1cfece79c994846be7e06b05996adf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#aff1cfece79c994846be7e06b05996adf">cake_create_client_socket</a> (<a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *sock, const char *hostname, const char *port, cake_byte ipMode)</td></tr>
+<tr class="memdesc:aff1cfece79c994846be7e06b05996adf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Crée un socket client sur l'adresse fournie en paramètre.  <a href="socket_8h.html#aff1cfece79c994846be7e06b05996adf">Plus de détails...</a><br /></td></tr>
+<tr class="separator:aff1cfece79c994846be7e06b05996adf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a80ceb932a08156e58440bd8ef265d3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a6a80ceb932a08156e58440bd8ef265d3">cake_client_socket_connect</a> (<a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *sock)</td></tr>
+<tr class="memdesc:a6a80ceb932a08156e58440bd8ef265d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permet de connecter un socket client au serveur cible.  <a href="socket_8h.html#a6a80ceb932a08156e58440bd8ef265d3">Plus de détails...</a><br /></td></tr>
+<tr class="separator:a6a80ceb932a08156e58440bd8ef265d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a714a8d6733790590f70a4a7d2f32e897"><td class="memItemLeft" align="right" valign="top"><a id="a714a8d6733790590f70a4a7d2f32e897" name="a714a8d6733790590f70a4a7d2f32e897"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_client_socket_send</b> (<a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *sock, const char *data, ulonglong size)</td></tr>
+<tr class="separator:a714a8d6733790590f70a4a7d2f32e897"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76578647fa23a11a2977c35e347aedf4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#a76578647fa23a11a2977c35e347aedf4">cake_free_client_socket</a> (<a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *sock)</td></tr>
+<tr class="memdesc:a76578647fa23a11a2977c35e347aedf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ferme la connexion d'un socket client.  <a href="socket_8h.html#a76578647fa23a11a2977c35e347aedf4">Plus de détails...</a><br /></td></tr>
+<tr class="separator:a76578647fa23a11a2977c35e347aedf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac69c67a75f0cd0aecc292be2cdd5cfe"><td class="memItemLeft" align="right" valign="top"><a id="aac69c67a75f0cd0aecc292be2cdd5cfe" name="aac69c67a75f0cd0aecc292be2cdd5cfe"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>__cake_tls_client_recv</b> (void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived)</td></tr>
+<tr class="separator:aac69c67a75f0cd0aecc292be2cdd5cfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c598e1f3cbf2394778a67d81f7c0c21"><td class="memItemLeft" align="right" valign="top"><a id="a3c598e1f3cbf2394778a67d81f7c0c21" name="a3c598e1f3cbf2394778a67d81f7c0c21"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_create_tls_client</b> (<a class="el" href="socket_8h.html#a32368227ec3832456075001ac631ca46">Cake_TLSClient</a> *tls, const char *hostname, const char *port, cake_byte ipMode)</td></tr>
+<tr class="separator:a3c598e1f3cbf2394778a67d81f7c0c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ebdee73d797e63a3378e68f7010299a"><td class="memItemLeft" align="right" valign="top"><a id="a1ebdee73d797e63a3378e68f7010299a" name="a1ebdee73d797e63a3378e68f7010299a"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_tls_client_connect</b> (<a class="el" href="socket_8h.html#a32368227ec3832456075001ac631ca46">Cake_TLSClient</a> *tls)</td></tr>
+<tr class="separator:a1ebdee73d797e63a3378e68f7010299a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4f76aac755226f33df8638e1602ea38"><td class="memItemLeft" align="right" valign="top"><a id="aa4f76aac755226f33df8638e1602ea38" name="aa4f76aac755226f33df8638e1602ea38"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_tls_client_send</b> (<a class="el" href="socket_8h.html#a32368227ec3832456075001ac631ca46">Cake_TLSClient</a> *tls, const char *data, ulonglong size)</td></tr>
+<tr class="separator:aa4f76aac755226f33df8638e1602ea38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d4cf787ebb1933761771fa235dee04f"><td class="memItemLeft" align="right" valign="top"><a id="a5d4cf787ebb1933761771fa235dee04f" name="a5d4cf787ebb1933761771fa235dee04f"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><b>cake_tls_client_recv_dyn</b> (<a class="el" href="socket_8h.html#a32368227ec3832456075001ac631ca46">Cake_TLSClient</a> *tls, ulonglong size)</td></tr>
+<tr class="separator:a5d4cf787ebb1933761771fa235dee04f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7649149b1e3171463d14443336d2d093"><td class="memItemLeft" align="right" valign="top"><a id="a7649149b1e3171463d14443336d2d093" name="a7649149b1e3171463d14443336d2d093"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_free_tls_client</b> (<a class="el" href="socket_8h.html#a32368227ec3832456075001ac631ca46">Cake_TLSClient</a> *tls)</td></tr>
+<tr class="separator:a7649149b1e3171463d14443336d2d093"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ebb92497610419570a3ec6922584f1f"><td class="memItemLeft" align="right" valign="top"><a id="a4ebb92497610419570a3ec6922584f1f" name="a4ebb92497610419570a3ec6922584f1f"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>__cake_accepted_client_socket_recv</b> (void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived)</td></tr>
+<tr class="separator:a4ebb92497610419570a3ec6922584f1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9414bcbd235efff6135a786468bc132d"><td class="memItemLeft" align="right" valign="top"><a id="a9414bcbd235efff6135a786468bc132d" name="a9414bcbd235efff6135a786468bc132d"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_accepted_client_socket_send</b> (<a class="el" href="socket_8h.html#ab0757fd007abf6028f5890f5c12423e9">Cake_AcceptedClientSocket</a> *sock, const char *data, ulonglong size)</td></tr>
+<tr class="separator:a9414bcbd235efff6135a786468bc132d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9291e705b3fc83c7255cf4539eb6374d"><td class="memItemLeft" align="right" valign="top"><a id="a9291e705b3fc83c7255cf4539eb6374d" name="a9291e705b3fc83c7255cf4539eb6374d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_free_accepted_client_socket</b> (<a class="el" href="socket_8h.html#ab0757fd007abf6028f5890f5c12423e9">Cake_AcceptedClientSocket</a> *client)</td></tr>
+<tr class="separator:a9291e705b3fc83c7255cf4539eb6374d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8eb42ab1f0a972c3cee35220d077ba5"><td class="memItemLeft" align="right" valign="top"><a id="af8eb42ab1f0a972c3cee35220d077ba5" name="af8eb42ab1f0a972c3cee35220d077ba5"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_create_server_socket</b> (<a class="el" href="socket_8h.html#a9e7632762e99695ca5707d938e3312d1">Cake_ServerSocket</a> *sock, const char *port, cake_byte ipMode, int backlog)</td></tr>
+<tr class="separator:af8eb42ab1f0a972c3cee35220d077ba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a315462ffa5de6a4353e82ea82f41d438"><td class="memItemLeft" align="right" valign="top"><a id="a315462ffa5de6a4353e82ea82f41d438" name="a315462ffa5de6a4353e82ea82f41d438"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_free_server_socket</b> (<a class="el" href="socket_8h.html#a9e7632762e99695ca5707d938e3312d1">Cake_ServerSocket</a> *sock)</td></tr>
+<tr class="separator:a315462ffa5de6a4353e82ea82f41d438"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20cd451a7c991cb39b9e9f826db151c2"><td class="memItemLeft" align="right" valign="top"><a id="a20cd451a7c991cb39b9e9f826db151c2" name="a20cd451a7c991cb39b9e9f826db151c2"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cake_server_socket_accept</b> (<a class="el" href="socket_8h.html#a9e7632762e99695ca5707d938e3312d1">Cake_ServerSocket</a> *sock, <a class="el" href="socket_8h.html#ab0757fd007abf6028f5890f5c12423e9">Cake_AcceptedClientSocket</a> *dest)</td></tr>
+<tr class="separator:a20cd451a7c991cb39b9e9f826db151c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7430807b5d6c992d3ca991eb1a3fceab"><td class="memItemLeft" align="right" valign="top"><a id="a7430807b5d6c992d3ca991eb1a3fceab" name="a7430807b5d6c992d3ca991eb1a3fceab"></a>
+<a class="el" href="strutf8_8h.html#ad225949cfabed703f2284878c696200e">Cake_String_UTF8</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>__cake_socket_stream_read_line</b> (<a class="el" href="structcake__socketbuffer.html">Cake_SocketBuffer</a> *_stream, <a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>(*recvFunc)(void *, char *, ulonglong, ulonglong *), void *_s)</td></tr>
+<tr class="separator:a7430807b5d6c992d3ca991eb1a3fceab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af292f993504aba5f9fd0b0d95d0e3f34"><td class="memItemLeft" align="right" valign="top"><a id="af292f993504aba5f9fd0b0d95d0e3f34" name="af292f993504aba5f9fd0b0d95d0e3f34"></a>
+<a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a>&#160;</td><td class="memItemRight" valign="bottom"><b>__cake_tls_client_stream_read_raw</b> (<a class="el" href="structcake__tlsclientstream.html">Cake_TLSClientStream</a> *stream, ulonglong len, char *buff)</td></tr>
+<tr class="separator:af292f993504aba5f9fd0b0d95d0e3f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a169f6661daa5406406455d82964408f8"><td class="memItemLeft" align="right" valign="top"><a id="a169f6661daa5406406455d82964408f8" name="a169f6661daa5406406455d82964408f8"></a>
+<a class="el" href="strutf8_8h.html#ad225949cfabed703f2284878c696200e">Cake_String_UTF8</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>cake_client_socket_stream_read_line</b> (<a class="el" href="structcake__clientsocketstream.html">Cake_ClientSocketStream</a> *stream)</td></tr>
+<tr class="separator:a169f6661daa5406406455d82964408f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93a250ac1ba9d88fbbdd9ba87beaaaad"><td class="memItemLeft" align="right" valign="top"><a id="a93a250ac1ba9d88fbbdd9ba87beaaaad" name="a93a250ac1ba9d88fbbdd9ba87beaaaad"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_free_client_socket_stream</b> (<a class="el" href="structcake__clientsocketstream.html">Cake_ClientSocketStream</a> *stream)</td></tr>
+<tr class="separator:a93a250ac1ba9d88fbbdd9ba87beaaaad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a066ce62292322768edc7e7d39dd2c2c3"><td class="memItemLeft" align="right" valign="top"><a id="a066ce62292322768edc7e7d39dd2c2c3" name="a066ce62292322768edc7e7d39dd2c2c3"></a>
+<a class="el" href="strutf8_8h.html#ad225949cfabed703f2284878c696200e">Cake_String_UTF8</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>cake_tls_client_stream_read_line</b> (<a class="el" href="structcake__tlsclientstream.html">Cake_TLSClientStream</a> *stream)</td></tr>
+<tr class="separator:a066ce62292322768edc7e7d39dd2c2c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18c3c962bb36a3535902660ac534aab3"><td class="memItemLeft" align="right" valign="top"><a id="a18c3c962bb36a3535902660ac534aab3" name="a18c3c962bb36a3535902660ac534aab3"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><b>cake_tls_client_stream_read_raw</b> (<a class="el" href="structcake__tlsclientstream.html">Cake_TLSClientStream</a> *stream, ulonglong len)</td></tr>
+<tr class="separator:a18c3c962bb36a3535902660ac534aab3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc2fc0e30ccd7171c57ac09d2a23f7eb"><td class="memItemLeft" align="right" valign="top"><a id="acc2fc0e30ccd7171c57ac09d2a23f7eb" name="acc2fc0e30ccd7171c57ac09d2a23f7eb"></a>
+<a class="el" href="strutf8_8h.html#ad225949cfabed703f2284878c696200e">Cake_String_UTF8</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>cake_tls_client_stream_read_str</b> (<a class="el" href="structcake__tlsclientstream.html">Cake_TLSClientStream</a> *stream, ulonglong len)</td></tr>
+<tr class="separator:acc2fc0e30ccd7171c57ac09d2a23f7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a750bd808fec10dd672e5dbf35cdb3ee5"><td class="memItemLeft" align="right" valign="top"><a id="a750bd808fec10dd672e5dbf35cdb3ee5" name="a750bd808fec10dd672e5dbf35cdb3ee5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_free_tls_client_stream</b> (<a class="el" href="structcake__tlsclientstream.html">Cake_TLSClientStream</a> *stream)</td></tr>
+<tr class="separator:a750bd808fec10dd672e5dbf35cdb3ee5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1edae70be5c83b649b07077c450ac93f"><td class="memItemLeft" align="right" valign="top"><a id="a1edae70be5c83b649b07077c450ac93f" name="a1edae70be5c83b649b07077c450ac93f"></a>
+<a class="el" href="strutf8_8h.html#ad225949cfabed703f2284878c696200e">Cake_String_UTF8</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>cake_accepted_client_socket_stream_read_line</b> (<a class="el" href="structcake__acceptedclientsocketstream.html">Cake_AcceptedClientSocketStream</a> *stream)</td></tr>
+<tr class="separator:a1edae70be5c83b649b07077c450ac93f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26cc883c772efebf4b554ac2d8bf2187"><td class="memItemLeft" align="right" valign="top"><a id="a26cc883c772efebf4b554ac2d8bf2187" name="a26cc883c772efebf4b554ac2d8bf2187"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cake_free_accepted_client_socket_stream</b> (<a class="el" href="structcake__acceptedclientsocketstream.html">Cake_AcceptedClientSocketStream</a> *stream)</td></tr>
+<tr class="separator:a26cc883c772efebf4b554ac2d8bf2187"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Description détaillée</h2>
+<div class="textblock"><p >Fichier contenant le prototypes de tout ce qui touche aux sockets. </p>
+<dl class="section author"><dt>Auteur</dt><dd>Tytraman </dd></dl>
+</div><h2 class="groupheader">Documentation des fonctions</h2>
+<a id="a6a80ceb932a08156e58440bd8ef265d3" name="a6a80ceb932a08156e58440bd8ef265d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a80ceb932a08156e58440bd8ef265d3">&#9670;&nbsp;</a></span>cake_client_socket_connect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a> cake_client_socket_connect </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *&#160;</td>
+          <td class="paramname"><em>sock</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Permet de connecter un socket client au serveur cible. </p>
+<dl class="params"><dt>Paramètres</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sock</td><td>Le socket à connecter. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Renvoie</dt><dd><a class="el" href="def_8h.html#ae5408536348908fa69db5297790c8d3d">cake_false</a> en cas d'erreur. </dd></dl>
+
+</div>
+</div>
+<a id="aff1cfece79c994846be7e06b05996adf" name="aff1cfece79c994846be7e06b05996adf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff1cfece79c994846be7e06b05996adf">&#9670;&nbsp;</a></span>cake_create_client_socket()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="def_8h.html#a77cd48fccffda80f71ac2e6d03559f2d">cake_bool</a> cake_create_client_socket </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *&#160;</td>
+          <td class="paramname"><em>sock</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>hostname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">cake_byte&#160;</td>
+          <td class="paramname"><em>ipMode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Crée un socket client sur l'adresse fournie en paramètre. </p>
+<dl class="params"><dt>Paramètres</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">sock</td><td>Socket a initialiser. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">hostname</td><td>Adresse du serveur auquel se connecter. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">port</td><td>Port serveur de connexion. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">ipMode</td><td>Mode IP utilisé, CAKE_IP_V4 ou CAKE_IP_V6. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Renvoie</dt><dd><a class="el" href="def_8h.html#ae5408536348908fa69db5297790c8d3d">cake_false</a> en cas d'erreur. </dd></dl>
+
+</div>
+</div>
+<a id="a76578647fa23a11a2977c35e347aedf4" name="a76578647fa23a11a2977c35e347aedf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76578647fa23a11a2977c35e347aedf4">&#9670;&nbsp;</a></span>cake_free_client_socket()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void cake_free_client_socket </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="socket_8h.html#acde778565b1902fe7213b0a95230c793">Cake_ClientSocket</a> *&#160;</td>
+          <td class="paramname"><em>sock</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ferme la connexion d'un socket client. </p>
+<dl class="params"><dt>Paramètres</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sock</td><td>Le socket a fermer. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_c0d7cb1b5cb6479285a38a7801e17d6e.html">libcake</a></li><li class="navelem"><a class="el" href="socket_8h.html">socket.h</a></li>
+    <li class="footer">Généré par <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
+</body>
+</html>

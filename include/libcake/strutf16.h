@@ -1,14 +1,24 @@
+/**
+* @file strutf16.h
+* @brief Fichier contenant le prototypes de tout ce qui touche aux chaînes de caractères UTF-16.
+* @author Tytraman
+*/
+
 #ifndef __CAKE_UTF16_H__
 #define __CAKE_UTF16_H__
 
+/// @cond
 #include "def.h"
 
 #include <stddef.h>
+/// @endcond
 
-
+/** 
+* @brief Chaines de caractères encodées en UTF-16.
+*/
 typedef struct cake_string_utf16 {
-    ulonglong length;
-    wchar_t *characteres;
+    ulonglong length;           ///< Le nombre de caractères contenus dans la chaîne.
+    wchar_t *characteres;       ///< Adresse de la chaîne.
 } Cake_String_UTF16;
 
 #ifdef __cplusplus

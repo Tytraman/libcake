@@ -1,7 +1,15 @@
+/**
+* @file def.h
+* @brief Fichier contenant les types utilisés fréquemment par la librairie.
+* @author Tytraman
+*/
+
 #ifndef __CAKE_DEF_H__
 #define __CAKE_DEF_H__
 
+/// @cond
 #include <string.h>
+/// @endcond
 
 /*
         Certains typedef qui commencent par _ sont des wrappers des structures / fonctions
@@ -21,9 +29,11 @@
 
 #if defined(_WIN32)
 #define CAKE_WINDOWS 1
+/// @cond
 #include <stddef.h>
 #include <WinSock2.h>
 #include <windows.h>
+/// @endcond
 
 #define cake_sleep(__millis) Sleep(__millis)
 
@@ -95,7 +105,7 @@ typedef ssize_t cake_size;
 
 /* ===== Types ===== */
 
-typedef char               cake_bool;
+typedef char               cake_bool;   ///< Type sur 8 bits, utilisé principalement comme valeur de retour des fonctions pour indiquer si une erreur est survenue.
 typedef unsigned char      uchar;
 typedef unsigned short     ushort;
 typedef unsigned int       uint;
@@ -104,7 +114,7 @@ typedef unsigned long long ulonglong;
 
 typedef long long longlong;
 
-typedef uchar cake_byte;
+typedef uchar cake_byte;                //< Type sur 8 bits.
 typedef uchar cake_undefined_type;
 
 typedef const char      *cchar_ptr;
@@ -122,8 +132,8 @@ typedef const unsigned long long *culonglong_ptr;
 
 /* ===== Defines ===== */
 
-#define cake_true  1
-#define cake_false 0
+#define cake_true  1        ///< Constante désignant l'état vrai (1).
+#define cake_false 0        ///< Constante désignant l'état faux (0).
 
 #define CAKE_BUFF_SIZE 2048
 #define CAKE_PTR(value) &value

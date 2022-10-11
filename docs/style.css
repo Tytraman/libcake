@@ -1,0 +1,37 @@
+:root {
+    --strong-color: #1b0000;
+    --primary-bg: #8c5f5f;
+}
+
+body {
+    background-color: var(--primary-bg);
+}
+
+a, a:visited, .contents a, .contents a:visited {
+    color: #680416;
+}
+
+#titlearea {
+    background-color: var(--strong-color);
+    color: red;
+}
+
+#nav-tree, #MSearchResultsWindow {
+    background-image: none;
+    background-color: var(--strong-color);
+}
+
+#nav-tree a {
+    color: red;
+}
+
+div.header {
+    background-color: var(--strong-color);
+    background-image: none;
+    color: red;
+}
+
+div.fragment {
+    background-color: #ffddee;
+}
+

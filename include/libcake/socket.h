@@ -1,12 +1,22 @@
+/**
+* @file socket.h
+* @brief Fichier contenant le prototypes de tout ce qui touche aux sockets.
+* @author Tytraman
+*/
+
 #ifndef __CAKE_SOCKET_H__
 #define __CAKE_SOCKET_H__
 
+/// @cond
 #include "def.h"
 #include "strutf8.h"
+/// @endcond
 
 #ifdef CAKE_WINDOWS
 
+/// @cond
 #include <ws2tcpip.h>
+/// @endcond
 
 typedef int cake_socklen;
 
@@ -17,6 +27,7 @@ typedef SOCKET cake_socket;
 
 
 #else
+/// @cond
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -24,6 +35,7 @@ typedef SOCKET cake_socket;
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+/// @endcond
 
 typedef socklen_t cake_socklen;
 
@@ -40,37 +52,51 @@ typedef int cake_socket;
 #define cake_close_socket(sock) close(sock)
 #endif
 
+/// @cond
 #include <openssl/ssl.h>
+/// @endcond
 
 #define CAKE_IP_V4 AF_INET
 #define CAKE_IP_V6 AF_INET6
 
 /* ===== SOCKET ===== */
 
+/**
+ * @brief Socket de connexion client.
+*/
 typedef struct cake_clientsocket {
     cake_socket socket;
     struct addrinfo *address;
-    cake_byte errorFrom;
-    ulong errorCode;
+    cake_byte errorFrom;            ///< Permet de savoir d'où vient l'erreur.
+    ulong errorCode;                ///< Code de l'erreur.
 } Cake_ClientSocket;
 
+/**
+ * @brief Socket de connexion client utilisant le protocole TLS, sécurisant les communications.
+*/
 typedef struct cake_tlsclient {
-    Cake_ClientSocket clientSocket;
+    Cake_ClientSocket clientSocket;     ///< Socket client interne.
     SSL_CTX *ctx;
     SSL *ssl;
 } Cake_TLSClient;
 
+/**
+ * @brief Socket client accepté par un socket serveur.
+*/
 typedef struct cake_acceptedclientsocket {
     cake_socket sock;
     struct sockaddr_in addr;
-    cake_byte errorFrom;
-    ulong errorCode;
+    cake_byte errorFrom;            ///< Permet de savoir d'où vient l'erreur.
+    ulong errorCode;                ///< Code de l'erreur.
 } Cake_AcceptedClientSocket;
 
+/**
+ * @brief Socket de serveur.
+*/
 typedef struct cake_serversocket {
     cake_socket socket;
-    cake_byte errorFrom;
-    int errorCode;
+    cake_byte errorFrom;            ///< Permet de savoir d'où vient l'erreur.
+    int errorCode;                  ///< Code de l'erreur.
 } Cake_ServerSocket;
 
 /* ===== STREAM ===== */
@@ -156,13 +182,32 @@ inline void cake_init_ssl() {
     SSL_load_error_strings();
 }
 
-/* ===== CLIENT SOCKET ===== */
+/* ===== CLIENT SOCKET ===== */ 
 
 cake_bool __cake_client_socket_recv(void *_s, char *_buffer, ulonglong len, ulonglong *_bytesReceived);
-
+    
+/**
+ * @brief Crée un socket client sur l'adresse fournie en paramètre.
+ * @param[out] sock Socket a initialiser.
+ * @param[in] hostname Adresse du serveur auquel se connecter.
+ * @param[in] port Port serveur de connexion.
+ * @param ipMode Mode IP utilisé, CAKE_IP_V4 ou CAKE_IP_V6.
+ * @return @ref cake_false en cas d'erreur.
+*/
 cake_bool cake_create_client_socket(Cake_ClientSocket *sock, const char *hostname, const char *port, cake_byte ipMode);
+
+/**
+ * @brief Permet de connecter un socket client au serveur cible.
+ * @param sock Le socket à connecter.
+ * @return @ref cake_false en cas d'erreur.
+*/
 cake_bool cake_client_socket_connect(Cake_ClientSocket *sock);
 cake_bool cake_client_socket_send(Cake_ClientSocket *sock, const char *data, ulonglong size);
+
+/**
+ * @brief Ferme la connexion d'un socket client.
+ * @param sock Le socket a fermer.
+*/
 void cake_free_client_socket(Cake_ClientSocket *sock);
 
 /* ===== TLS CLIENT ===== */
