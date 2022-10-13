@@ -40,14 +40,6 @@ extern "C" {
 
 typedef DWORD cake_fdio_mode;
 
-/*
-        Lorsqu'un tableau de cake_fd est créé, exemple : cake_fd fd[2]
-
-        fd[0] = stream de lecture
-        fd[1] = stream d'écriture
-*/
-typedef HANDLE cake_fd;
-
 
 #define __cake_fdio_read(fd, numberOfBytesToRead, bytesRead, buffer) ReadFile(fd, buffer, numberOfBytesToRead, bytesRead, NULL)
 #define cake_fdio_read(fd, numberOfBytesToRead, bytesRead, buffer) __cake_fdio_read(fd, numberOfBytesToRead, CAKE_FDIO_PTR(bytesRead), buffer)

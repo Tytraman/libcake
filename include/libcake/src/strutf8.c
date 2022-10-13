@@ -231,12 +231,16 @@ void cake_strutf16_to_strutf8(Cake_String_UTF16 *src, Cake_String_UTF8 *dest) {
 }
 
 void cake_wchar_array_to_strutf8(const wchar_t *src, Cake_String_UTF8 *dest) {
-    dest->length = 0;
-    dest->size = 0;
     ulonglong length = wcslen(src);
     ulonglong i;
     for(i = 0; i < length; ++i)
         cake_strutf8_add_wchar(dest, src[i]);
+}
+
+void cake_wchar_array_to_strutf8_len(Cake_String_UTF8 *dest, const wchar_t *src, ulonglong len) {
+    ulonglong i;
+    for(i = 0; i < len / 2; i++)
+        cake_strutf8_add_wchar(dest, *(src + i));
 }
 
 ulonglong cake_strutf8_index_by_index(const uchar *pArrayStart, uchar *pArrayEnd, ulonglong utfIndex, uchar **pStart, uchar **pEnd, cake_byte *bytes) {

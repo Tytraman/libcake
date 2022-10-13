@@ -11,7 +11,7 @@ var dir_c0d7cb1b5cb6479285a38a7801e17d6e =
     [ "encrypt.h", "encrypt_8h_source.html", null ],
     [ "error.h", "error_8h_source.html", null ],
     [ "fdio.h", "fdio_8h_source.html", null ],
-    [ "file.h", "file_8h_source.html", null ],
+    [ "file.h", "file_8h.html", "file_8h" ],
     [ "fileobject.h", "fileobject_8h_source.html", null ],
     [ "hook.h", "hook_8h_source.html", null ],
     [ "html.h", "html_8h_source.html", null ],

@@ -25,10 +25,25 @@
 #define CAKE_X86_64 1
 #endif
 
+#ifdef __cplusplus
+#define CAKE_C extern "c"
+#else
+#define CAKE_C 
+#endif
+
+
+
 #define CAKE_CONCAT(a,b) a##b
 
 #if defined(_WIN32)
 #define CAKE_WINDOWS 1
+
+#ifdef LIBCAKE_EXPORTS
+#define CAKE_API __declspec(dllexport)
+#else
+#define CAKE_API __declspec(dllimport)
+#endif
+
 /// @cond
 #include <stddef.h>
 #include <WinSock2.h>
@@ -42,6 +57,9 @@ typedef wchar_t cake_char;
 
 typedef DWORD cake_exit_code;
 typedef DWORD cake_size;
+
+typedef HANDLE cake_fd;
+typedef DWORD cake_mask;
 
 /*
         Permet d'ajouter le L automatiquement devant la chaîne de caractères, ne le fait pas sous Linux,

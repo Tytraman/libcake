@@ -1,6 +1,7 @@
 #include "../file.h"
 #include "../strutf8.h"
 #include "../strutf16.h"
+#include "../alloc.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -382,3 +383,80 @@ cake_bool cake_delete_folder(const char *pathname) {
     return ret;
 }
 #endif
+
+
+cake_bool __cake_open_file(Cake_File *dest, const char *filename, cake_mask accessMode, cake_mask shareMode, cake_mask openMode, cake_mask attributes) {
+    dest->filename = cake_strutf8(filename);
+    if(dest->filename == NULL)
+        return cake_false;
+
+    // TODO: Portage Linux
+#ifdef CAKE_WINDOWS
+    Cake_String_UTF16 utf = { 0 };
+    cake_strutf8_to_utf16(dest->filename, &utf);
+
+    dest->fd = CreateFileW(
+        utf.characteres,
+        accessMode,
+        shareMode,
+        NULL,
+        openMode,
+        attributes,
+        NULL
+    );
+    free(utf.characteres);
+
+    if(dest->fd == INVALID_HANDLE_VALUE) {
+        cake_free_strutf8(dest->filename);
+        return cake_false;
+    }
+#else
+
+#endif
+    dest->accessMode = accessMode;
+    dest->shareMode = shareMode;
+    return cake_true;
+}
+
+void cake_close_file(Cake_File *file) {
+    // TODO: Portage Linux
+#ifdef CAKE_WINDOWS
+    CloseHandle(file->fd);
+#else
+
+#endif
+    cake_free_strutf8(file->filename);
+}
+
+cake_bool cake_folder_watcher_start(Cake_FolderWatcher *watcher) {
+    // TODO: Portage Linux
+    
+#ifdef CAKE_WINDOWS
+    // C'est dans cette structure que sera stocké le nom du fichier modifié
+    FILE_NOTIFY_INFORMATION *info = (FILE_NOTIFY_INFORMATION *) cake_new(1024 * sizeof(*info));     // Cette structure est un peu bizarre et je ne sais pas vraiment pourquoi j'ai mis 1024
+    if(info == NULL)
+        return cake_false;
+
+    cake_bool ret = cake_false;
+    DWORD bytesReturned;
+
+    // ReadDirectoryChanges est une fonction bloquante qui attend une modification dans le dossier spécifié
+    if(ReadDirectoryChangesW(watcher->folder.fd, info, 1024 * sizeof(*info), FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE, &bytesReturned, NULL, NULL)) {
+        // S'il n'y a pas de callback, il n'y a pas vraiment d'intérêt à utiliser cette fonction
+        if(watcher->callback != NULL) {
+            // Conversion du nom de fichier modifié qui est en UTF-16 en UTF-8
+            Cake_String_UTF8 utf = { 0 };
+            cake_wchar_array_to_strutf8_len(&utf, info[0].FileName, info[0].FileNameLength);
+
+            // On appelle le callback
+            ret = watcher->callback(&utf);
+
+            free(utf.bytes);
+        }
+    }
+#else
+
+#endif
+    cake_free(info);
+    return ret;
+}

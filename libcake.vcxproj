@@ -161,68 +161,68 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL-Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB-Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB-Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL-Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL-Debug|x64'">
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB-Release|x64'">
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB-Debug|x64'">
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL-Release|x64'">
-    <IncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Program Files\OpenSSL\include;C:\glad\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IncludePath>C:\Program Files\OpenSSL\include;$(SolutionDir)..\..\glad\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Program Files\OpenSSL\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>C:\Program Files\OpenSSL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -237,7 +237,7 @@
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <AdditionalDependencies>opengl32.lib;ws2_32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -326,6 +326,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <AdditionalDependencies>opengl32.lib;ws2_32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
     <ClCompile>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
@@ -337,6 +338,7 @@
     </Link>
     <ClCompile>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <PreprocessorDefinitions>_WINDLL;LIBCAKE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LIB-Release|x64'">
@@ -369,6 +371,7 @@
     </Link>
     <ClCompile>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <PreprocessorDefinitions>LIBCAKE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
